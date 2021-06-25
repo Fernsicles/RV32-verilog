@@ -82,11 +82,11 @@ module control_unit(
 endmodule
 
 module CPU(
-	input wire i_clk,
-	input wire[31:0] i_inst,
-	input wire[31:0] i_mem,
-	output wire o_write,
-	output wire[31:0] o_pc,		// The 
+	input wire i_clk,			// The clock signal
+	input wire[31:0] i_inst,	// The instruction to execute
+	input wire[31:0] i_mem,		// The data to be loaded from memory
+	output wire o_write,		// Whether to write to memory or not
+	output wire[31:0] o_pc,		// The next instruction to fetch
 	output wire[31:0] o_mem,	// The data to write to memory
 	output wire[31:0] o_addr,	// The memory address to write to
 	output wire[1:0] o_memsize	// The size of memory to be written
