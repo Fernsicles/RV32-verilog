@@ -1,12 +1,12 @@
 module control_unit(
-	input wire[31:0] i_inst,
-	output wire[2:0] o_op,
-	output wire o_op2,
-	output wire o_y, // selects whether second ALU operand is register or immediate value
-	output wire o_rwrite,
-	output wire[31:0] o_imm,
-	output wire o_mwrite,
-	output wire o_rsel
+	input wire [31:0] i_inst,
+	output reg [2:0] o_op,
+	output reg o_op2,
+	output reg o_y, // selects whether second ALU operand is register or immediate value
+	output reg o_rwrite,
+	output reg [31:0] o_imm,
+	output reg o_mwrite,
+	output reg o_rsel
 );
 	// ALU operation signal
 	always_comb begin

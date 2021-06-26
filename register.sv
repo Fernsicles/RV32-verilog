@@ -1,15 +1,15 @@
 module register(
 	input wire i_clk,
-	input wire[4:0] i_raddr1,
-	input wire[4:0] i_raddr2,
-	input wire[4:0] i_waddr,
-	input wire[31:0] i_wdata,
+	input wire [4:0] i_raddr1,
+	input wire [4:0] i_raddr2,
+	input wire [4:0] i_waddr,
+	input wire [31:0] i_wdata,
 	input wire i_write,
-	output wire[31:0] o_rdata1,
-	output wire[31:0] o_rdata2
+	output reg [31:0] o_rdata1,
+	output reg [31:0] o_rdata2
 );
 
-	reg[31:0] registers[31:1];
+	reg [31:0] registers [31:1];
 
 	always_comb begin
 		if(i_raddr1 == 0)
