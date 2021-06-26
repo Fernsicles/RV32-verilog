@@ -16,18 +16,18 @@ module CPU(
 	reg [31:0] pc; // Program counter register, keeps track of current instruction
 
 	// Control unit
-	wire[31:0] c_imm;
+	wire [31:0] c_imm;
 	wire c_rsel;
 	control_unit control(i_inst, a_op, a_op2, a_ysel, r_write, c_imm, o_write, c_rsel);
 
 	// Register file connections
-	wire[4:0] r_raddr1;
-	wire[4:0] r_raddr2;
-	wire[4:0] r_waddr;
-	reg [31:0] r_wdata;
+	wire [4:0] r_raddr1;
+	wire [4:0] r_raddr2;
+	wire [4:0] r_waddr;
+	reg  [31:0] r_wdata;
 	wire r_write;
-	wire[31:0] r_rdata1;
-	wire[31:0] r_rdata2;
+	wire [31:0] r_rdata1;
+	wire [31:0] r_rdata2;
 	assign r_raddr1 = i_inst[19:15];
 	assign r_raddr2 = i_inst[24:20];
 	assign r_waddr  = i_inst[11:7];
@@ -35,11 +35,11 @@ module CPU(
 	register rfile(i_clk, r_raddr1, r_raddr2, r_waddr, r_wdata, r_write, r_rdata1, r_rdata2);
 
 	// ALU connections
-	wire[2:0] a_op;   // ALU operation
+	wire [2:0] a_op;   // ALU operation
 	wire a_op2;       // Secondary operation (subtraction/shifts)
-	wire[31:0] a_x;   // First operand
-	reg [31:0] a_y;   // Second operand
-	wire[31:0] a_res; // Result of ALU operation
+	wire [31:0] a_x;   // First operand
+	reg  [31:0] a_y;   // Second operand
+	wire [31:0] a_res; // Result of ALU operation
 	wire a_ysel;      // Source of the second operand, immediate or register
 	wire a_zero;      // Whether the result of the ALU op was 0 or not
 	assign a_x = r_rdata1;
