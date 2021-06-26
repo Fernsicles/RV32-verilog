@@ -69,14 +69,14 @@ module control_unit(
 
 		// Memory write enable
 		case(i_inst[6:2])
-			5'b01000: o_mwrite = 1;
-			default: o_mwrite = 0;
+			5'b01000: o_mwrite = 1'b1;
+			default: o_mwrite = 1'b0;
 		endcase
 
 		// Register write source select
 		case(i_inst[6:2])
-			5'b0: o_rsel = 1;
-			default: o_rsel = 0;
+			5'b0: o_rsel = 1'b1;
+			default: o_rsel = 1'b0;
 		endcase
 	end
 endmodule
@@ -92,7 +92,7 @@ module CPU(
 	output wire[1:0] o_memsize	// The size of memory to be written
 );
 
-	reg[31:0] pc;
+	reg[31:0] pc; // Program counter register, keeps track of current instruction
 
 	// Control unit
 	wire[31:0] c_imm;
@@ -107,42 +107,47 @@ module CPU(
 	wire r_write;
 	wire[31:0] r_rdata1;
 	wire[31:0] r_rdata2;
+	assign r_raddr1 = i_inst[19:15];
+	assign r_raddr2 = i_inst[24:20];
+	assign r_waddr  = i_inst[11:7];
 	registerfile rfile(i_clk, r_raddr1, r_raddr2, r_waddr, r_wdata, r_write, r_rdata1, r_rdata2);
 
 	// ALU connections
-	wire[2:0] a_op;
-	wire a_op2;
-	wire[31:0] a_x;
-	wire[31:0] a_y;
-	wire[31:0] a_res;
-	wire a_ysel;
-	wire a_zero;
+	wire[2:0] a_op;   // ALU operation
+	wire a_op2;       // Secondary operation (subtraction/shifts)
+	wire[31:0] a_x;   // First operand
+	wire[31:0] a_y;   // Second operand
+	wire[31:0] a_res; // Result of ALU operation
+	wire a_ysel;      // Source of the second operand, immediate or register
+	wire a_zero;      // Whether the result of the ALU op was 0 or not
 	ALU alu(a_op, a_op2, a_x, a_y, a_res, a_zero);
 
 	always_comb begin
+		// Source of second ALU operand
 		if(a_ysel)
-			a_y = c_imm;
+			a_y = c_imm;    // Immediate
 		else
-			a_y = r_rdata2;
+			a_y = r_rdata2; // Register
 		
-		if(c_rsel)
-			case(i_inst[14:12])
-				3'b000: r_wdata = $signed(i_mem[7:0]);
-				3'b001: r_wdata = $signed(i_mem[15:0]);
-				3'b010: r_wdata = i_mem;
-				3'b100: r_wdata = $unsigned(i_mem[7:0]);
-				3'b101: r_wdata = $unsigned(i_mem[15:0]);
-				default: r_wdata = 32'b0;
+		// Source of data to write to register
+		if(c_rsel) // Load from memory
+			case(i_inst[14:12]) // Choose size of data to be loaded
+				3'b000: r_wdata = $signed(i_mem[7:0]);    // 8-bits
+				3'b001: r_wdata = $signed(i_mem[15:0]);   // 16-bits
+				3'b010: r_wdata = i_mem;                  // 32-bits
+				3'b100: r_wdata = $unsigned(i_mem[7:0]);  // 8-bits unsigned
+				3'b101: r_wdata = $unsigned(i_mem[15:0]); // 16-bits unsigned
+				default: r_wdata = 32'b0;                 // Load 0 by default (there needs to be a default)
 			endcase
-		else
+		else // Load the ALU result otherwise
 			r_wdata = a_res;
 
 		// Memory output, sets memsize to the appropriate value for the amount to be stored:
 		// 01 for 8 bits, 10 for 16 bits, 11 for 32 bits, and 00 for no store.
 		case (i_inst[14:12])
-			3'b000: o_memsize = 3'b01;
-			3'b001: o_memsize = 3'b10;
-			3'b010: o_memsize = 3'b11;
+			3'b000:  o_memsize = 3'b01;
+			3'b001:  o_memsize = 3'b10;
+			3'b010:  o_memsize = 3'b11;
 			default: o_memsize = 3'b00;
 		endcase
 	end
@@ -152,9 +157,4 @@ module CPU(
 	always_ff @(posedge i_clk) begin
 		pc <= pc + 4;
 	end
-
-	assign r_raddr1 = i_inst[19:15];
-	assign r_raddr2 = i_inst[24:20];
-	assign r_waddr = i_inst[11:7];
-
 endmodule
