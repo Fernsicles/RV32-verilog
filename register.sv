@@ -27,5 +27,4 @@ module register(
 			registers[i_waddr] <= i_wdata;
 		end
 	end
-
 endmodule

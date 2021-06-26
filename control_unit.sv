@@ -1,12 +1,12 @@
 module control_unit(
-	input wire [31:0] i_inst,
-	output reg [2:0] o_op,
-	output reg o_op2,
-	output reg o_y, // selects whether second ALU operand is register or immediate value
-	output reg o_rwrite,
-	output reg [31:0] o_imm,
-	output reg o_mwrite,
-	output reg o_rsel
+	input wire [31:0] i_inst, // The original instruction
+	output reg [2:0] o_op,    // ALU operation
+	output reg o_op2,         // Secondary ALU operation, this is explained elsewhere
+	output reg o_y,           // Second ALU operand source select (register or immediate)
+	output reg o_rwrite,      // Register file write enable
+	output reg [31:0] o_imm,  // Immediate value
+	output reg o_mwrite,      // Main memory write enable
+	output reg o_rsel         // Register file write source select (memory load or ALU result)
 );
 	// ALU operation signal
 	always_comb begin

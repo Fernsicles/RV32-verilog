@@ -3,14 +3,14 @@
 `include "control_unit.sv"
 
 module CPU(
-	input wire i_clk,			// The clock signal
-	input wire [31:0] i_inst,	// The instruction to execute
-	input wire [31:0] i_mem,		// The data to be loaded from memory
-	output wire o_write,		// Whether to write to memory or not
-	output wire [31:0] o_pc,		// The next instruction to fetch
-	output wire [31:0] o_mem,	// The data to write to memory
-	output wire [31:0] o_addr,	// The memory address to write to
-	output reg  [1:0] o_memsize	// The size of memory to be written
+	input wire i_clk,           // The clock signal
+	input wire [31:0] i_inst,   // The instruction to execute
+	input wire [31:0] i_mem,    // The data to be loaded from memory
+	output wire o_write,        // Whether to write to memory or not
+	output wire [31:0] o_pc,    // The next instruction to fetch
+	output wire [31:0] o_mem,   // The data to write to memory
+	output wire [31:0] o_addr,  // The memory address to write to
+	output reg  [1:0] o_memsize // The size of memory to be written
 );
 
 	reg [31:0] pc; // Program counter register, keeps track of current instruction
@@ -36,12 +36,12 @@ module CPU(
 
 	// ALU connections
 	wire [2:0] a_op;   // ALU operation
-	wire a_op2;       // Secondary operation (subtraction/shifts)
+	wire a_op2;        // Secondary operation (subtraction/shifts)
 	wire [31:0] a_x;   // First operand
 	reg  [31:0] a_y;   // Second operand
 	wire [31:0] a_res; // Result of ALU operation
-	wire a_ysel;      // Source of the second operand, immediate or register
-	wire a_zero;      // Whether the result of the ALU op was 0 or not
+	wire a_ysel;       // Source of the second operand, immediate or register
+	wire a_zero;       // Whether the result of the ALU op was 0 or not
 	assign a_x = r_rdata1;
 	ALU alu(a_op, a_op2, a_x, a_y, a_res, a_zero);
 
