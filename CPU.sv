@@ -50,19 +50,18 @@ module control_unit(
 
 		// Immediate value
 		case(i_inst[6:2])
-			5'b01101, 5'b00101: o_imm = $signed(i_inst[31:12]);
-			5'b11011: o_imm = $signed({i_inst[31], i_inst[19:12], i_inst[20], i_inst[30:21]});
-			5'b11001: o_imm = $signed(i_inst[31:20]);
+			5'b01101, 5'b00101: o_imm = {{12{i_inst[31]}}, i_inst[31:12]};
+			5'b11011: o_imm = {{12{i_inst[31]}}, {i_inst[31], i_inst[19:12], i_inst[20], i_inst[30:21]}}; // JAL immediate encoding is strange
+			5'b00000, 5'b11001: o_imm = {{20{i_inst[31]}}, i_inst[31:20]};
 			5'b11000: case(i_inst[14:12])
-				3'b110, 3'b111: o_imm = $unsigned(i_inst[31:25]);
-				default: o_imm = $signed(i_inst[31:25]);
+				3'b110, 3'b111: o_imm = {25'b0, i_inst[31:25]};
+				default: o_imm = {{25{i_inst[31]}}, i_inst[31:25]};
 			endcase
-			5'b0: o_imm = $signed(i_inst[31:20]);
-			5'b01000: o_imm = $signed(i_inst[31:25]);
+			5'b01000: o_imm = {{25{i_inst[31]}}, i_inst[31:25]};
 			5'b00100: case(i_inst[14:12])
-				3'b011: o_imm = $unsigned(i_inst[31:20]);
-				3'b001, 3'b101: o_imm = $unsigned(i_inst[24:20]);
-				default: o_imm = $signed(i_inst[31:20]);
+				3'b011: o_imm = {20'b0, i_inst[31:20]};
+				3'b001, 3'b101: o_imm = {27'b0, i_inst[24:20]};
+				default: o_imm = {{20{i_inst[31]}}, i_inst[31:20]};
 			endcase
 			default: o_imm = 32'b0;
 		endcase
@@ -110,7 +109,8 @@ module CPU(
 	assign r_raddr1 = i_inst[19:15];
 	assign r_raddr2 = i_inst[24:20];
 	assign r_waddr  = i_inst[11:7];
-	registerfile rfile(i_clk, r_raddr1, r_raddr2, r_waddr, r_wdata, r_write, r_rdata1, r_rdata2);
+	assign o_mem    = r_rdata2[31:0];
+	register rfile(i_clk, r_raddr1, r_raddr2, r_waddr, r_wdata, r_write, r_rdata1, r_rdata2);
 
 	// ALU connections
 	wire[2:0] a_op;   // ALU operation
@@ -132,19 +132,19 @@ module CPU(
 		// Source of data to write to register
 		if(c_rsel) // Load from memory
 			case(i_inst[14:12]) // Choose size of data to be loaded
-				3'b000: r_wdata = $signed(i_mem[7:0]);    // 8-bits
-				3'b001: r_wdata = $signed(i_mem[15:0]);   // 16-bits
-				3'b010: r_wdata = i_mem;                  // 32-bits
-				3'b100: r_wdata = $unsigned(i_mem[7:0]);  // 8-bits unsigned
-				3'b101: r_wdata = $unsigned(i_mem[15:0]); // 16-bits unsigned
-				default: r_wdata = 32'b0;                 // Load 0 by default (there needs to be a default)
+				3'b000: r_wdata = {{24{i_mem[7]}},  i_mem[7:0]};  // 8-bits
+				3'b001: r_wdata = {{16{i_mem[15]}}, i_mem[15:0]}; // 16-bits
+				3'b010: r_wdata = i_mem;                          // 32-bits
+				3'b100: r_wdata = {24'b0, i_mem[7:0]};            // 8-bits unsigned
+				3'b101: r_wdata = {16'b0, i_mem[15:0]};           // 16-bits unsigned
+				default: r_wdata = 32'b0;                         // Load 0 by default (there needs to be a default)
 			endcase
 		else // Load the ALU result otherwise
 			r_wdata = a_res;
 
 		// Memory output, sets memsize to the appropriate value for the amount to be stored:
 		// 01 for 8 bits, 10 for 16 bits, 11 for 32 bits, and 00 for no store.
-		case (i_inst[14:12])
+		case(i_inst[14:12])
 			3'b000:  o_memsize = 3'b01;
 			3'b001:  o_memsize = 3'b10;
 			3'b010:  o_memsize = 3'b11;
