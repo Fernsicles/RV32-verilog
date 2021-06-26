@@ -25,24 +25,24 @@ module control_unit(
 		// For subtraction and right shifts
 		case(i_inst[6:2])
 			5'b11000: case(i_inst[14:12])
-				3'b000, 3'b001: o_op2 = 1;
-				default: o_op2 = 0;
+				3'b000, 3'b001: o_op2 = 1'b1;
+				default: o_op2 = 1'b0;
 			endcase
 			5'b00100: o_op2 = i_inst[30] && i_inst[14:12] == 3'b101;
 			5'b01100: o_op2 = i_inst[30];
-			default: o_op2 = 0;
+			default: o_op2 = 1'b0;
 		endcase
 
 		// ALU operand 2 source select
 		case(i_inst[6:2])
-			5'b01101, 5'b00101, 5'b11011, 5'b11001, 5'b11000, 5'b0, 5'b01000, 5'b00100: o_y = 1;
-			default: o_y = 0;
+			5'b01101, 5'b00101, 5'b11011, 5'b11001, 5'b11000, 5'b0, 5'b01000, 5'b00100: o_y = 1'b1;
+			default: o_y = 1'b0;
 		endcase
 
 		// Register write signal
 		case(i_inst[6:2])
-			5'b01101, 5'b00101, 5'b11011, 5'b11001, 5'b0, 5'b00100, 5'b01100, 5'b00011: o_rwrite = 1;
-			default: o_rwrite = 0;
+			5'b01101, 5'b00101, 5'b11011, 5'b11001, 5'b0, 5'b00100, 5'b01100, 5'b00011: o_rwrite = 1'b1;
+			default: o_rwrite = 1'b0;
 		endcase
 
 		// Immediate value
@@ -54,7 +54,7 @@ module control_unit(
 				3'b110, 3'b111: o_imm = {25'b0, i_inst[31:25]};
 				default: o_imm = {{25{i_inst[31]}}, i_inst[31:25]};
 			endcase
-			5'b01000: o_imm = {{25{i_inst[31]}}, i_inst[31:25]};
+			5'b01000: o_imm = {{20{i_inst[31]}}, i_inst[31:25], i_inst[11:7]};
 			5'b00100: case(i_inst[14:12])
 				3'b011: o_imm = {20'b0, i_inst[31:20]};
 				3'b001, 3'b101: o_imm = {27'b0, i_inst[24:20]};
