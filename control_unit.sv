@@ -6,7 +6,7 @@ module control_unit(
 	output reg o_rwrite,      // Register file write enable
 	output reg [31:0] o_imm,  // Immediate value
 	output reg o_mwrite,      // Main memory write enable
-	output reg o_rsel         // Register file write source select (memory load or ALU result)
+	output reg o_rsel        // Register file write source select (memory load or ALU result)
 );
 	// ALU operation signal
 	always_comb begin
@@ -35,8 +35,8 @@ module control_unit(
 
 		// ALU operand 2 source select
 		case(i_inst[6:2])
-			5'b01101, 5'b00101, 5'b11011, 5'b11001, 5'b11000, 5'b0, 5'b01000, 5'b00100: o_y = 1'b1;
-			default: o_y = 1'b0;
+			5'b01101, 5'b00101, 5'b11011, 5'b11001, 5'b0, 5'b01000, 5'b00100: o_y = 1'b1; // Immediate
+			default: o_y = 1'b0;                                                          // Register
 		endcase
 
 		// Register write signal
@@ -47,13 +47,10 @@ module control_unit(
 
 		// Immediate value
 		case(i_inst[6:2])
-			5'b01101, 5'b00101: o_imm = {i_inst[31:12], 12'b0};
+			5'b01101, 5'b00101: o_imm = {i_inst[31:12], 12'b0};                                           // LUI and AUIPC pad the lower 12 bits
 			5'b11011: o_imm = {{12{i_inst[31]}}, {i_inst[31], i_inst[19:12], i_inst[20], i_inst[30:21]}}; // JAL immediate encoding is strange
 			5'b00000, 5'b11001: o_imm = {{20{i_inst[31]}}, i_inst[31:20]};
-			5'b11000: case(i_inst[14:12])
-				3'b110, 3'b111: o_imm = {25'b0, i_inst[31:25]};
-				default: o_imm = {{25{i_inst[31]}}, i_inst[31:25]};
-			endcase
+			5'b11000: o_imm = {{20{i_inst[31]}}, i_inst[31], i_inst[7], i_inst[30:25], i_inst[11:8]};
 			5'b01000: o_imm = {{20{i_inst[31]}}, i_inst[31:25], i_inst[11:7]};
 			5'b00100: case(i_inst[14:12])
 				3'b011: o_imm = {20'b0, i_inst[31:20]};

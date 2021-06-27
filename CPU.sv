@@ -17,8 +17,7 @@ module CPU(
 
 	// Control unit
 	wire [31:0] c_imm;
-	wire c_rsel;
-	control_unit control(i_inst, a_op, a_op2, a_ysel, r_write, c_imm, o_write, c_rsel);
+	control_unit control(.i_inst(i_inst), .o_op(a_op), .o_op2(a_op2), .o_y(a_ysel), .o_rwrite(r_write), .o_imm(c_imm), .o_mwrite(o_write), .o_rsel(c_rsel));
 
 	// Register file connections
 	wire [4:0] r_raddr1;
@@ -44,6 +43,8 @@ module CPU(
 	wire a_zero;       // Whether the result of the ALU op was 0 or not
 	assign o_addr = a_res;
 	ALU alu(a_op, a_op2, a_x, a_y, a_res, a_zero);
+
+	reg  jmp;
 
 	always_comb begin
 		// Source of first ALU operand
@@ -80,11 +81,29 @@ module CPU(
 			3'b010:  o_memsize = 2'b11;
 			default: o_memsize = 2'b00;
 		endcase
+
+		// Jump instruction
+		case(i_inst[6:2])
+			5'b11011, 5'b11001: jmp = 1'b1;
+			5'b11000: case(i_inst[14:12])
+				3'b000: jmp = a_zero;
+				3'b001: jmp = ~a_zero;
+				3'b100: jmp = a_res[0];
+				3'b101: jmp = ~a_res[0];
+				3'b110: jmp = a_res[0];
+				3'b111: jmp = ~a_res[0];
+				default: jmp = 1'b0;
+			endcase
+			default: jmp = 1'b0;
+		endcase
 	end
 
 	// Update PC and instruction fetch
 	assign o_pc = pc;
-	always_ff @(posedge i_clk) begin
-		pc <= pc + 4;
+	always_ff @(negedge i_clk) begin
+		if(jmp)
+			pc <= (c_imm << 1'b1);
+		else
+			pc <= pc + 4;
 	end
 endmodule
