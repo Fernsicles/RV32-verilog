@@ -17,6 +17,7 @@ module CPU(
 
 	// Control unit
 	wire [31:0] c_imm;
+	wire c_rsel;
 	control_unit control(.i_inst(i_inst), .o_op(a_op), .o_op2(a_op2), .o_y(a_ysel), .o_rwrite(r_write), .o_imm(c_imm), .o_mwrite(o_write), .o_rsel(c_rsel));
 
 	// Register file connections
