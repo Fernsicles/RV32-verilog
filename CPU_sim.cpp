@@ -11,12 +11,11 @@ int main(int argc, char **argv) {
 	VCPU cpu;
 
 	unsigned int inst[] = {
-		0x0aa00493,
-		0x01000913,
-		0x00990023,
-		0x012489b3,
-		0x00499993,
-		0x013910a3
+		0x04000293,
+		0x00528023,
+		0xfff28293,
+		0xfe029ce3,
+		0x000000ef
 	};
 
 	uint8_t mem[64];
@@ -27,9 +26,9 @@ int main(int argc, char **argv) {
 	cpu.i_mem = mem[0];
 	cpu.eval();
 
-	for(int x = 0; x < 6; x++) {
+	for(int x = 0; x < 200; x++) {
 		cpu.i_clk = 0;
-		cpu.i_inst = inst[x];
+		cpu.i_inst = inst[cpu.o_pc >> 2];
 		cpu.i_mem = cpu.o_addr;
 		cpu.eval();
 		cpu.i_clk = 1;

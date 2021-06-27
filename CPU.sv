@@ -103,7 +103,7 @@ module CPU(
 	assign o_pc = pc;
 	always_ff @(posedge i_clk) begin
 		if(jmp)
-			pc <= (c_imm << 1'b1);
+			pc <= pc + (c_imm << 1'b1);
 		else
 			pc <= pc + 4;
 	end
