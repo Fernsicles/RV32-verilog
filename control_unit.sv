@@ -47,7 +47,7 @@ module control_unit(
 
 		// Immediate value
 		case(i_inst[6:2])
-			5'b01101, 5'b00101: o_imm = {{12{i_inst[31]}}, i_inst[31:12]};
+			5'b01101, 5'b00101: o_imm = {i_inst[31:12], 12'b0};
 			5'b11011: o_imm = {{12{i_inst[31]}}, {i_inst[31], i_inst[19:12], i_inst[20], i_inst[30:21]}}; // JAL immediate encoding is strange
 			5'b00000, 5'b11001: o_imm = {{20{i_inst[31]}}, i_inst[31:20]};
 			5'b11000: case(i_inst[14:12])

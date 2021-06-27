@@ -37,22 +37,28 @@ module CPU(
 	// ALU connections
 	wire [2:0] a_op;   // ALU operation
 	wire a_op2;        // Secondary operation (subtraction/shifts)
-	wire [31:0] a_x;   // First operand
+	reg  [31:0] a_x;   // First operand
 	reg  [31:0] a_y;   // Second operand
 	wire [31:0] a_res; // Result of ALU operation
 	wire a_ysel;       // Source of the second operand, immediate or register
 	wire a_zero;       // Whether the result of the ALU op was 0 or not
-	assign a_x = r_rdata1;
 	assign o_addr = a_res;
 	ALU alu(a_op, a_op2, a_x, a_y, a_res, a_zero);
 
 	always_comb begin
+		// Source of first ALU operand
+		case(i_inst[6:2])
+			5'b01101: a_x = 32'b0; // LUI
+			5'b00101: a_x = pc;    // AUIPC takes the first operand from PC
+			default:  a_x = r_rdata1;
+		endcase
+
 		// Source of second ALU operand
 		if(a_ysel)
 			a_y = c_imm;    // Immediate
 		else
 			a_y = r_rdata2; // Register
-		
+
 		// Source of data to write to register
 		if(c_rsel) // Load from memory
 			case(i_inst[14:12]) // Choose size of data to be loaded
