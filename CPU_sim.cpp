@@ -42,11 +42,12 @@ int main(int argc, char **argv) {
 
 	uint *inst;
 	uint8_t *mem = (uint8_t *) calloc(memsize, sizeof(uint8_t));
+	int filesize = filesystem::file_size(pstring);
 	ifstream file;
 	file.open(pstring, ios::in | ios::binary);
 	if(vflag) {
 		int i = 0;
-		while(!file.eof()) {
+		while(!file.eof() && i < filesize) {
 			uint buf;
 			file.read((char *) &buf, 1);
 			mem[i] = buf;
@@ -54,8 +55,8 @@ int main(int argc, char **argv) {
 		}
 	} else {
 		int i = 0;
-		inst = (uint *) calloc(filesystem::file_size(pstring) / 4, sizeof(uint));
-		while(!file.eof()) {
+		inst = (uint *) calloc(filesize / 4, sizeof(uint));
+		while(!file.eof() && i < filesize / 4) {
 			int buf;
 			file.read((char *) &buf, 4);
 			inst[i] = buf;
@@ -64,12 +65,12 @@ int main(int argc, char **argv) {
 	}
 
 	if(vflag) {
-		for(int x = 0; x < filesystem::file_size(pstring) / 4; x++) {
+		for(int x = 0; x < filesize / 4; x++) {
 			cout << "0x";
 			cout << setw(8) << setfill('0') << setbase(16) << ((uint *) mem)[x] << endl;
 		}
 	} else {
-		for(int x = 0; x < filesystem::file_size(pstring) / 4; x++) {
+		for(int x = 0; x < filesize / 4; x++) {
 			cout << "0x";
 			cout << setw(8) << setfill('0') << setbase(16) << inst[x] << endl;
 		}
@@ -95,7 +96,7 @@ int main(int argc, char **argv) {
 		} else {
 			cpu.i_inst = inst[cpu.o_pc >> 2];
 		}
-		cpu.i_mem = cpu.o_addr;
+		cpu.i_mem = ((uint *) mem)[cpu.o_addr % memsize];
 		cpu.eval();
 		cpu.i_clk = 1;
 		cpu.eval();
@@ -105,14 +106,10 @@ int main(int argc, char **argv) {
 					mem[cpu.o_addr] = (uint8_t) cpu.o_mem;
 					break;
 				case 2:
-					mem[cpu.o_addr] = (uint8_t) cpu.o_mem;
-					mem[cpu.o_addr + 1] = (uint8_t) (cpu.o_mem >> 8);
+					((uint16_t *) mem)[cpu.o_addr] = (uint16_t) cpu.o_mem;
 					break;
 				case 3:
-					mem[cpu.o_addr] = (uint8_t) cpu.o_mem;
-					mem[cpu.o_addr + 1] = (uint8_t) (cpu.o_mem >> 8);
-					mem[cpu.o_addr + 2] = (uint8_t) (cpu.o_mem >> 16);
-					mem[cpu.o_addr + 3] = (uint8_t) (cpu.o_mem >> 24);
+					((uint32_t *) mem)[cpu.o_addr] = (uint32_t) cpu.o_mem;
 					break;
 				default:
 					break;
@@ -123,7 +120,7 @@ int main(int argc, char **argv) {
 	for(int x = 0; x < memsize; x++) {
 		cout << "0x";
 		cout << setw(2) << setfill('0') << setbase(16) << (int) mem[x] << '\t';
-		if((x + 1) % 16 == 0) {
+		if((x + 1) % 4 == 0) {
 			cout << endl;
 		}
 	}
