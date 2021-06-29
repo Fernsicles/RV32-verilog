@@ -6,7 +6,7 @@ module control_unit(
 	output reg o_rwrite,      // Register file write enable
 	output reg [31:0] o_imm,  // Immediate value
 	output reg o_mwrite,      // Main memory write enable
-	output reg o_rsel        // Register file write source select (memory load or ALU result)
+	output reg o_rsel         // Register file write source select (memory load or ALU result)
 );
 	// ALU operation signal
 	always_comb begin
