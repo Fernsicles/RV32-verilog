@@ -40,6 +40,15 @@ int main(int argc, char **argv) {
 		}
 	}
 
+	if(hflag) {
+		cout << usage << endl;
+		abort();
+	}
+	if(!pflag || !mflag) {
+		cout << "Both a program and memory size are required" << endl << usage << endl;
+		abort();
+	}
+
 	uint *inst;
 	uint8_t *mem = (uint8_t *) calloc(memsize, sizeof(uint8_t));
 	int filesize = filesystem::file_size(pstring);
@@ -96,20 +105,21 @@ int main(int argc, char **argv) {
 		} else {
 			cpu.i_inst = inst[cpu.o_pc >> 2];
 		}
-		cpu.i_mem = ((uint *) mem)[cpu.o_addr % memsize];
+		cpu.eval();
+		memcpy(&cpu.i_mem, mem + cpu.o_addr % memsize, 4);
 		cpu.eval();
 		cpu.i_clk = 1;
 		cpu.eval();
 		if(cpu.o_write) {
 			switch(cpu.o_memsize) {
 				case 1:
-					mem[cpu.o_addr] = (uint8_t) cpu.o_mem;
+					memcpy(mem + cpu.o_addr, &cpu.o_mem, 1);
 					break;
 				case 2:
-					((uint16_t *) mem)[cpu.o_addr] = (uint16_t) cpu.o_mem;
+					memcpy(mem + cpu.o_addr, &cpu.o_mem, 2);
 					break;
 				case 3:
-					((uint32_t *) mem)[cpu.o_addr] = (uint32_t) cpu.o_mem;
+					memcpy(mem + cpu.o_addr, &cpu.o_mem, 4);
 					break;
 				default:
 					break;
