@@ -6,7 +6,8 @@ module register(
 	input wire [31:0] i_wdata,
 	input wire i_write,
 	output reg [31:0] o_rdata1,
-	output reg [31:0] o_rdata2
+	output reg [31:0] o_rdata2,
+	output wire [31:0] o_regs [31:0]
 );
 
 	reg [31:0] registers [31:1];
@@ -27,4 +28,7 @@ module register(
 			registers[i_waddr] <= i_wdata;
 		end
 	end
+
+	assign o_regs[0] = 32'b0;
+	assign o_regs[31:1] = registers;
 endmodule

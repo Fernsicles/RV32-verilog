@@ -41,7 +41,7 @@ module control_unit(
 
 		// Register write signal
 		case(i_inst[6:2])
-			5'b01101, 5'b00101, 5'b11011, 5'b11001, 5'b0, 5'b00100, 5'b01100, 5'b00011: o_rwrite = 1'b1;
+			5'b01101, 5'b00101, 5'b11011, 5'b11001, 5'b00000, 5'b00100, 5'b01100, 5'b00011: o_rwrite = 1'b1;
 			default: o_rwrite = 1'b0;
 		endcase
 
@@ -68,8 +68,8 @@ module control_unit(
 
 		// Register write source select
 		case(i_inst[6:2])
-			5'b0: o_rsel = 1'b1;
-			default: o_rsel = 1'b0;
+			5'b00000: o_rsel = 1'b1;
+			default:  o_rsel = 1'b0;
 		endcase
 	end
 endmodule

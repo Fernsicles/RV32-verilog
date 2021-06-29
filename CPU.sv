@@ -3,14 +3,15 @@
 `include "control_unit.sv"
 
 module CPU(
-	input wire i_clk,            // The clock signal
-	input wire [31:0] i_inst,    // The instruction to execute
-	input wire [31:0] i_mem,     // The data to be loaded from memory
-	output wire o_write,         // Whether to write to memory or not
-	output wire [31:0] o_pc,     // The next instruction to fetch
-	output wire [31:0] o_mem,    // The data to write to memory
-	output wire [31:0] o_addr,   // The memory address to write to or read from
-	output reg  [1:0]  o_memsize // The size of memory to be written
+	input wire i_clk,             // The clock signal
+	input wire [31:0] i_inst,     // The instruction to execute
+	input wire [31:0] i_mem,      // The data to be loaded from memory
+	output wire o_write,          // Whether to write to memory or not
+	output wire [31:0] o_pc,      // The next instruction to fetch
+	output wire [31:0] o_mem,     // The data to write to memory
+	output wire [31:0] o_addr,    // The memory address to write to or read from
+	output reg  [1:0]  o_memsize, // The size of memory to be written
+	output reg  [31:0] o_reg [31:0]
 );
 
 	reg [31:0] pc; // Program counter register, keeps track of current instruction
@@ -32,7 +33,7 @@ module CPU(
 	assign r_raddr2 = i_inst[24:20];
 	assign r_waddr  = i_inst[11:7];
 	assign o_mem    = r_rdata2[31:0];
-	register rfile(i_clk, r_raddr1, r_raddr2, r_waddr, r_wdata, r_write, r_rdata1, r_rdata2);
+	register rfile(i_clk, r_raddr1, r_raddr2, r_waddr, r_wdata, r_write, r_rdata1, r_rdata2, o_reg);
 
 	// ALU connections
 	wire [2:0] a_op;   // ALU operation
