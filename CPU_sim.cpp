@@ -1,34 +1,44 @@
 #include "obj_dir/VCPU.h"
 #include "verilated.h"
 #include <CImg.h>
-#include <ctime>
+#include <chrono>
 #include <filesystem>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <string>
 #include <unistd.h>
+#include <thread>
 
 using namespace std;
 using namespace cimg_library;
 
-int main(int argc, char **argv) {
+void update_window(CImgDisplay *display, CImg<uint8_t> *image, int *fps) {
+	while(1) {
+		this_thread::sleep_for(chrono::milliseconds(1000 / *fps));
+		display->display(*image);
+	}
+}
 
+int main(int argc, char **argv) {
 	extern char *optarg;
 	extern int optind;
 	int c, err = 0;
-	int hflag = 0, pflag = 0, mflag = 0, vflag = 0, dflag = 0, Tflag = 0, data_offset = 0, time_offset;
+	int hflag = 0, Dflag = 0, pflag = 0, mflag = 0, vflag = 0, dflag = 0, Tflag = 0, data_offset = 0, time_offset;
 	uint width = 480, height = 360;
 	uint offset = 0x80000000;
-	uint frames = 10000;
+	int framerate = 30;
 	char *pstring;
 	char * dstring;
 	ulong memsize;
-	static char usage[] = "Usage: h [-h] [-v] [-p program] [-m memory_size] [-x width] [-y height] [-o mmio_offset] [-f cycles/frame] [-d data] [-t data_offset] [-T time_offset]";
-	while((c = getopt(argc, argv, "hp:m:vx:y:f:d:t:T:")) != -1) {
+	static char usage[] = "Usage: h [-h] [-v] [-D] [-p program] [-m memory_size] [-x width] [-y height] [-f framerate] [-o mmio_offset] [-d data] [-t data_offset] [-T time_offset]";
+	while((c = getopt(argc, argv, "hDp:m:vx:y:f:d:t:T:")) != -1) {
 		switch(c) {
 			case 'h':
 				hflag = 1;
+				break;
+			case 'D':
+				Dflag = 1;
 				break;
 			case 'p':
 				pflag = 1;
@@ -47,11 +57,11 @@ int main(int argc, char **argv) {
 			case 'y':
 				height = stoi(optarg, nullptr);
 				break;
+			case 'f':
+				framerate = stoi(optarg, nullptr);
+				break;
 			case 'o':
 				offset = stoi(optarg, nullptr);
-				break;
-			case 'f':
-				frames = stoi(optarg, nullptr);
 				break;
 			case 'd':
 				dflag = 1;
@@ -87,6 +97,8 @@ int main(int argc, char **argv) {
 
 	CImg<uint8_t> fb(width, height, 1, 3, 0);
 	CImgDisplay window(fb, "Frame Buffer", 0);
+	thread update(update_window, &window, &fb, &framerate);
+	update.detach();
 
 	uint *inst;
 	uint8_t *mem = (uint8_t *) calloc(memsize, sizeof(uint8_t));
@@ -136,10 +148,13 @@ int main(int argc, char **argv) {
 			// mem[data_offset + i] = buf;
 			i++;
 		}
+		cout << "Finished loading data." << endl;
 	}
 
 	Verilated::commandArgs(0, argv);
 	VCPU cpu;
+
+	uint64_t start = chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now().time_since_epoch()).count();
 
 	cpu.i_clk = 0;
 	if(vflag) {
@@ -197,13 +212,11 @@ int main(int argc, char **argv) {
 					break;
 			}
 		}
-		if(count % frames == 0) {
-			window.display(fb);
-		}
 		count++;
 	}
+	uint64_t end = chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now().time_since_epoch()).count();
 
-	for(int x = 0; x < memsize; x++) {
+	for(int x = 0; x < memsize && Dflag; x++) {
 		cout << "0x";
 		cout << setw(2) << setfill('0') << setbase(16) << (int) mem[x] << '\t';
 		if((x + 1) % 4 == 0) {
@@ -211,9 +224,12 @@ int main(int argc, char **argv) {
 		}
 	}
 
+	cout << setbase(10) << "Time elapsed: " << end - start << " ms" << endl << "Cycles: " << count << endl;
+
 	free(mem);
 	if(!vflag) {
 		free(inst);
 	}
+	update.~thread();
 	return 0;
 }
