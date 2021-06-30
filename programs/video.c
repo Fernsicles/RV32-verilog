@@ -29,15 +29,14 @@ void main() {
 	// }
 	int i = 0;
 	for(unsigned int x = 0; x < 1135641600; x++) {
+		if(i >= 360 * 480) {
+			i = 0;
+		}
 		unsigned char pixel = ibase[x];
 		rbase[i] = pixel;
 		gbase[i] = pixel;
 		bbase[i] = pixel;
-		if(i >= 360 * 480) {
-			i = 0;
-		} else {
-			i++;
-		}
+		i++;
 	}
     while(1);
 }

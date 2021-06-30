@@ -14,7 +14,7 @@ endif
 	cd obj_dir && make -f VCPU.mk
 
 verilated.o:
-	g++ -c /usr/share/verilator/include/verilated.cpp
+	g++ -c -O2 /usr/share/verilator/include/verilated.cpp
 
 CPU_sim: obj_dir/VCPU.h CPU_sim.cpp verilated.o
-	g++ -Wall -g -pthread -Dcimg_display=1 -I obj_dir -I/usr/share/verilator/include CPU_sim.cpp verilated.o obj_dir/VCPU__ALL.o /usr/lib/libX11.so -o CPU_sim
+	g++ -Wall -g -O1 -pthread -Dcimg_display=1 -I obj_dir -I/usr/share/verilator/include CPU_sim.cpp verilated.o obj_dir/VCPU__ALL.o /usr/lib/libX11.so -o CPU_sim
