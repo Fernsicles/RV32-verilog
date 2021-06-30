@@ -4,7 +4,7 @@ add t1 x0 s0
 add s0 t1 s0
 add s0 t1 s0
 li t1 0xFF
-li s1 0x10000
+li s1 0x80000000
 a:
 sb t1 0 s1
 addi t0 t0 1
