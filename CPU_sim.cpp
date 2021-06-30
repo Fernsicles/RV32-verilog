@@ -1,6 +1,7 @@
 #include "obj_dir/VCPU.h"
 #include "verilated.h"
 #include <CImg.h>
+#include <ctime>
 #include <filesystem>
 #include <fstream>
 #include <iomanip>
@@ -16,14 +17,15 @@ int main(int argc, char **argv) {
 	extern char *optarg;
 	extern int optind;
 	int c, err = 0;
-	int hflag = 0, pflag = 0, mflag = 0, vflag = 0;
+	int hflag = 0, pflag = 0, mflag = 0, vflag = 0, dflag = 0, Tflag = 0, data_offset = 0, time_offset;
 	uint width = 480, height = 360;
-	uint offset = 0x10000;
+	uint offset = 0x80000000;
 	uint frames = 10000;
 	char *pstring;
-	int memsize;
-	static char usage[] = "usage: h [-h] [-v] [-i program] [-m memory_size] [-x width] [-y height] [-o mmio_offset] [-f cycles/frame]";
-	while((c = getopt(argc, argv, "hp:m:vx:y:f:")) != -1) {
+	char * dstring;
+	ulong memsize;
+	static char usage[] = "Usage: h [-h] [-v] [-p program] [-m memory_size] [-x width] [-y height] [-o mmio_offset] [-f cycles/frame] [-d data] [-t data_offset] [-T time_offset]";
+	while((c = getopt(argc, argv, "hp:m:vx:y:f:d:t:T:")) != -1) {
 		switch(c) {
 			case 'h':
 				hflag = 1;
@@ -34,7 +36,7 @@ int main(int argc, char **argv) {
 				break;
 			case 'm':
 				mflag = 1;
-				memsize = stoi(optarg, nullptr);
+				memsize = stoul(optarg, nullptr);
 				break;
 			case 'v':
 				vflag = 1;
@@ -50,6 +52,17 @@ int main(int argc, char **argv) {
 				break;
 			case 'f':
 				frames = stoi(optarg, nullptr);
+				break;
+			case 'd':
+				dflag = 1;
+				dstring = optarg;
+				break;
+			case 't':
+				data_offset = stoi(optarg, nullptr);
+				break;
+			case 'T':
+				Tflag = 1;
+				time_offset = stoi(optarg, nullptr);
 				break;
 			default:
 				cout << usage << endl;
@@ -77,7 +90,7 @@ int main(int argc, char **argv) {
 
 	uint *inst;
 	uint8_t *mem = (uint8_t *) calloc(memsize, sizeof(uint8_t));
-	int filesize = filesystem::file_size(pstring);
+	uint filesize = filesystem::file_size(pstring);
 	ifstream file;
 	file.open(pstring, ios::in | ios::binary);
 	if(vflag) {
@@ -111,6 +124,19 @@ int main(int argc, char **argv) {
 		}
 	}
 	
+	if(dflag) {
+		uint datasize = filesystem::file_size(dstring);
+		ifstream data;
+		data.open(dstring, ios::in | ios::binary);
+		int i = 0;
+		while(!data.eof() && i < datasize) {
+			// char buf;
+			data.read((char *) mem + data_offset + i, 1);
+			// memcpy(mem + data_offset + i, buf, 1);
+			// mem[data_offset + i] = buf;
+			i++;
+		}
+	}
 
 	Verilated::commandArgs(0, argv);
 	VCPU cpu;
@@ -127,6 +153,12 @@ int main(int argc, char **argv) {
 	uint addr;
 	unsigned long count = 0;
 	while(cpu.i_inst != 0x0000006f) {
+
+		if(Tflag) {
+			int t = time(nullptr);
+			memcpy(mem + time_offset, &t, 4);
+		}
+
 		cpu.i_clk = 0;
 		if(vflag) {
 			cpu.i_inst = ((uint *) mem)[cpu.o_pc >> 2];
@@ -134,7 +166,7 @@ int main(int argc, char **argv) {
 			cpu.i_inst = inst[cpu.o_pc >> 2];
 		}
 		cpu.eval();
-		if(cpu.o_addr >= offset) {
+		if(cpu.o_addr >= offset && cpu.o_load) {
 			memcpy(&cpu.i_mem, fb.data() + cpu.o_addr - offset, 4);
 		} else {
 			memcpy(&cpu.i_mem, mem + cpu.o_addr % memsize, 4);
@@ -164,7 +196,6 @@ int main(int argc, char **argv) {
 				default:
 					break;
 			}
-			
 		}
 		if(count % frames == 0) {
 			window.display(fb);

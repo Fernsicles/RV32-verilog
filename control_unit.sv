@@ -6,6 +6,7 @@ module control_unit(
 	output reg o_rwrite,      // Register file write enable
 	output reg [31:0] o_imm,  // Immediate value
 	output reg o_mwrite,      // Main memory write enable
+	output reg o_load,        // Main memory load enable
 	output reg o_rsel         // Register file write source select (memory load or ALU result)
 );
 	// ALU operation signal
@@ -63,7 +64,13 @@ module control_unit(
 		// Memory write enable
 		case(i_inst[6:2])
 			5'b01000: o_mwrite = 1'b1;
-			default: o_mwrite = 1'b0;
+			default:  o_mwrite = 1'b0;
+		endcase
+
+		// Memory load enable
+		case(i_inst[6:2])
+			5'b00000: o_load = 1'b1;
+			default:  o_load = 1'b0;
 		endcase
 
 		// Register write source select

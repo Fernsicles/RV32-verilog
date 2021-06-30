@@ -7,6 +7,7 @@ module CPU(
 	input wire [31:0] i_inst,     // The instruction to execute
 	input wire [31:0] i_mem,      // The data to be loaded from memory
 	output wire o_write,          // Whether to write to memory or not
+	output wire o_load,           // Whether to load from memory or not
 	output wire [31:0] o_pc,      // The next instruction to fetch
 	output wire [31:0] o_mem,     // The data to write to memory
 	output wire [31:0] o_addr,    // The memory address to write to or read from
@@ -19,7 +20,7 @@ module CPU(
 	// Control unit
 	wire [31:0] c_imm;
 	wire c_rsel;
-	control_unit control(.i_inst(i_inst), .o_op(a_op), .o_op2(a_op2), .o_y(a_ysel), .o_rwrite(r_write), .o_imm(c_imm), .o_mwrite(o_write), .o_rsel(c_rsel));
+	control_unit control(.i_inst(i_inst), .o_op(a_op), .o_op2(a_op2), .o_y(a_ysel), .o_rwrite(r_write), .o_imm(c_imm), .o_mwrite(o_write), .o_load(o_load), .o_rsel(c_rsel));
 
 	// Register file connections
 	wire [4:0] r_raddr1;
