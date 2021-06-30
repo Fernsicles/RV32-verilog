@@ -7,7 +7,9 @@ module register(
 	input wire i_write,
 	output reg [31:0] o_rdata1,
 	output reg [31:0] o_rdata2,
+`ifndef YOSYS
 	output wire [31:0] o_regs [31:0]
+`endif
 );
 
 	reg [31:0] registers [31:1];
@@ -29,6 +31,8 @@ module register(
 		end
 	end
 
+`ifndef YOSYS
 	assign o_regs[0] = 32'b0;
 	assign o_regs[31:1] = registers;
+`endif
 endmodule
