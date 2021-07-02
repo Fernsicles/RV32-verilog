@@ -60,11 +60,14 @@ module CPU(
 		case(i_inst[6:2])
 			5'b01101: a_x = 32'b0; // LUI
 			5'b00101: a_x = pc;    // AUIPC takes the first operand from PC
+			5'b11011: a_x = pc;    // Same for JAL
 			default:  a_x = r_rdata1;
 		endcase
 
 		// Source of second ALU operand
-		if(a_ysel)
+		if(i_inst[6:2] == 5'b11011)
+			a_y = 32'd4;
+		else if(a_ysel)
 			a_y = c_imm;    // Immediate
 		else
 			a_y = r_rdata2; // Register
@@ -110,7 +113,9 @@ module CPU(
 	// Update PC and instruction fetch
 	assign o_pc = pc;
 	always_ff @(posedge i_clk) begin
-		if(jmp)
+		if(i_inst[6:2] == 5'b11001) // JALR computes address from sum of register contents and immediate
+			pc <= {a_res[31:1], 1'b0};
+		else if(jmp)
 			pc <= pc + (c_imm << 1'b1);
 		else
 			pc <= pc + 4;
