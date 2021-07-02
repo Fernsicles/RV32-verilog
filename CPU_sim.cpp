@@ -181,10 +181,12 @@ int main(int argc, char **argv) {
 			cpu.i_inst = inst[cpu.o_pc >> 2];
 		}
 		cpu.eval();
-		if(cpu.o_addr >= offset && cpu.o_load) {
-			memcpy(&cpu.i_mem, fb.data() + cpu.o_addr - offset, 4);
-		} else {
-			memcpy(&cpu.i_mem, mem + cpu.o_addr % memsize, 4);
+		if(cpu.o_load) {
+			if(cpu.o_addr >= offset) {
+				memcpy(&cpu.i_mem, fb.data() + cpu.o_addr - offset, 4);
+			} else {
+				memcpy(&cpu.i_mem, mem + cpu.o_addr % memsize, 4);
+			}
 		}
 		cpu.eval();
 		cpu.i_clk = 1;
