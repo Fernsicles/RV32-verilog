@@ -7,7 +7,10 @@ module register(
 	input wire i_write,
 	output reg [31:0] o_rdata1,
 	output reg [31:0] o_rdata2,
-`ifndef YOSYS
+`ifndef YOSYS // Debug stuff to be used with simulator
+	input  wire i_dload,
+	input  wire i_daddr,
+	input  wire [31:0] i_ddata,
 	output wire [31:0] o_regs [31:0]
 `endif
 );
@@ -34,5 +37,10 @@ module register(
 `ifndef YOSYS
 	assign o_regs[0] = 32'b0;
 	assign o_regs[31:1] = registers;
+	always_ff @(posedge i_clk) begin
+		if(i_write) begin
+			registers[i_daddr] <= i_ddata;
+		end
+	end
 `endif
 endmodule

@@ -24,7 +24,7 @@ int main(int argc, char **argv) {
 	extern char *optarg;
 	extern int optind;
 	int c, err = 0;
-	int hflag = 0, Dflag = 0, pflag = 0, mflag = 0, vflag = 0, dflag = 0, Tflag = 0, data_offset = 0, time_offset;
+	int hflag = 0, Dflag = 0, pflag = 0, mflag = 0, vflag = 0, dflag = 0, Tflag = 0, data_offset = 0, time_offset = 0;
 	uint width = 480, height = 360;
 	uint offset = 0x80000000;
 	int framerate = 30;
@@ -157,6 +157,17 @@ int main(int argc, char **argv) {
 	uint64_t start = chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now().time_since_epoch()).count();
 
 	cpu.i_clk = 0;
+	cpu.i_inst = 0x6f;
+	cpu.i_daddr = 0x2;
+	cpu.i_dload = 0x1;
+	cpu.i_ddata = memsize - 1;
+	cpu.eval();
+	cpu.i_clk = 1;
+	cpu.eval();
+	cpu.i_clk = 0;
+	cpu.i_daddr = 0;
+	cpu.i_dload = 0;
+	cpu.i_ddata = 0;
 	if(vflag) {
 		cpu.i_inst = ((uint *) mem)[0];
 	} else {
@@ -170,8 +181,8 @@ int main(int argc, char **argv) {
 	while(cpu.i_inst != 0x0000006f) {
 
 		if(Tflag) {
-			int t = time(nullptr);
-			memcpy(mem + time_offset, &t, 4);
+			unsigned int t = chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now().time_since_epoch()).count();
+			((unsigned int *) mem)[time_offset] = t;
 		}
 
 		cpu.i_clk = 0;

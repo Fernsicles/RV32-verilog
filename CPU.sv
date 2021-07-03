@@ -13,6 +13,9 @@ module CPU(
 	output wire [31:0] o_addr,    // The memory address to write to or read from
 	output reg  [1:0]  o_memsize, // The size of memory to be written
 `ifndef YOSYS
+	input  wire i_dload,
+	input  wire i_daddr,
+	input  wire [31:0] i_ddata,
 	output reg  [31:0] o_reg [31:0]
 `endif
 );
@@ -38,7 +41,7 @@ module CPU(
 	assign o_mem    = r_rdata2[31:0];
 	register rfile(i_clk, r_raddr1, r_raddr2, r_waddr, r_wdata, r_write, r_rdata1, r_rdata2
 `ifndef YOSYS
-	             , o_reg
+	             , i_dload, i_daddr, i_ddata, o_reg
 `endif
 	);
 
