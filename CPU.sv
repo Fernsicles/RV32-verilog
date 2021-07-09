@@ -20,6 +20,10 @@ module CPU(
 `endif
 );
 
+	initial begin
+		pc = 32'b0;
+	end
+
 	reg [31:0] pc; // Program counter register, keeps track of current instruction
 
 	// Control unit

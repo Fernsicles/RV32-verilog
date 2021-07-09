@@ -1,0 +1,32 @@
+NET "o_led<0>" LOC=P79;
+NET "o_led<1>" LOC=P78;
+NET "o_led<2>" LOC=P75;
+NET "o_led<3>" LOC=P74;
+NET "o_led<4>" LOC=P67;
+NET "o_led<5>" LOC=P66;
+NET "o_led<6>" LOC=P62;
+NET "o_led<7>" LOC=P61;
+
+# NET "o_led<0>" LOC=P84;
+# NET "o_led<1>" LOC=P80;
+# NET "o_led<2>" LOC=P82;
+# NET "o_led<3>" LOC=P87;
+# NET "o_led<4>" LOC=P92;
+# NET "o_led<5>" LOC=P95;
+# NET "o_led<6>" LOC=P98;
+# NET "o_led<7>" LOC=P100;
+
+# NET "i_btn<0>" LOC=P40;
+# NET "i_btn<1>" LOC=P41;
+# NET "i_btn<2>" LOC=P43;
+# NET "i_btn<3>" LOC=P44;
+
+# NET "i_btn<4>" LOC=P1;
+# NET "i_btn<5>" LOC=P2;
+# NET "i_btn<6>" LOC=P5;
+# NET "i_btn<7>" LOC=P7;
+# NET "i_btn<8>" LOC=P6;
+# NET "i_btn<9>" LOC=P9;
+# NET "i_btn<10>" LOC=P8;
+
+NET "i_clk" LOC=P55;
