@@ -13,8 +13,8 @@ build/$(NAME)_par.ncd: build/$(NAME).ncd
 build/$(NAME).ncd: build/$(NAME).ngd
 	cd build && $(ISEPATH)map -w $(NAME).ngd
 
-build/$(NAME).ngd: build/$(NAME).edif build/$(NAME).ucf
-	cd build && $(ISEPATH)ngdbuild -p 6slx9tqg144-2 -uc $(NAME).ucf $(NAME).edif
+build/$(NAME).ngd: build/$(NAME).edif $(NAME).ucf
+	cd build && $(ISEPATH)ngdbuild -p 6slx9tqg144-2 -uc ../$(NAME).ucf $(NAME).edif
 
 build/$(NAME).edif: $(NAME).sv inst.hex build/
 	cd build && yosys -p 'read_verilog -sv ../$(NAME).sv; synth_xilinx -edif $(NAME).edif'
