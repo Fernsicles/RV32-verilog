@@ -3,6 +3,7 @@
 #include "App.h"
 #include "CPU.h"
 #include "ui/MainWindow.h"
+#include "ui/OpenDialog.h"
 
 namespace RVGUI {
 	MainWindow::MainWindow(BaseObjectType *cobject, const Glib::RefPtr<Gtk::Builder> &builder_):
@@ -25,8 +26,17 @@ namespace RVGUI {
 
 		add_action("open", Gio::ActionMap::ActivateSlot([this] {
 			std::cout << "open\n";
-			cpu = std::make_shared<CPU>(CPU::Options("./programs/videostd.bin", INT_MAX));
-			hexView.setCPU(cpu);
+			auto *open_dialog = new OpenDialog(*this);
+			dialog.reset(open_dialog);
+			dialog->show();
+			// cpu = std::make_shared<CPU>(CPU::Options("./programs/videostd.bin", INT_MAX));
+			// hexView.setCPU(cpu);
+			// const auto &options = cpu->getOptions();
+			// if (options.width != 0 && options.height != 0)
+			// 	pixbuf = Gdk::Pixbuf::create_from_data(cpu->getFramebuffer(), Gdk::Colorspace::RGB, false, 8,
+			// 		options.width, options.height, 3 * options.width);
+			// else
+			// 	pixbuf.reset();
 		}));
 
 		functionQueueDispatcher.connect([this] {
@@ -64,7 +74,6 @@ namespace RVGUI {
 		// How did I even manage to figure this out? It's poorly documented dark magic as far as I'm concerned.
 		g_signal_connect(G_OBJECT(gobj()), "notify::default-height", G_CALLBACK(
 			+[](GtkWidget *, GdkEvent *, gpointer ptr) -> gboolean {
-				// std::cout << "dh[" << ptr << "]\n";
 				((HexView *) ptr)->onResize();
 				return false;
 			}
