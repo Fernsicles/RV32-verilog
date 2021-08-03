@@ -2,6 +2,7 @@
 #include <cstring>
 #include <filesystem>
 #include <fstream>
+#include <iostream>
 #include <stdexcept>
 
 #include "CPU.h"
@@ -129,6 +130,8 @@ namespace RVGUI {
 					}
 					break;
 				case 3:
+					std::cout << "framebuffer[" << reinterpret_cast<void *>(framebuffer.get()) << ":" << ((void *) ((char *) framebuffer.get() + options.width * options.height * 3)) << "], memory[" << reinterpret_cast<void *>(memory.get()) << "]\n";
+					std::cout << "std::memcpy(" << reinterpret_cast<void *>(pointer + address) << ", " << &vcpu->o_mem << ", 4);\n";
 					std::memcpy(pointer + address, &vcpu->o_mem, 4);
 					if (onByteUpdate) {
 						onByteUpdate((uintptr_t) pointer + address, *(pointer + address));
@@ -200,8 +203,10 @@ namespace RVGUI {
 		const auto datasize = std::filesystem::file_size(options.dataFilename);
 		std::ifstream data;
 		data.open(options.dataFilename, std::ios::in | std::ios::binary);
+		std::cout << "Loading data...\n";
 		for (size_t i = 0; !data.eof() && i < datasize; ++i)
 			data.read(reinterpret_cast<char *>(memory.get() + options.dataOffset + i), 1);
+		std::cout << "Data loaded.\n";
 	}
 
 	CPU::Word CPU::getPC() const {

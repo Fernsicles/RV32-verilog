@@ -59,6 +59,12 @@ namespace RVGUI {
 		area.append(separateInstructions);
 		area.append(buttonBox);
 
+		programFilename.set_text("./programs/videostd.bin");
+		dataFilename.set_text("./bad-apple.raw");
+		memorySize.set_text("2147483647");
+		dataOffset.set_text("256");
+		timeOffset.set_text("0");
+
 		clearButton.signal_clicked().connect(sigc::mem_fun(*this, &OpenDialog::clear));
 		programBrowse.signal_clicked().connect(sigc::mem_fun(*this, &OpenDialog::browseProgram));
 		dataBrowse.signal_clicked().connect(sigc::mem_fun(*this, &OpenDialog::browseData));

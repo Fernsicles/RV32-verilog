@@ -49,7 +49,9 @@ namespace RVGUI {
 
 		drawingArea.set_draw_func([this](const Cairo::RefPtr<Cairo::Context> &context, int width, int height) {
 			if (pixbuf) {
-				Gdk::Cairo::set_source_pixbuf(context, pixbuf, 0, 0);
+				Gdk::Cairo::set_source_pixbuf(context, pixbuf, (drawingArea.get_width() - width) / 2,
+					(drawingArea.get_height() - height) / 2);
+				// Gdk::Cairo::set_source_pixbuf(context, pixbuf, 0, 0);
 				context->paint();
 			}
 		});
