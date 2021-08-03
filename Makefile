@@ -1,13 +1,19 @@
+TEST         := 1
 COMPILER     ?= g++
-OPTIMIZATION ?= -O3 -g
-CPPFLAGS     ?= -std=c++17 $(OPTIMIZATION)
+OPTIMIZATION ?= -O3
+CPPFLAGS     ?= -std=c++17 $(OPTIMIZATION) -Iobj_dir
 GUISRC       := $(shell find gui -name \*.cpp) gui/resources.cpp
 GUIOBJ       := $(GUISRC:.cpp=.o)
-DEPS         := gtk4 gtkmm-4.0 x11
+DEPS         := gtk4 gtkmm-4.0 x11 verilator
 DEPCFLAGS    := $(shell pkg-config --cflags $(DEPS))
 DEPLIBS      := $(shell pkg-config --libs   $(DEPS))
 OUTPUT       := rvgui
 GLIB_COMPILE_RESOURCES := $(shell pkg-config --variable=glib_compile_resources gio-2.0)
+ifeq ($(DEBUG),1)
+DEBUG        := -g
+else
+DEBUG        :=
+endif
 
 .PHONY: all test clean
 
@@ -36,16 +42,16 @@ else
 endif
 
 verilated.o: /usr/share/verilator/include/verilated.cpp
-	$(COMPILER) $(CPPFLAGS) -c /usr/share/verilator/include/verilated.cpp
+	$(COMPILER) $(DEBUG) $(CPPFLAGS) -c /usr/share/verilator/include/verilated.cpp
 
 gui/%.o: gui/%.cpp
 	@ printf "\e[2m[\e[22;32mcc\e[39;2m]\e[22m $< \e[2m$(CPPFLAGS)\e[22m\n"
-	@ $(COMPILER) $(CPPFLAGS) $(DEPCFLAGS) -Iinclude -c $< -o $@
+	@ $(COMPILER) $(DEBUG) $(CPPFLAGS) $(DEPCFLAGS) -Iinclude -c $< -o $@
 
 gui/resources.cpp: rvgui.gresource.xml $(shell $(GLIB_COMPILE_RESOURCES) --sourcedir=resources --generate-dependencies rvgui.gresource.xml)
 	$(GLIB_COMPILE_RESOURCES) --target=$@ --sourcedir=resources --generate-source $<
 
-$(OUTPUT): $(GUIOBJ)
+$(OUTPUT): $(GUIOBJ) verilated.o
 	@ printf "\e[2m[\e[22;36mld\e[39;2m]\e[22m $@\n"
 	@ $(COMPILER) $^ -o $@ $(DEPLIBS)
 

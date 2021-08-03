@@ -31,7 +31,15 @@ void update_window(CImgDisplay *display, CImg<uint8_t> *image, int *fps) {
 int main(int argc, char **argv) {
 	extern char *optarg;
 	int c;
-	int hflag = 0, Dflag = 0, pflag = 0, mflag = 0, vflag = 0, dflag = 0, Tflag = 0, data_offset = 0, time_offset = 0;
+	int hflag       = 0; // -h: Show help
+	int Dflag       = 0; // -D: Display memory after execution
+	int pflag       = 0; // -p: Program path
+	int mflag       = 0; // -m: Memory size
+	int vflag       = 0; // -v: Read instructions into memory, instead of into a separate array
+	int dflag       = 0; // -d: Path of data to load into memory
+	int Tflag       = 0; // -T: Time offset of clock?
+	int data_offset = 0; // -t: Offset of data loaded into meory (see -d).
+	int time_offset = 0;
 	uint32_t width = 480, height = 360, offset = 0x80'00'00'00;
 	int framerate = 30;
 	char *pstring, *dstring;
