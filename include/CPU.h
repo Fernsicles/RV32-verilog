@@ -45,6 +45,8 @@ namespace RVGUI {
 			std::unique_ptr<uint8_t[]> memory, framebuffer;
 			std::unique_ptr<Word[]> instructions;
 			std::unique_ptr<VCPU> vcpu;
+			size_t count = 0;
+			int64_t start = 0, end = 0;
 
 			void init();
 			void initFramebuffer(int channels = 3);

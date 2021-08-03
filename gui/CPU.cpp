@@ -54,6 +54,10 @@ namespace RVGUI {
 		if (options.separateInstructions && !instructions)
 			throw std::runtime_error("CPU instructions array isn't initialized");
 
+		if (start == 0)
+			start = std::chrono::duration_cast<std::chrono::milliseconds>(
+				std::chrono::high_resolution_clock::now().time_since_epoch()).count();
+
 		if (options.useTimeOffset)
 			*reinterpret_cast<int64_t *>(memory.get() + options.timeOffset) =
 				std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -69,14 +73,51 @@ namespace RVGUI {
 		vcpu->eval();
 
 		if (vcpu->o_load) {
-			if (options.mmioOffset <= vcpu->o_addr) {
+			if (options.mmioOffset <= vcpu->o_addr)
 				std::memcpy(&vcpu->i_mem, framebuffer.get() + vcpu->o_addr - options.mmioOffset, sizeof(Word));
-			} else {
+			else
 				std::memcpy(&vcpu->i_mem, memory.get() + vcpu->o_addr % options.memorySize, sizeof(Word));
-			}
 		}
 
-		return vcpu->i_inst != 0x6f; // Jump to self
+		vcpu->eval();
+		vcpu->i_clk = 1;
+		vcpu->eval();
+
+		uint8_t *pointer;
+		Word address;
+
+		if (options.mmioOffset <= vcpu->o_addr) {
+			pointer = framebuffer.get();
+			address = vcpu->o_addr - options.mmioOffset;
+		} else {
+			pointer = memory.get();
+			address = vcpu->o_addr;
+		}
+
+		if (vcpu->o_write)
+			switch (vcpu->o_memsize) {
+				case 1:
+					std::memcpy(pointer + address, &vcpu->o_mem, 1);
+					break;
+				case 2:
+					std::memcpy(pointer + address, &vcpu->o_mem, 2);
+					break;
+				case 3:
+					std::memcpy(pointer + address, &vcpu->o_mem, 4);
+					break;
+				default:
+					break;
+			}
+
+		++count;
+
+		if (vcpu->i_inst == 0x6f) { // Jump to self
+			 end = std::chrono::duration_cast<std::chrono::milliseconds>(
+				std::chrono::high_resolution_clock::now().time_since_epoch()).count();
+			return false;
+		}
+
+		return true;
 	}
 
 	void CPU::resetMemory() {
