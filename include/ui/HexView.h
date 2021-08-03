@@ -20,6 +20,7 @@ namespace RVGUI {
 			std::shared_ptr<CPU> cpu;
 			Gtk::Grid grid;
 			Glib::RefPtr<Gtk::Adjustment> adjustment;
+			Gtk::ScrolledWindow scrolled;
 			Gtk::Scrollbar scrollbar;
 			Glib::RefPtr<Gtk::EventControllerScroll> scrollController;
 			/** sizeLabel's dimensions are used for size calculations. */

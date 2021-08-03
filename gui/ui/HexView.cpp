@@ -14,7 +14,9 @@ namespace RVGUI {
 	adjustment(Gtk::Adjustment::create(0, 0, 100, 1, 10, 0)),
 	scrollbar(adjustment, Gtk::Orientation::VERTICAL) {
 		set_overflow(Gtk::Overflow::HIDDEN);
-		append(grid);
+		scrolled.set_child(grid);
+		scrolled.set_policy(Gtk::PolicyType::NEVER, Gtk::PolicyType::EXTERNAL);
+		append(scrolled);
 		append(scrollbar);
 		grid.set_hexpand(true);
 		adjustment->signal_value_changed().connect(sigc::mem_fun(*this, &HexView::onScrolled));
@@ -56,7 +58,7 @@ namespace RVGUI {
 		const int row_count = updiv(grid.get_height(), digitHeight);
 		static constexpr int GUTTER_PADDING = 3;
 		const int max_row = offset + row_count - 1;
-		const int digit_count = 1 + (max_row == 0? 0 : std::log10(max_row));
+		const int digit_count = 1 + (max_row == 0? 0 : static_cast<int>(std::log2(max_row)) >> 2); // log16 = log2 / 4
 		const int est_gutter_width = digit_count * (digitWidth + 1) + 2 * GUTTER_PADDING;
 		if (grid_width < est_gutter_width + 2 + cellWidth)
 			return;
@@ -83,6 +85,7 @@ namespace RVGUI {
 	}
 
 	void HexView::onScrolled() {
+		reset();
 		// double position = std::floor(adjustment->get_value());
 	}
 }
