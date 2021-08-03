@@ -175,6 +175,8 @@ namespace RVGUI {
 	}
 
 	void CPU::loadData() {
+		if (options.dataFilename.empty())
+			return;
 		const auto datasize = std::filesystem::file_size(options.dataFilename);
 		std::ifstream data;
 		data.open(options.dataFilename, std::ios::in | std::ios::binary);
@@ -220,9 +222,9 @@ namespace RVGUI {
 		vcpu->i_dload = 0;
 		vcpu->i_ddata = 0;
 		if (options.separateInstructions)
-			vcpu->i_inst = ((Word *) memory.get())[0];
-		else
 			vcpu->i_inst = instructions[0];
+		else
+			vcpu->i_inst = ((Word *) memory.get())[0];
 		vcpu->i_mem = memory[0];
 		vcpu->eval();
 	}
