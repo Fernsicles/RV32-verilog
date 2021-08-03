@@ -44,7 +44,7 @@ endif
 verilated.o: /usr/share/verilator/include/verilated.cpp
 	$(COMPILER) $(DEBUGFLAGS) $(CPPFLAGS) -c $< -o $@
 
-gui/%.o: gui/%.cpp
+gui/%.o: gui/%.cpp obj_dir/VCPU.h
 	@ printf "\e[2m[\e[22;32mcc\e[39;2m]\e[22m $< \e[2m$(DEBUGFLAGS) $(CPPFLAGS)\e[22m\n"
 	@ $(COMPILER) $(DEBUGFLAGS) $(CPPFLAGS) $(DEPCFLAGS) -Iinclude -c $< -o $@
 
