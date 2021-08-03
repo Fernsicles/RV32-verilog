@@ -57,6 +57,8 @@ namespace RVGUI {
 		area.append(buttonBox);
 
 		clearButton.signal_clicked().connect(sigc::mem_fun(*this, &OpenDialog::clear));
+		programBrowse.signal_clicked().connect(sigc::mem_fun(*this, &OpenDialog::browseProgram));
+		dataBrowse.signal_clicked().connect(sigc::mem_fun(*this, &OpenDialog::browseData));
 	}
 
 	void OpenDialog::clear() {
@@ -69,5 +71,34 @@ namespace RVGUI {
 		dataOffset.set_text("");
 		timeOffset.set_text("");
 		separateInstructions.set_active(false);
+	}
+
+	Gtk::FileChooserDialog * OpenDialog::browse(const Glib::ustring &title,
+	                                            std::function<void(const std::string &)> on_choose) {
+		auto *browser = new Gtk::FileChooserDialog(*this, title, Gtk::FileChooser::Action::OPEN, true);
+		browser->set_transient_for(*this);
+		browser->add_button("_Cancel", Gtk::ResponseType::CANCEL);
+		browser->add_button("_Open", Gtk::ResponseType::OK);
+		browser->signal_response().connect([this, browser, on_choose](int response) {
+			if (response == Gtk::ResponseType::OK)
+				on_choose(browser->get_file()->get_path());
+			else
+				on_choose("");
+			browser->hide();
+		});
+		browser->show();
+		return browser;
+	}
+
+	void OpenDialog::browseProgram() {
+		dialog.reset(browse("Program", [this](const std::string &path) {
+			programFilename.set_text(path);
+		}));
+	}
+
+	void OpenDialog::browseData() {
+		dialog.reset(browse("Data", [this](const std::string &path) {
+			dataFilename.set_text(path);
+		}));
 	}
 }
