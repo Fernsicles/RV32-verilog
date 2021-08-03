@@ -1,4 +1,4 @@
-module register(
+module registers(
 	input wire i_clk,
 	input wire [4:0] i_raddr1,
 	input wire [4:0] i_raddr2,

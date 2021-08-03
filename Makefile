@@ -11,7 +11,7 @@ VALU.h: ALU.sv
 alutest: obj_dir/VALU.h ALUtest.cpp
 	g++ -std=c++17 -Iobj_dir $(shell pkg-config --cflags verilator) ALUtest.cpp /usr/share/verilator/include/verilated.cpp obj_dir/VALU__ALL.o -o alutest
 
-obj_dir/VCPU.h: CPU.sv control_unit.sv register.sv ALU.sv
+obj_dir/VCPU.h: CPU.sv control_unit.sv registers.sv ALU.sv
 ifeq ($(TEST), 1)
 	verilator $(OPTIMIZATION) -cc CPU.sv
 	cd obj_dir && make -f VCPU.mk

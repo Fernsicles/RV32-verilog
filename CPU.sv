@@ -1,5 +1,5 @@
 `include "ALU.sv"
-`include "register.sv"
+`include "registers.sv"
 `include "control_unit.sv"
 
 module CPU(
@@ -43,7 +43,7 @@ module CPU(
 	assign r_raddr2 = i_inst[24:20];
 	assign r_waddr  = i_inst[11:7];
 	assign o_mem    = r_rdata2[31:0];
-	register rfile(i_clk, r_raddr1, r_raddr2, r_waddr, r_wdata, r_write, r_rdata1, r_rdata2
+	registers rfile(i_clk, r_raddr1, r_raddr2, r_waddr, r_wdata, r_write, r_rdata1, r_rdata2
 `ifndef YOSYS
 	             , i_dload, i_daddr, i_ddata, o_reg
 `endif
