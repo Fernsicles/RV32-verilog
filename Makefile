@@ -6,7 +6,7 @@ GUISRC       := $(shell find gui -name \*.cpp) gui/resources.cpp
 GUIOBJ       := $(GUISRC:.cpp=.o)
 DEPS         := gtk4 gtkmm-4.0 x11 verilator
 DEPCFLAGS    := $(shell pkg-config --cflags $(DEPS))
-DEPLIBS      := $(shell pkg-config --libs   $(DEPS))
+DEPLIBS      := $(shell pkg-config --libs   $(DEPS)) -pthread
 OUTPUT       := rvgui
 GLIB_COMPILE_RESOURCES := $(shell pkg-config --variable=glib_compile_resources gio-2.0)
 ifneq ($(RELEASE),1)
@@ -44,7 +44,7 @@ endif
 verilated.o: /usr/share/verilator/include/verilated.cpp
 	$(COMPILER) $(DEBUGFLAGS) $(CPPFLAGS) -c $< -o $@
 
-gui/%.o: gui/%.cpp
+gui/%.o: gui/%.cpp obj_dir/VCPU.h
 	@ printf "\e[2m[\e[22;32mcc\e[39;2m]\e[22m $< \e[2m$(DEBUGFLAGS) $(CPPFLAGS)\e[22m\n"
 	@ $(COMPILER) $(DEBUGFLAGS) $(CPPFLAGS) $(DEPCFLAGS) -Iinclude -c $< -o $@
 
