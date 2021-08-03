@@ -1,22 +1,31 @@
-#include "obj_dir/VCPU.h"
-#include "verilated.h"
-#include <CImg.h>
 #include <chrono>
 #include <filesystem>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <mutex>
 #include <string>
-#include <unistd.h>
 #include <thread>
+#include <unistd.h>
+
+#include <CImg.h>
+#include <verilated.h>
+
+#include "obj_dir/VCPU.h"
 
 using namespace std;
 using namespace cimg_library;
 
+std::mutex update_mutex;
+bool update_done = false;
+
 void update_window(CImgDisplay *display, CImg<uint8_t> *image, int *fps) {
-	while(1) {
+	for (;;) {
 		this_thread::sleep_for(chrono::milliseconds(1000 / *fps));
 		display->display(*image);
+		auto lock = std::unique_lock(update_mutex);
+		if (update_done)
+			break;
 	}
 }
 
@@ -98,7 +107,6 @@ int main(int argc, char **argv) {
 	CImg<uint8_t> fb(width, height, 1, 3, 0);
 	CImgDisplay window(fb, "Frame Buffer", 0);
 	thread update(update_window, &window, &fb, &framerate);
-	update.detach();
 
 	uint *inst;
 	uint8_t *mem = (uint8_t *) calloc(memsize, sizeof(uint8_t));
@@ -244,5 +252,11 @@ int main(int argc, char **argv) {
 		free(inst);
 	}
 
+	{
+		auto lock = std::unique_lock(update_mutex);
+		update_done = true;
+	}
+
+	update.join();
 	return 0;
 }
