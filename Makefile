@@ -4,7 +4,7 @@ OPTIMIZATION ?= -O3
 
 all: CPU_sim
 
-VALU.h: ALU.sv
+obj_dir/VALU.h: ALU.sv
 	verilator -Wall -cc ALU.sv
 	cd obj_dir && make -f VALU.mk
 
