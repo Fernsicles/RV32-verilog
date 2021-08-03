@@ -10,6 +10,11 @@ namespace RVGUI {
 		header = builder->get_widget<Gtk::HeaderBar>("headerbar");
 		set_titlebar(*header);
 
+		cssProvider = Gtk::CssProvider::create();
+		cssProvider->load_from_resource("/com/ferns/rvgui/style.css");
+		Gtk::StyleContext::add_provider_for_display(Gdk::Display::get_default(), cssProvider,
+			GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+
 		add_action("open", Gio::ActionMap::ActivateSlot([this] {
 			std::cout << "open\n";
 			cpu = std::make_shared<CPU>(CPU::Options("./programs/videostd.bin", INT_MAX));
@@ -36,10 +41,26 @@ namespace RVGUI {
 		hexView.set_expand(true);
 		delay([this] {
 			delay([this] {
-				paned.set_position(get_width() * 6 / 10);
+				paned.set_position(get_width() * 7 / 10);
 			});
 		});
 		set_child(paned);
+
+		// :(
+		g_signal_connect(G_OBJECT(paned.gobj()), "notify::position", G_CALLBACK(
+			+[](GtkPaned *, GParamSpec *, gpointer ptr) {
+				((HexView *) ptr)->onResize();
+			}
+		), &hexView);
+
+		// How did I even manage to figure this out? It's poorly documented dark magic as far as I'm concerned.
+		g_signal_connect(G_OBJECT(gobj()), "notify::default-height", G_CALLBACK(
+			+[](GtkWidget *, GdkEvent *, gpointer ptr) -> gboolean {
+				// std::cout << "dh[" << ptr << "]\n";
+				((HexView *) ptr)->onResize();
+				return false;
+			}
+		), &hexView);
 	}
 
 	MainWindow * MainWindow::create() {

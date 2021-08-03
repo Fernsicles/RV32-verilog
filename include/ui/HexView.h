@@ -12,6 +12,7 @@ namespace RVGUI {
 			HexView(int row_height = 20, int cell_width = 30);
 
 			HexView & setCPU(std::shared_ptr<CPU>);
+			void onResize();
 
 		private:
 			std::shared_ptr<CPU> cpu;
@@ -19,6 +20,9 @@ namespace RVGUI {
 			Glib::RefPtr<Gtk::Adjustment> adjustment;
 			Gtk::Scrollbar scrollbar;
 			Glib::RefPtr<Gtk::EventControllerScroll> scrollController;
+			/** sizeLabel's dimensions are used for size calculations. */
+			Gtk::Label sizeLabel {"0"};
+			int digitWidth = -1, digitHeight = -1;
 
 			void reset();
 			bool onScroll(double dx, double dy);

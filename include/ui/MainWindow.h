@@ -34,6 +34,7 @@ namespace RVGUI {
 
 		private:
 			Glib::RefPtr<Gtk::Builder> builder;
+			Glib::RefPtr<Gtk::CssProvider> cssProvider;
 			std::unique_ptr<Gtk::Dialog> dialog;
 			std::list<std::function<void()>> functionQueue;
 			std::mutex functionQueueMutex;
