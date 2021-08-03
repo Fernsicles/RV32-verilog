@@ -32,11 +32,10 @@ int main(int argc, char **argv) {
 	extern char *optarg;
 	int c;
 	int hflag = 0, Dflag = 0, pflag = 0, mflag = 0, vflag = 0, dflag = 0, Tflag = 0, data_offset = 0, time_offset = 0;
-	uint32_t width = 480, height = 360;
-	uint32_t offset = 0x80000000;
+	uint32_t width = 480, height = 360, offset = 0x80'00'00'00;
 	int framerate = 30;
 	char *pstring, *dstring;
-	unsigned long memsize = 0;
+	uint64_t memsize = 0;
 	static char usage[] = "Usage: h [-h] [-v] [-D] [-p program] [-m memory_size] [-x width] [-y height] [-f framerate] [-o mmio_offset] [-d data] [-t data_offset] [-T time_offset]";
 	while ((c = getopt(argc, argv, "hDp:m:vx:y:f:d:t:T:")) != -1) {
 		switch(c) {
@@ -171,7 +170,7 @@ int main(int argc, char **argv) {
 	cpu.eval();
 	uint8_t *pointer;
 	uint32_t addr;
-	unsigned long count = 0;
+	uint64_t count = 0;
 
 	while (cpu.i_inst != 0x6f) {
 		if (Tflag) {
@@ -226,7 +225,7 @@ int main(int argc, char **argv) {
 	uint64_t end = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
 
 	if (Dflag)
-		for (unsigned long i = 0; i < memsize; ++i) {
+		for (uint64_t i = 0; i < memsize; ++i) {
 			std::cout << "0x";
 			std::cout << std::setw(2) << std::setfill('0') << std::setbase(16) << (int) mem[i] << '\t';
 			if ((i + 1) % 4 == 0)
