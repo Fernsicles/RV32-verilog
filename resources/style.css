@@ -2,6 +2,10 @@
 	font-family: monospace;
 }
 
+.hexview label {
+	font-family: monospace;
+}
+
 .hidden {
 	opacity: 0;
 }
