@@ -13,7 +13,6 @@
 
 #include "obj_dir/VCPU.h"
 
-using namespace std;
 using namespace cimg_library;
 
 std::mutex update_mutex;
@@ -21,7 +20,7 @@ bool update_done = false;
 
 void update_window(CImgDisplay *display, CImg<uint8_t> *image, int *fps) {
 	for (;;) {
-		this_thread::sleep_for(chrono::milliseconds(1000 / *fps));
+		std::this_thread::sleep_for(std::chrono::milliseconds(1000 / *fps));
 		display->display(*image);
 		auto lock = std::unique_lock(update_mutex);
 		if (update_done)
@@ -31,17 +30,15 @@ void update_window(CImgDisplay *display, CImg<uint8_t> *image, int *fps) {
 
 int main(int argc, char **argv) {
 	extern char *optarg;
-	extern int optind;
-	int c, err = 0;
+	int c;
 	int hflag = 0, Dflag = 0, pflag = 0, mflag = 0, vflag = 0, dflag = 0, Tflag = 0, data_offset = 0, time_offset = 0;
 	uint width = 480, height = 360;
 	uint offset = 0x80000000;
 	int framerate = 30;
-	char *pstring;
-	char * dstring;
-	ulong memsize;
+	char *pstring, *dstring;
+	ulong memsize = 0;
 	static char usage[] = "Usage: h [-h] [-v] [-D] [-p program] [-m memory_size] [-x width] [-y height] [-f framerate] [-o mmio_offset] [-d data] [-t data_offset] [-T time_offset]";
-	while((c = getopt(argc, argv, "hDp:m:vx:y:f:d:t:T:")) != -1) {
+	while ((c = getopt(argc, argv, "hDp:m:vx:y:f:d:t:T:")) != -1) {
 		switch(c) {
 			case 'h':
 				hflag = 1;
@@ -55,114 +52,103 @@ int main(int argc, char **argv) {
 				break;
 			case 'm':
 				mflag = 1;
-				memsize = stoul(optarg, nullptr);
+				memsize = std::stoul(optarg, nullptr);
 				break;
 			case 'v':
 				vflag = 1;
 				break;
 			case 'x':
-				width = stoi(optarg, nullptr);
+				width = std::stoi(optarg, nullptr);
 				break;
 			case 'y':
-				height = stoi(optarg, nullptr);
+				height = std::stoi(optarg, nullptr);
 				break;
 			case 'f':
-				framerate = stoi(optarg, nullptr);
+				framerate = std::stoi(optarg, nullptr);
 				break;
 			case 'o':
-				offset = stoi(optarg, nullptr);
+				offset = std::stoi(optarg, nullptr);
 				break;
 			case 'd':
 				dflag = 1;
 				dstring = optarg;
 				break;
 			case 't':
-				data_offset = stoi(optarg, nullptr);
+				data_offset = std::stoi(optarg, nullptr);
 				break;
 			case 'T':
 				Tflag = 1;
-				time_offset = stoi(optarg, nullptr);
+				time_offset = std::stoi(optarg, nullptr);
 				break;
 			default:
-				cout << usage << endl;
-				abort();
+				std::cout << usage << std::endl;
+				return 1;
 		}
 	}
 
-	if(hflag) {
-		cout << usage << endl;
-		abort();
-	}
-	if(!pflag || !mflag) {
-		cerr << "ERROR: Both a program and memory size are required." << endl;
-		cout << usage << endl;
-		abort();
+	if (hflag) {
+		std::cout << usage << std::endl;
+		return 1;
 	}
 
-	if(memsize > offset) {
-		cerr << "ERROR: Memory overlaps with MMIO.";
-		abort();
+	if (!pflag || !mflag) {
+		std::cerr << "ERROR: Both a program and memory size are required." << std::endl;
+		std::cout << usage << std::endl;
+		return 1;
+	}
+
+	if (offset < memsize) {
+		std::cerr << "ERROR: Memory overlaps with MMIO." << std::endl;
+		return 1;
 	}
 
 	CImg<uint8_t> fb(width, height, 1, 3, 0);
 	CImgDisplay window(fb, "Frame Buffer", 0);
-	thread update(update_window, &window, &fb, &framerate);
+	std::thread update(update_window, &window, &fb, &framerate);
 
-	uint *inst;
+	uint *inst = nullptr;
 	uint8_t *mem = (uint8_t *) calloc(memsize, sizeof(uint8_t));
-	uint filesize = filesystem::file_size(pstring);
-	ifstream file;
-	file.open(pstring, ios::in | ios::binary);
-	if(vflag) {
-		int i = 0;
-		while(!file.eof() && i < filesize) {
-			uint buf;
-			file.read((char *) &buf, 1);
-			mem[i] = buf;
-			i++;
-		}
+	uint filesize = std::filesystem::file_size(pstring);
+	std::ifstream file;
+	file.open(pstring, std::ios::in | std::ios::binary);
+	if (vflag) {
+		for (uint i = 0; !file.eof() && i < filesize; ++i)
+			file.read(reinterpret_cast<char *>(&mem[i]), 1);
 	} else {
-		int i = 0;
 		inst = (uint *) calloc(filesize / 4, sizeof(uint));
-		while(!file.eof() && i < filesize / 4) {
-			int buf;
-			file.read((char *) &buf, 4);
-			inst[i] = buf;
-			i++;
-		}
+		for (uint i = 0; !file.eof() && i < filesize / 4; ++i)
+			file.read(reinterpret_cast<char *>(&inst[i]), 4);
 	}
 
-	if(vflag) {
-		for(int x = 0; x < filesize / 4; x++) {
-			cout << "0x";
-			cout << setw(8) << setfill('0') << setbase(16) << ((uint *) mem)[x] << endl;
+	if (vflag) {
+		for (uint x = 0; x < filesize / 4; ++x) {
+			std::cout << "0x";
+			std::cout << std::setw(8) << std::setfill('0') << std::setbase(16) << ((uint *) mem)[x] << std::endl;
 		}
 	} else {
-		for(int x = 0; x < filesize / 4; x++) {
-			cout << "0x";
-			cout << setw(8) << setfill('0') << setbase(16) << inst[x] << endl;
+		for (uint x = 0; x < filesize / 4; ++x) {
+			std::cout << "0x";
+			std::cout << std::setw(8) << std::setfill('0') << std::setbase(16) << inst[x] << std::endl;
 		}
 	}
 	
-	if(dflag) {
-		uint datasize = filesystem::file_size(dstring);
-		ifstream data;
-		data.open(dstring, ios::in | ios::binary);
-		int i = 0;
-		while(!data.eof() && i < datasize) {
+	if (dflag) {
+		uint datasize = std::filesystem::file_size(dstring);
+		std::ifstream data;
+		data.open(dstring, std::ios::in | std::ios::binary);
+		for (uint i = 0; !data.eof() && i < datasize; ++i) {
 			// char buf;
-			data.read((char *) mem + data_offset + i, 1);
+			data.read(reinterpret_cast<char *>(mem) + data_offset + i, 1);
 			// memcpy(mem + data_offset + i, buf, 1);
 			// mem[data_offset + i] = buf;
-			i++;
 		}
-		cout << "Finished loading data." << endl;
+		std::cout << "Finished loading data." << std::endl;
 	}
 
 	Verilated::commandArgs(0, argv);
 	VCPU cpu;
 
-	uint64_t start = chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now().time_since_epoch()).count();
+	uint64_t start = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
 
 	cpu.i_clk = 0;
 	cpu.i_inst = 0x6f;
@@ -186,15 +172,14 @@ int main(int argc, char **argv) {
 	uint8_t *pointer;
 	uint addr;
 	unsigned long count = 0;
-	while(cpu.i_inst != 0x0000006f) {
-
-		if(Tflag) {
-			unsigned int t = chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now().time_since_epoch()).count();
+	while (cpu.i_inst != 0x0000006f) {
+		if (Tflag) {
+			unsigned int t = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
 			((unsigned int *) mem)[time_offset] = t;
 		}
 
 		cpu.i_clk = 0;
-		if(vflag) {
+		if (vflag) {
 			cpu.i_inst = ((uint *) mem)[cpu.o_pc >> 2];
 		} else {
 			cpu.i_inst = inst[cpu.o_pc >> 2];
@@ -211,15 +196,16 @@ int main(int argc, char **argv) {
 		cpu.i_clk = 1;
 		cpu.eval();
 		
-		if(cpu.o_addr >= offset) {
+		if (cpu.o_addr >= offset) {
 			pointer = fb.data();
 			addr = cpu.o_addr - offset;
 		} else {
 			pointer = mem;
 			addr = cpu.o_addr;
 		}
-		if(cpu.o_write) {
-			switch(cpu.o_memsize) {
+
+		if (cpu.o_write) {
+			switch (cpu.o_memsize) {
 				case 1:
 					memcpy(pointer + addr, &cpu.o_mem, 1);
 					break;
@@ -235,22 +221,21 @@ int main(int argc, char **argv) {
 		}
 		count++;
 	}
-	uint64_t end = chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now().time_since_epoch()).count();
+	uint64_t end = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
 
-	for(int x = 0; x < memsize && Dflag; x++) {
-		cout << "0x";
-		cout << setw(2) << setfill('0') << setbase(16) << (int) mem[x] << '\t';
-		if((x + 1) % 4 == 0) {
-			cout << endl;
+	if (Dflag)
+		for (ulong i = 0; i < memsize; ++i) {
+			std::cout << "0x";
+			std::cout << std::setw(2) << std::setfill('0') << std::setbase(16) << (int) mem[i] << '\t';
+			if ((i + 1) % 4 == 0)
+				std::cout << std::endl;
 		}
-	}
 
-	cout << setbase(10) << "Time elapsed: " << end - start << " ms" << endl << "Cycles: " << count << endl;
+	std::cout << std::setbase(10) << "Time elapsed: " << end - start << " ms" << std::endl << "Cycles: " << count << std::endl;
 
 	free(mem);
-	if(!vflag) {
+	if (!vflag)
 		free(inst);
-	}
 
 	{
 		auto lock = std::unique_lock(update_mutex);
