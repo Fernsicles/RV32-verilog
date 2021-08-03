@@ -83,18 +83,20 @@ namespace RVGUI {
 
 		vcpu->i_clk = 0;
 
-		if (options.separateInstructions)
-			vcpu->i_inst = reinterpret_cast<Word *>(memory.get())[vcpu->o_pc / sizeof(Word)];
-		else
+		if (options.separateInstructions) {
 			vcpu->i_inst = instructions[vcpu->o_pc / sizeof(Word)];
+		} else {
+			vcpu->i_inst = reinterpret_cast<Word *>(memory.get())[vcpu->o_pc / sizeof(Word)];
+		}
 
 		vcpu->eval();
 
 		if (vcpu->o_load) {
-			if (options.mmioOffset <= vcpu->o_addr)
+			if (options.mmioOffset <= vcpu->o_addr) {
 				std::memcpy(&vcpu->i_mem, framebuffer.get() + vcpu->o_addr - options.mmioOffset, sizeof(Word));
-			else
+			} else {
 				std::memcpy(&vcpu->i_mem, memory.get() + vcpu->o_addr % options.memorySize, sizeof(Word));
+			}
 		}
 
 		vcpu->eval();
@@ -138,6 +140,12 @@ namespace RVGUI {
 				default:
 					break;
 			}
+
+		if (vcpu->o_pc != oldPC) {
+			oldPC = vcpu->o_pc;
+			if (onPCUpdate)
+				onPCUpdate(oldPC);
+		}
 
 		++count;
 
