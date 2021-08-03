@@ -34,7 +34,7 @@ namespace RVGUI {
 
 	HexView & HexView::setCPU(std::shared_ptr<CPU> cpu_) {
 		cpu = cpu_;
-		// adjustment->set_upper(
+		adjustment->set_value(0);
 		reset();
 		return *this;
 	}
@@ -71,8 +71,18 @@ namespace RVGUI {
 		// std::cout << "cells_per_row[" << cells_per_row << "], row_count[" << row_count << "], digit_count[" << digit_count << "]\n";
 		if (cpu) {
 			const size_t memory_size = cpu->memorySize();
+
+			const double old_upper = adjustment->get_upper();
+			const double new_upper = static_cast<double>(memory_size) / cells_per_row;
+			if (old_upper != new_upper) {
+				const double new_value = new_upper / old_upper * adjustment->get_value();
+				adjustment->set_upper(new_upper);
+				adjustment->set_value(new_value);
+			}
+
 			for (int row = 0; row < row_count; ++row) {
 				std::stringstream ss;
+				ss.imbue(std::locale::classic()); // Avoid thousands separators
 				const size_t row_offset = (offset + row) * cells_per_row;
 				ss << std::right << std::hex << std::setw(digit_count) << std::setfill('0') << row_offset;
 				auto &label = *widgets.emplace_back(new Gtk::Label(ss.str(), Gtk::Align::END));
@@ -96,6 +106,9 @@ namespace RVGUI {
 				}
 			}
 		}
+
+		oldColumnCount = cells_per_row;
+		oldOffset = offset * cells_per_row;
 	}
 
 	bool HexView::onScroll(double, double dy) {
