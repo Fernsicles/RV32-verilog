@@ -32,11 +32,11 @@ int main(int argc, char **argv) {
 	extern char *optarg;
 	int c;
 	int hflag = 0, Dflag = 0, pflag = 0, mflag = 0, vflag = 0, dflag = 0, Tflag = 0, data_offset = 0, time_offset = 0;
-	uint width = 480, height = 360;
-	uint offset = 0x80000000;
+	uint32_t width = 480, height = 360;
+	uint32_t offset = 0x80000000;
 	int framerate = 30;
 	char *pstring, *dstring;
-	ulong memsize = 0;
+	unsigned long memsize = 0;
 	static char usage[] = "Usage: h [-h] [-v] [-D] [-p program] [-m memory_size] [-x width] [-y height] [-f framerate] [-o mmio_offset] [-d data] [-t data_offset] [-T time_offset]";
 	while ((c = getopt(argc, argv, "hDp:m:vx:y:f:d:t:T:")) != -1) {
 		switch(c) {
@@ -106,37 +106,37 @@ int main(int argc, char **argv) {
 	CImgDisplay window(fb, "Frame Buffer", 0);
 	std::thread update(update_window, &window, &fb, &framerate);
 
-	uint *inst = nullptr;
+	uint32_t *inst = nullptr;
 	uint8_t *mem = (uint8_t *) calloc(memsize, sizeof(uint8_t));
-	uint filesize = std::filesystem::file_size(pstring);
+	uint32_t filesize = std::filesystem::file_size(pstring);
 	std::ifstream file;
 	file.open(pstring, std::ios::in | std::ios::binary);
 	if (vflag) {
-		for (uint i = 0; !file.eof() && i < filesize; ++i)
+		for (uint32_t i = 0; !file.eof() && i < filesize; ++i)
 			file.read(reinterpret_cast<char *>(&mem[i]), 1);
 	} else {
-		inst = (uint *) calloc(filesize / 4, sizeof(uint));
-		for (uint i = 0; !file.eof() && i < filesize / 4; ++i)
+		inst = (uint32_t *) calloc(filesize / 4, sizeof(uint32_t));
+		for (uint32_t i = 0; !file.eof() && i < filesize / 4; ++i)
 			file.read(reinterpret_cast<char *>(&inst[i]), 4);
 	}
 
 	if (vflag) {
-		for (uint x = 0; x < filesize / 4; ++x) {
+		for (uint32_t x = 0; x < filesize / 4; ++x) {
 			std::cout << "0x";
-			std::cout << std::setw(8) << std::setfill('0') << std::setbase(16) << ((uint *) mem)[x] << std::endl;
+			std::cout << std::setw(8) << std::setfill('0') << std::setbase(16) << ((uint32_t *) mem)[x] << std::endl;
 		}
 	} else {
-		for (uint x = 0; x < filesize / 4; ++x) {
+		for (uint32_t x = 0; x < filesize / 4; ++x) {
 			std::cout << "0x";
 			std::cout << std::setw(8) << std::setfill('0') << std::setbase(16) << inst[x] << std::endl;
 		}
 	}
 	
 	if (dflag) {
-		uint datasize = std::filesystem::file_size(dstring);
+		uint32_t datasize = std::filesystem::file_size(dstring);
 		std::ifstream data;
 		data.open(dstring, std::ios::in | std::ios::binary);
-		for (uint i = 0; !data.eof() && i < datasize; ++i) {
+		for (uint32_t i = 0; !data.eof() && i < datasize; ++i) {
 			// char buf;
 			data.read(reinterpret_cast<char *>(mem) + data_offset + i, 1);
 			// memcpy(mem + data_offset + i, buf, 1);
@@ -163,16 +163,17 @@ int main(int argc, char **argv) {
 	cpu.i_dload = 0;
 	cpu.i_ddata = 0;
 	if(vflag) {
-		cpu.i_inst = ((uint *) mem)[0];
+		cpu.i_inst = ((uint32_t *) mem)[0];
 	} else {
 		cpu.i_inst = inst[0];
 	}
 	cpu.i_mem = mem[0];
 	cpu.eval();
 	uint8_t *pointer;
-	uint addr;
+	uint32_t addr;
 	unsigned long count = 0;
-	while (cpu.i_inst != 0x0000006f) {
+
+	while (cpu.i_inst != 0x6f) {
 		if (Tflag) {
 			unsigned int t = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
 			((unsigned int *) mem)[time_offset] = t;
@@ -180,7 +181,7 @@ int main(int argc, char **argv) {
 
 		cpu.i_clk = 0;
 		if (vflag) {
-			cpu.i_inst = ((uint *) mem)[cpu.o_pc >> 2];
+			cpu.i_inst = ((uint32_t *) mem)[cpu.o_pc >> 2];
 		} else {
 			cpu.i_inst = inst[cpu.o_pc >> 2];
 		}
@@ -219,12 +220,13 @@ int main(int argc, char **argv) {
 					break;
 			}
 		}
-		count++;
+
+		++count;
 	}
 	uint64_t end = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
 
 	if (Dflag)
-		for (ulong i = 0; i < memsize; ++i) {
+		for (unsigned long i = 0; i < memsize; ++i) {
 			std::cout << "0x";
 			std::cout << std::setw(2) << std::setfill('0') << std::setbase(16) << (int) mem[i] << '\t';
 			if ((i + 1) % 4 == 0)
