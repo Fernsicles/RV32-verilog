@@ -51,7 +51,6 @@ namespace RVGUI {
 			if (pixbuf) {
 				Gdk::Cairo::set_source_pixbuf(context, pixbuf, (drawingArea.get_width() - width) / 2,
 					(drawingArea.get_height() - height) / 2);
-				// Gdk::Cairo::set_source_pixbuf(context, pixbuf, 0, 0);
 				context->paint();
 			}
 		});
@@ -123,7 +122,9 @@ namespace RVGUI {
 	}
 
 	void MainWindow::tick() {
-		if (cpu)
+		if (cpu) {
 			cpu->tick();
+			drawingArea.queue_draw();
+		}
 	}
 }

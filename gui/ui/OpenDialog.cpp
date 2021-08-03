@@ -123,7 +123,7 @@ namespace RVGUI {
 			return;
 		}
 
-		size_t mmio_offset = 0;
+		size_t mmio_offset = 0x80'00'00'00;
 		try {
 			if (mmioOffset.get_text_length() != 0) {
 				mmio_offset = parseUlong(mmioOffset.get_text());

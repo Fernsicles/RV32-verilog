@@ -130,8 +130,6 @@ namespace RVGUI {
 					}
 					break;
 				case 3:
-					std::cout << "framebuffer[" << reinterpret_cast<void *>(framebuffer.get()) << ":" << ((void *) ((char *) framebuffer.get() + options.width * options.height * 3)) << "], memory[" << reinterpret_cast<void *>(memory.get()) << "]\n";
-					std::cout << "std::memcpy(" << reinterpret_cast<void *>(pointer + address) << ", " << &vcpu->o_mem << ", 4);\n";
 					std::memcpy(pointer + address, &vcpu->o_mem, 4);
 					if (onByteUpdate) {
 						onByteUpdate((uintptr_t) pointer + address, *(pointer + address));
