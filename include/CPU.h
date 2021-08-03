@@ -13,15 +13,19 @@ namespace RVGUI {
 			using Word = uint32_t;
 
 			struct Options {
-				std::string filename;
+				std::string programFilename, dataFilename;
 				size_t memorySize;
 				bool separateInstructions = false, useTimeOffset = false;
 				int32_t timeOffset = 0;
 				uint32_t width = 480, height = 360;
 				Word mmioOffset = 0x80'00'00'00;
+				Word dataOffset = 0;
 
 				Options() = delete;
-				Options(const std::string &filename_, size_t memory_size);
+				Options(const std::string &program_filename, size_t memory_size);
+				Options & setDataFilename(const std::string &);
+				Options & setDataFilename(const std::string &, Word offset);
+				Options & setDataOffset(Word);
 				Options & setSeparateInstructions(bool);
 				Options & setTimeOffset(int32_t);
 				Options & setWidth(uint32_t);
@@ -39,6 +43,7 @@ namespace RVGUI {
 			void resetMemory();
 			void loadProgram();
 			void loadData(void *data, size_t size, size_t offset);
+			void loadData();
 
 		private:
 			Options options;

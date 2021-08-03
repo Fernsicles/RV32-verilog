@@ -7,8 +7,24 @@
 #include "CPU.h"
 
 namespace RVGUI {
-	CPU::Options::Options(const std::string &filename_, size_t memory_size):
-		filename(filename_), memorySize(memory_size) {}
+	CPU::Options::Options(const std::string &program_filename, size_t memory_size):
+		programFilename(program_filename), memorySize(memory_size) {}
+
+	CPU::Options & CPU::Options::setDataFilename(const std::string &value) {
+		dataFilename = value;
+		return *this;
+	}
+
+	CPU::Options & CPU::Options::setDataFilename(const std::string &value, Word offset) {
+		dataFilename = value;
+		dataOffset = offset;
+		return *this;
+	}
+
+	CPU::Options & CPU::Options::setDataOffset(Word value) {
+		dataOffset = value;
+		return *this;
+	}
 
 	CPU::Options & CPU::Options::setSeparateInstructions(bool value) {
 		separateInstructions = value;
@@ -127,13 +143,13 @@ namespace RVGUI {
 	}
 
 	void CPU::loadProgram() {
-		if (options.filename.empty())
+		if (options.programFilename.empty())
 			throw std::runtime_error("Program filename is empty");
 
 		std::ifstream file;
-		file.open(options.filename, std::ios::in | std::ios::binary);
+		file.open(options.programFilename, std::ios::in | std::ios::binary);
 
-		const auto filesize = std::filesystem::file_size(options.filename);
+		const auto filesize = std::filesystem::file_size(options.programFilename);
 
 		if (!file.is_open())
 			throw std::runtime_error("Failed to open program for reading");
@@ -155,10 +171,19 @@ namespace RVGUI {
 		std::memcpy(memory.get() + offset, data, size);
 	}
 
+	void CPU::loadData() {
+		const auto datasize = std::filesystem::file_size(options.dataFilename);
+		std::ifstream data;
+		data.open(options.dataFilename, std::ios::in | std::ios::binary);
+		for (size_t i = 0; !data.eof() && i < datasize; ++i)
+			data.read(reinterpret_cast<char *>(memory.get() + options.dataOffset + i), 1);
+	}
+
 	void CPU::init() {
 		resetMemory();
 		initFramebuffer(3);
 		loadProgram();
+		loadData();
 		initVCPU();
 	}
 
