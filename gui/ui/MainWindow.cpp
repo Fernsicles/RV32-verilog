@@ -25,7 +25,6 @@ namespace RVGUI {
 			GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
 
 		add_action("open", Gio::ActionMap::ActivateSlot([this] {
-			std::cout << "open\n";
 			auto *open_dialog = new OpenDialog(*this);
 			dialog.reset(open_dialog);
 			open_dialog->signal_submit().connect([this](const CPU::Options &options) {
@@ -36,6 +35,7 @@ namespace RVGUI {
 						options.width, options.height, 3 * options.width);
 				else
 					pixbuf.reset();
+				drawingArea.queue_draw();
 			});
 			dialog->show();
 		}));
