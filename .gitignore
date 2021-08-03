@@ -4,6 +4,6 @@ alutest
 CPU_sim
 *.o
 bad-apple.raw
-cpugui
+rvgui
 .dep
 /gui/resources.cpp

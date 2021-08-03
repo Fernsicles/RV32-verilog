@@ -6,7 +6,7 @@ GUIOBJ       := $(GUISRC:.cpp=.o)
 DEPS         := gtk4 gtkmm-4.0 x11
 DEPCFLAGS    := $(shell pkg-config --cflags $(DEPS))
 DEPLIBS      := $(shell pkg-config --libs   $(DEPS))
-OUTPUT       := cpugui
+OUTPUT       := rvgui
 GLIB_COMPILE_RESOURCES := $(shell pkg-config --variable=glib_compile_resources gio-2.0)
 
 .PHONY: all test clean
