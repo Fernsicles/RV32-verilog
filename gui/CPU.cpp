@@ -1,5 +1,7 @@
 #include <chrono>
 #include <cstring>
+#include <filesystem>
+#include <fstream>
 #include <stdexcept>
 
 #include "CPU.h"
@@ -125,7 +127,26 @@ namespace RVGUI {
 	}
 
 	void CPU::loadProgram() {
+		if (options.filename.empty())
+			throw std::runtime_error("Program filename is empty");
 
+		std::ifstream file;
+		file.open(options.filename, std::ios::in | std::ios::binary);
+
+		const auto filesize = std::filesystem::file_size(options.filename);
+
+		if (!file.is_open())
+			throw std::runtime_error("Failed to open program for reading");
+
+		if (options.separateInstructions) {
+			instructions.reset(new Word[filesize / sizeof(Word)]);
+			for (size_t i = 0; !file.eof() && i < filesize / sizeof(Word); ++i)
+				file.read(reinterpret_cast<char *>(&instructions[i]), sizeof(Word));
+		} else {
+			instructions.reset();
+			for (size_t i = 0; !file.eof() && i < filesize; ++i)
+				file.read(reinterpret_cast<char *>(&memory[i]), sizeof(uint8_t));
+		}
 	}
 
 	void CPU::loadData(void *data, size_t size, size_t offset) {
