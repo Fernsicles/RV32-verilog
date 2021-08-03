@@ -10,9 +10,28 @@
 namespace RVGUI {
 	class CPU {
 		public:
+			using Word = uint32_t;
+
+			struct Options {
+				std::string filename;
+				size_t memorySize;
+				bool separateInstructions = false, useTimeOffset = false;
+				int32_t timeOffset = 0;
+				uint32_t width = 480, height = 360;
+				Word mmioOffset = 0x80'00'00'00;
+
+				Options() = delete;
+				Options(const std::string &filename_, size_t memory_size);
+				Options & setSeparateInstructions(bool);
+				Options & setTimeOffset(int32_t);
+				Options & setWidth(uint32_t);
+				Options & setHeight(uint32_t);
+				Options & setDimensions(uint32_t width_, uint32_t height_);
+				Options & setMMIOOffset(Word);
+			};
+
 			CPU() = delete;
-			CPU(const std::string &filename_, size_t memory_size, bool separate_instructions);
-			CPU(const std::string &filename_, size_t memory_size, bool separate_instructions, int time_offset);
+			CPU(const Options &);
 
 			/** Returns true if there are still more instructions to execute or false if the CPU has halted. */
 			bool tick();
@@ -22,15 +41,13 @@ namespace RVGUI {
 			void loadData(void *data, size_t size, size_t offset);
 
 		private:
-			std::string filename;
-			size_t memorySize;
-			int timeOffset;
-			bool separateInstructions, useTimeOffset = false;
-			std::unique_ptr<uint8_t[]> memory;
-			std::unique_ptr<uint32_t[]> instructions;
+			Options options;
+			std::unique_ptr<uint8_t[]> memory, framebuffer;
+			std::unique_ptr<Word[]> instructions;
 			std::unique_ptr<VCPU> vcpu;
 
 			void init();
+			void initFramebuffer(int channels = 3);
 			void initVCPU();
 	};
 }
