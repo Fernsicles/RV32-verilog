@@ -9,10 +9,10 @@ DEPCFLAGS    := $(shell pkg-config --cflags $(DEPS))
 DEPLIBS      := $(shell pkg-config --libs   $(DEPS))
 OUTPUT       := rvgui
 GLIB_COMPILE_RESOURCES := $(shell pkg-config --variable=glib_compile_resources gio-2.0)
-ifeq ($(DEBUG),1)
-DEBUG        := -g
+ifneq ($(RELEASE),1)
+DEBUGFLAGS   := -g
 else
-DEBUG        :=
+DEBUGFLAGS   :=
 endif
 
 .PHONY: all test clean
@@ -42,11 +42,11 @@ else
 endif
 
 verilated.o: /usr/share/verilator/include/verilated.cpp
-	$(COMPILER) $(DEBUG) $(CPPFLAGS) -c $< -o $@
+	$(COMPILER) $(DEBUGFLAGS) $(CPPFLAGS) -c $< -o $@
 
 gui/%.o: gui/%.cpp
 	@ printf "\e[2m[\e[22;32mcc\e[39;2m]\e[22m $< \e[2m$(CPPFLAGS)\e[22m\n"
-	@ $(COMPILER) $(DEBUG) $(CPPFLAGS) $(DEPCFLAGS) -Iinclude -c $< -o $@
+	$(COMPILER) $(DEBUGFLAGS) $(CPPFLAGS) $(DEPCFLAGS) -Iinclude -c $< -o $@
 
 gui/resources.cpp: rvgui.gresource.xml $(shell $(GLIB_COMPILE_RESOURCES) --sourcedir=resources --generate-dependencies rvgui.gresource.xml)
 	$(GLIB_COMPILE_RESOURCES) --target=$@ --sourcedir=resources --generate-source $<
