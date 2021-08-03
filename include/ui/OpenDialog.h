@@ -14,9 +14,10 @@ namespace RVGUI {
 
 		private:
 			sigc::signal<void(const CPU::Options &)> signal_submit_;
-			Gtk::Box programBox {Gtk::Orientation::HORIZONTAL}, dataBox {Gtk::Orientation::HORIZONTAL};
+			Gtk::Box programBox {Gtk::Orientation::HORIZONTAL}, dataBox {Gtk::Orientation::HORIZONTAL},
+			         dimensionsBox {Gtk::Orientation::HORIZONTAL}, buttonBox {Gtk::Orientation::HORIZONTAL};
 			BasicEntry programFilename, dataFilename, width, height, mmioOffset, dataOffset, timeOffset, memorySize;
 			Gtk::CheckButton separateInstructions;
-			Gtk::Button programBrowse, dataBrowse, cancelButton, okButton;
+			Gtk::Button programBrowse, dataBrowse, cancelButton {"Cancel"}, clearButton {"Clear"}, okButton {"OK"};
 	};
 }
