@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <functional>
 #include <memory>
 #include <string>
 #include <verilated.h>
@@ -33,6 +34,8 @@ namespace RVGUI {
 				Options & setDimensions(uint32_t width_, uint32_t height_);
 				Options & setMMIOOffset(Word);
 			};
+
+			std::function<void(CPU &)> onTick;
 
 			CPU() = delete;
 			CPU(const Options &);

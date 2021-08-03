@@ -129,6 +129,9 @@ namespace RVGUI {
 
 		++count;
 
+		if (onTick)
+			onTick(*this);
+
 		if (vcpu->i_inst == 0x6f) { // Jump to self
 			 end = std::chrono::duration_cast<std::chrono::milliseconds>(
 				std::chrono::high_resolution_clock::now().time_since_epoch()).count();

@@ -10,27 +10,7 @@ namespace RVGUI {
 		set_titlebar(*header);
 
 		add_action("open", Gio::ActionMap::ActivateSlot([this] {
-			constexpr int WIDTH = 3, HEIGHT = 3;
-			framebuffer = std::shared_ptr<uint8_t[]>(new uint8_t[WIDTH * HEIGHT * 3] {
-				0xff, 0x00, 0x00,
-				0xff, 0x00, 0x00,
-				0xff, 0x00, 0x00,
-				0x00, 0xff, 0x00,
-				0x00, 0xff, 0x00,
-				0x00, 0xff, 0x00,
-				0x00, 0x00, 0xff,
-				0x00, 0x00, 0xff,
-				0x00, 0x00, 0xff,
-			});
-
-			pixbuf = Gdk::Pixbuf::create_from_data(framebuffer.get(), Gdk::Colorspace::RGB, false, 8, WIDTH, HEIGHT,
-			                                       3 * WIDTH);
-			drawingArea.set_content_width(WIDTH);
-			drawingArea.set_content_height(HEIGHT);
-			drawingArea.set_draw_func([this](const Cairo::RefPtr<Cairo::Context> &context, int width, int height) {
-				Gdk::Cairo::set_source_pixbuf(context, pixbuf, 0, 0);
-				context->paint();
-			});
+			std::cout << "open\n";
 		}));
 
 		functionQueueDispatcher.connect([this] {
@@ -40,13 +20,22 @@ namespace RVGUI {
 			functionQueue.clear();
 		});
 
-		signal_hide().connect([this] {
-			
+		drawingArea.set_draw_func([this](const Cairo::RefPtr<Cairo::Context> &context, int width, int height) {
+			if (pixbuf) {
+				Gdk::Cairo::set_source_pixbuf(context, pixbuf, 0, 0);
+				context->paint();
+			}
 		});
 
-
-
-		set_child(drawingArea);
+		paned.set_start_child(drawingArea);
+		paned.set_end_child(hexView);
+		delay([this] {
+			delay([this] {
+				std::cout << "width[" << get_width() << "]\n";
+				paned.set_position(get_width() * 6 / 10);
+			});
+		});
+		set_child(paned);
 	}
 
 	MainWindow * MainWindow::create() {
