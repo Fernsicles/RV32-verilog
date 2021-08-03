@@ -10,6 +10,14 @@ namespace RVGUI {
 		header = builder->get_widget<Gtk::HeaderBar>("headerbar");
 		set_titlebar(*header);
 
+		playButton.set_icon_name("media-playback-start-symbolic");
+		playButton.signal_clicked().connect(sigc::mem_fun(*this, &MainWindow::play));
+		header->pack_start(playButton);
+
+		tickButton.set_icon_name("media-seek-forward-symbolic");
+		tickButton.signal_clicked().connect(sigc::mem_fun(*this, &MainWindow::tick));
+		header->pack_start(tickButton);
+
 		cssProvider = Gtk::CssProvider::create();
 		cssProvider->load_from_resource("/com/ferns/rvgui/style.css");
 		Gtk::StyleContext::add_provider_for_display(Gdk::Display::get_default(), cssProvider,
@@ -96,5 +104,14 @@ namespace RVGUI {
 
 	void MainWindow::error(const Glib::ustring &message, bool modal, bool use_markup) {
 		alert(message, Gtk::MessageType::ERROR, modal, use_markup);
+	}
+
+	void MainWindow::play() {
+		std::cout << "play\n";
+	}
+
+	void MainWindow::tick() {
+		if (cpu)
+			cpu->tick();
 	}
 }

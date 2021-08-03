@@ -37,6 +37,7 @@ namespace RVGUI {
 
 			std::function<void(CPU &)> onTick;
 			std::function<void(uintptr_t, uint8_t)> onByteUpdate;
+			std::function<void(Word)> onPCUpdate;
 
 			CPU() = delete;
 			CPU(const Options &);
@@ -60,6 +61,7 @@ namespace RVGUI {
 			std::unique_ptr<VCPU> vcpu;
 			size_t count = 0;
 			int64_t start = 0, end = 0;
+			Word oldPC = 0;
 
 			void init();
 			void initFramebuffer(int channels = 3);

@@ -43,8 +43,13 @@ namespace RVGUI {
 			std::shared_ptr<CPU> cpu;
 			std::shared_ptr<uint8_t[]> framebuffer;
 
+			Gtk::ToggleButton playButton;
+			Gtk::Button tickButton;
 			Gtk::Paned paned;
 			Gtk::DrawingArea drawingArea;
 			HexView hexView;
+
+			void play();
+			void tick();
 	};
 }

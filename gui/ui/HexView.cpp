@@ -25,7 +25,6 @@ namespace RVGUI {
 		scrollController->set_flags(Gtk::EventControllerScroll::Flags::VERTICAL);
 		scrollController->signal_scroll().connect(sigc::mem_fun(*this, &HexView::onScroll), false);
 		grid.add_controller(scrollController);
-		// sizeLabel.add_css_class("mono");
 		sizeLabel.add_css_class("hidden");
 		grid.attach(sizeLabel, 0, 0);
 		grid.set_overflow(Gtk::Overflow::HIDDEN);
