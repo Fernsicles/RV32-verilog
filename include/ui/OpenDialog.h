@@ -19,5 +19,7 @@ namespace RVGUI {
 			BasicEntry programFilename, dataFilename, width, height, mmioOffset, dataOffset, timeOffset, memorySize;
 			Gtk::CheckButton separateInstructions;
 			Gtk::Button programBrowse, dataBrowse, cancelButton {"Cancel"}, clearButton {"Clear"}, okButton {"OK"};
+
+			void clear();
 	};
 }

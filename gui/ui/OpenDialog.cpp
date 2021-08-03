@@ -55,5 +55,19 @@ namespace RVGUI {
 		area.append(timeOffset);
 		area.append(separateInstructions);
 		area.append(buttonBox);
+
+		clearButton.signal_clicked().connect(sigc::mem_fun(*this, &OpenDialog::clear));
+	}
+
+	void OpenDialog::clear() {
+		programFilename.set_text("");
+		dataFilename.set_text("");
+		memorySize.set_text("");
+		width.set_text("");
+		height.set_text("");
+		mmioOffset.set_text("");
+		dataOffset.set_text("");
+		timeOffset.set_text("");
+		separateInstructions.set_active(false);
 	}
 }
