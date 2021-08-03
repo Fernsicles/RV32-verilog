@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "App.h"
+#include "CPU.h"
 #include "ui/MainWindow.h"
 
 namespace RVGUI {
@@ -11,6 +12,8 @@ namespace RVGUI {
 
 		add_action("open", Gio::ActionMap::ActivateSlot([this] {
 			std::cout << "open\n";
+			cpu = std::make_shared<CPU>(CPU::Options("./programs/videostd.bin", INT_MAX));
+			hexView.setCPU(cpu);
 		}));
 
 		functionQueueDispatcher.connect([this] {
@@ -29,9 +32,10 @@ namespace RVGUI {
 
 		paned.set_start_child(drawingArea);
 		paned.set_end_child(hexView);
+		paned.set_expand(true);
+		hexView.set_expand(true);
 		delay([this] {
 			delay([this] {
-				std::cout << "width[" << get_width() << "]\n";
 				paned.set_position(get_width() * 6 / 10);
 			});
 		});

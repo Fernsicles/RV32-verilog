@@ -7,7 +7,9 @@ namespace RVGUI {
 
 	class HexView: public Gtk::Box {
 		public:
-			HexView();
+			int rowHeight = 20, cellWidth = 30;
+
+			HexView(int row_height = 20, int cell_width = 30);
 
 			HexView & setCPU(std::shared_ptr<CPU>);
 
@@ -15,9 +17,11 @@ namespace RVGUI {
 			std::shared_ptr<CPU> cpu;
 			Gtk::Grid grid;
 			Glib::RefPtr<Gtk::Adjustment> adjustment;
-			// const Glib::RefPtr<Gtk::Adjustment> &adjustment, Gtk::Orientation orientation = Gtk::Orientation::HORIZONTAL
 			Gtk::Scrollbar scrollbar;
+			Glib::RefPtr<Gtk::EventControllerScroll> scrollController;
 
-			void onScroll();
+			void reset();
+			bool onScroll(double dx, double dy);
+			void onScrolled();
 	};
 }

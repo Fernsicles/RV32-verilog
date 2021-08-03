@@ -45,8 +45,8 @@ verilated.o: /usr/share/verilator/include/verilated.cpp
 	$(COMPILER) $(DEBUGFLAGS) $(CPPFLAGS) -c $< -o $@
 
 gui/%.o: gui/%.cpp
-	@ printf "\e[2m[\e[22;32mcc\e[39;2m]\e[22m $< \e[2m$(CPPFLAGS)\e[22m\n"
-	$(COMPILER) $(DEBUGFLAGS) $(CPPFLAGS) $(DEPCFLAGS) -Iinclude -c $< -o $@
+	@ printf "\e[2m[\e[22;32mcc\e[39;2m]\e[22m $< \e[2m$(DEBUGFLAGS) $(CPPFLAGS)\e[22m\n"
+	@ $(COMPILER) $(DEBUGFLAGS) $(CPPFLAGS) $(DEPCFLAGS) -Iinclude -c $< -o $@
 
 gui/resources.cpp: rvgui.gresource.xml $(shell $(GLIB_COMPILE_RESOURCES) --sourcedir=resources --generate-dependencies rvgui.gresource.xml)
 	$(GLIB_COMPILE_RESOURCES) --target=$@ --sourcedir=resources --generate-source $<
