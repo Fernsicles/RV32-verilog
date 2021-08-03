@@ -1,3 +1,5 @@
+#include <filesystem>
+
 #include "ui/OpenDialog.h"
 #include "Util.h"
 
@@ -178,6 +180,7 @@ namespace RVGUI {
 	Gtk::FileChooserDialog *OpenDialog::browse(
 		const Glib::ustring &title, std::function<void(const std::string &)> on_choose) {
 		auto *browser = new Gtk::FileChooserDialog(*this, title, Gtk::FileChooser::Action::OPEN, true);
+		browser->set_current_folder(Gio::File::create_for_path(std::filesystem::current_path()));
 		browser->set_transient_for(*this);
 		browser->add_button("_Cancel", Gtk::ResponseType::CANCEL);
 		browser->add_button("_Open", Gtk::ResponseType::OK);

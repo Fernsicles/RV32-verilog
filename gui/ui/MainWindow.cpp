@@ -28,15 +28,16 @@ namespace RVGUI {
 			std::cout << "open\n";
 			auto *open_dialog = new OpenDialog(*this);
 			dialog.reset(open_dialog);
+			open_dialog->signal_submit().connect([this](const CPU::Options &options) {
+				cpu = std::make_shared<CPU>(options);
+				hexView.setCPU(cpu);
+				if (options.width != 0 && options.height != 0)
+					pixbuf = Gdk::Pixbuf::create_from_data(cpu->getFramebuffer(), Gdk::Colorspace::RGB, false, 8,
+						options.width, options.height, 3 * options.width);
+				else
+					pixbuf.reset();
+			});
 			dialog->show();
-			// cpu = std::make_shared<CPU>(CPU::Options("./programs/videostd.bin", INT_MAX));
-			// hexView.setCPU(cpu);
-			// const auto &options = cpu->getOptions();
-			// if (options.width != 0 && options.height != 0)
-			// 	pixbuf = Gdk::Pixbuf::create_from_data(cpu->getFramebuffer(), Gdk::Colorspace::RGB, false, 8,
-			// 		options.width, options.height, 3 * options.width);
-			// else
-			// 	pixbuf.reset();
 		}));
 
 		functionQueueDispatcher.connect([this] {
