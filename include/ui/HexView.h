@@ -6,17 +6,19 @@
 
 namespace RVGUI {
 	class CPU;
+	class MainWindow;
 
 	class HexView: public Gtk::Box {
 		public:
 			int rowHeight = 20, cellWidth = 30;
 
-			HexView(int row_height = 20, int cell_width = 30);
+			HexView(MainWindow &, int row_height = 20, int cell_width = 30);
 
 			HexView & setCPU(std::shared_ptr<CPU>);
 			void onResize();
 
 		private:
+			MainWindow &parent;
 			std::shared_ptr<CPU> cpu;
 			Gtk::Grid grid;
 			Glib::RefPtr<Gtk::Adjustment> adjustment;
@@ -33,6 +35,7 @@ namespace RVGUI {
 
 			void reset();
 			void updateLabel(uintptr_t cell, uint8_t value);
+			void updatePC(uint32_t pc);
 			std::string getLabel(uintptr_t cell);
 			bool onScroll(double dx, double dy);
 			void onScrolled();

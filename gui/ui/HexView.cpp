@@ -5,13 +5,15 @@
 #include "CPU.h"
 #include "Util.h"
 #include "ui/HexView.h"
+#include "ui/MainWindow.h"
 #include "ui/Util.h"
 
 namespace RVGUI {
-	HexView::HexView(int row_height, int cell_width):
+	HexView::HexView(MainWindow &parent_, int row_height, int cell_width):
 	Gtk::Box(Gtk::Orientation::HORIZONTAL),
 	rowHeight(row_height),
 	cellWidth(cell_width),
+	parent(parent_),
 	adjustment(Gtk::Adjustment::create(0, 0, 100, 1, 10, 0)),
 	scrollbar(adjustment, Gtk::Orientation::VERTICAL) {
 		set_overflow(Gtk::Overflow::HIDDEN);
@@ -33,8 +35,10 @@ namespace RVGUI {
 
 	HexView & HexView::setCPU(std::shared_ptr<CPU> cpu_) {
 		cpu = cpu_;
-		if (cpu)
+		if (cpu) {
 			cpu->onByteUpdate = sigc::mem_fun(*this, &HexView::updateLabel);
+			cpu->onPCUpdate = sigc::mem_fun(*this, &HexView::updatePC);
+		}
 		adjustment->set_value(0);
 		reset();
 		return *this;
@@ -96,7 +100,7 @@ namespace RVGUI {
 				for (int column = 0; column < cells_per_row; ++column) {
 					size_t address = row_offset + column;
 					auto &label = cellLabels.try_emplace(address, getLabel(address)).first->second;
-					if (address / 8 == static_cast<size_t>(pc) / 8)
+					if (address / 4 == static_cast<size_t>(pc) / 4)
 						label.add_css_class("pc");
 					label.add_css_class("byte");
 					grid.attach(label, 2 + column, row);
@@ -109,8 +113,20 @@ namespace RVGUI {
 	}
 
 	void HexView::updateLabel(uintptr_t cell, uint8_t value) {
-		if (cellLabels.count(cell) != 0)
-			cellLabels.at(cell).set_text(getLabel(cell));
+		parent.queue([this, cell] {
+			if (cellLabels.count(cell) != 0)
+				cellLabels.at(cell).set_text(getLabel(cell));
+		});
+	}
+
+	void HexView::updatePC(uint32_t pc) {
+		parent.queue([this, pc] {
+			for (auto &[addr, label]: cellLabels)
+				label.remove_css_class("pc");
+			for (uint32_t i = 0; i < 4; ++i)
+				if (cellLabels.count(pc + i) != 0)
+					cellLabels.at(pc + i).add_css_class("pc");
+		});
 	}
 
 	std::string HexView::getLabel(uintptr_t cell) {
