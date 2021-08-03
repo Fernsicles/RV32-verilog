@@ -1,4 +1,6 @@
+#include <iomanip>
 #include <iostream>
+#include <sstream>
 
 #include "Util.h"
 #include "ui/HexView.h"
@@ -14,7 +16,7 @@ namespace RVGUI {
 		set_overflow(Gtk::Overflow::HIDDEN);
 		append(grid);
 		append(scrollbar);
-		grid.set_expand(true);
+		grid.set_hexpand(true);
 		adjustment->signal_value_changed().connect(sigc::mem_fun(*this, &HexView::onScrolled));
 		scrollController = Gtk::EventControllerScroll::create();
 		scrollController->set_flags(Gtk::EventControllerScroll::Flags::VERTICAL);
@@ -23,6 +25,7 @@ namespace RVGUI {
 		sizeLabel.add_css_class("mono");
 		sizeLabel.add_css_class("hidden");
 		grid.attach(sizeLabel, 0, 0);
+		grid.set_overflow(Gtk::Overflow::HIDDEN);
 	}
 
 	HexView & HexView::setCPU(std::shared_ptr<CPU> cpu_) {
@@ -46,16 +49,31 @@ namespace RVGUI {
 		}
 
 		removeChildren(grid);
+		widgets.clear();
 		const int grid_width = grid.get_width();
-		const double offset = std::floor(adjustment->get_value());
+		const size_t offset = static_cast<size_t>(std::floor(adjustment->get_value()));
+		std::cout << "offset[" << offset << "]\n";
 		const int row_count = updiv(grid.get_height(), digitHeight);
-		const int est_gutter_width = (1 + (offset == 0? 0 : std::log10(offset + row_count - 1))) * (digitWidth + 1);
+		static constexpr int GUTTER_PADDING = 3;
+		const int max_row = offset + row_count - 1;
+		const int digit_count = 1 + (max_row == 0? 0 : std::log10(max_row));
+		const int est_gutter_width = digit_count * (digitWidth + 1) + 2 * GUTTER_PADDING;
 		if (grid_width < est_gutter_width + 2 + cellWidth)
 			return;
 		int cells_per_row = (grid_width - est_gutter_width - 2) / (digitWidth * 3);
-		std::cout << "cells_per_row[" << cells_per_row << "], row_count[" << row_count << "]\n";
+		std::cout << "cells_per_row[" << cells_per_row << "], row_count[" << row_count << "], digit_count[" << digit_count << "]\n";
 		if (cpu) {
-
+			for (int row = 0; row < row_count; ++row) {
+				std::stringstream ss;
+				ss << std::right << std::hex << std::setw(digit_count) << std::setfill('0') << (offset + row);
+				auto &label = *widgets.emplace_back(new Gtk::Label(ss.str(), Gtk::Align::END));
+				label.add_css_class("mono");
+				label.set_margin_start(GUTTER_PADDING);
+				label.set_margin_end(GUTTER_PADDING);
+				grid.attach(label, 0, row);
+				auto &separator = *widgets.emplace_back(new Gtk::Separator(Gtk::Orientation::VERTICAL));
+				grid.attach(separator, 1, row);
+			}
 		}
 	}
 

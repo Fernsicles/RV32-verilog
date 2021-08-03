@@ -1,6 +1,8 @@
 #pragma once
 
 #include <gtkmm.h>
+#include <memory>
+#include <vector>
 
 namespace RVGUI {
 	class CPU;
@@ -23,6 +25,7 @@ namespace RVGUI {
 			/** sizeLabel's dimensions are used for size calculations. */
 			Gtk::Label sizeLabel {"0"};
 			int digitWidth = -1, digitHeight = -1;
+			std::vector<std::unique_ptr<Gtk::Widget>> widgets;
 
 			void reset();
 			bool onScroll(double dx, double dy);
