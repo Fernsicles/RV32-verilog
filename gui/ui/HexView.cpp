@@ -57,7 +57,6 @@ namespace RVGUI {
 		widgets.clear();
 		const int grid_width = grid.get_width();
 		const size_t offset = static_cast<size_t>(std::floor(adjustment->get_value()));
-		// std::cout << "offset[" << offset << "]\n";
 		// Here's some needlessly complicated math. Some values are inaccurate because the values are interdependent.
 		const int row_count = updiv(grid.get_height(), digitHeight);
 		static constexpr int GUTTER_PADDING = 3;
@@ -67,10 +66,10 @@ namespace RVGUI {
 		const int est_gutter_width = digit_count * (digitWidth + 1) + 2 * GUTTER_PADDING;
 		if (grid_width < est_gutter_width + 2 + cellWidth)
 			return;
-		int cells_per_row = (grid_width - est_gutter_width - 2) / (digitWidth * 3);
-		// std::cout << "cells_per_row[" << cells_per_row << "], row_count[" << row_count << "], digit_count[" << digit_count << "]\n";
+		const int cells_per_row = (grid_width - est_gutter_width - 2) / (digitWidth * 3);
 		if (cpu) {
 			const size_t memory_size = cpu->memorySize();
+			const CPU::Word pc = cpu->getPC();
 
 			const double old_upper = adjustment->get_upper();
 			const double new_upper = static_cast<double>(memory_size) / cells_per_row;
@@ -80,13 +79,14 @@ namespace RVGUI {
 				adjustment->set_value(new_value);
 			}
 
+			cellLabels.clear();
+
 			for (int row = 0; row < row_count; ++row) {
 				std::stringstream ss;
 				ss.imbue(std::locale::classic()); // Avoid thousands separators
 				const size_t row_offset = (offset + row) * cells_per_row;
 				ss << std::right << std::hex << std::setw(digit_count) << std::setfill('0') << row_offset;
 				auto &label = *widgets.emplace_back(new Gtk::Label(ss.str(), Gtk::Align::END));
-				label.add_css_class("mono");
 				label.set_margin_start(GUTTER_PADDING);
 				label.set_margin_end(GUTTER_PADDING);
 				grid.attach(label, 0, row);
@@ -100,8 +100,10 @@ namespace RVGUI {
 					else
 						ss << std::right << std::hex << std::setw(2) << std::setfill('0')
 						   << static_cast<int>((*cpu)[address]);
-					auto &label = *widgets.emplace_back(new Gtk::Label(ss.str()));
-					label.set_margin_start(8);
+					auto &label = cellLabels.try_emplace(address, ss.str()).first->second;
+					if (address / 8 == static_cast<size_t>(pc) / 8)
+						label.add_css_class("pc");
+					label.add_css_class("byte");
 					grid.attach(label, 2 + column, row);
 				}
 			}

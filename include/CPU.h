@@ -47,6 +47,7 @@ namespace RVGUI {
 			void loadProgram();
 			void loadData(void *data, size_t size, size_t offset);
 			void loadData();
+			Word getPC() const;
 			size_t memorySize() const { return options.memorySize; }
 			uint8_t operator[](size_t offset) const { return memory[offset]; }
 

@@ -184,6 +184,10 @@ namespace RVGUI {
 			data.read(reinterpret_cast<char *>(memory.get() + options.dataOffset + i), 1);
 	}
 
+	CPU::Word CPU::getPC() const {
+		return vcpu? vcpu->o_pc : 0;
+	}
+
 	void CPU::init() {
 		resetMemory();
 		initFramebuffer(3);

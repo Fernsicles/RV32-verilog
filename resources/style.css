@@ -6,6 +6,14 @@
 	font-family: monospace;
 }
 
+.pc {
+	background: #ccc;
+}
+
+.byte {
+	padding: 0 4px;
+}
+
 .hidden {
 	opacity: 0;
 }

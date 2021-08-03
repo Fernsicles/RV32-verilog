@@ -27,6 +27,7 @@ namespace RVGUI {
 			Gtk::Label sizeLabel {"0"};
 			int digitWidth = -1, digitHeight = -1;
 			std::vector<std::unique_ptr<Gtk::Widget>> widgets;
+			std::unordered_map<int, Gtk::Label> cellLabels;
 			int oldColumnCount = 0;
 			int oldOffset = 0;
 
