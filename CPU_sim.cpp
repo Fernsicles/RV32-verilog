@@ -243,6 +243,6 @@ int main(int argc, char **argv) {
 	if(!vflag) {
 		free(inst);
 	}
-	update.~thread();
+
 	return 0;
 }
