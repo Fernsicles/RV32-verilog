@@ -162,7 +162,7 @@ namespace RVGUI {
 	}
 
 	void CPU::resetMemory() {
-		memory.reset(new uint8_t[options.memorySize]);
+		memory.reset(new uint8_t[options.memorySize]());
 	}
 
 	void CPU::loadProgram() {
@@ -220,7 +220,7 @@ namespace RVGUI {
 		if (options.width == 0 && options.height == 0)
 			framebuffer.reset();
 		else if (options.width != 0 && options.height != 0)
-			framebuffer.reset(new uint8_t[options.width * options.height * channels]);
+			framebuffer.reset(new uint8_t[options.width * options.height * channels]());
 		else
 			throw std::invalid_argument("Exactly one of width and height is zero");
 	}
