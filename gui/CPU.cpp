@@ -116,12 +116,24 @@ namespace RVGUI {
 			switch (vcpu->o_memsize) {
 				case 1:
 					std::memcpy(pointer + address, &vcpu->o_mem, 1);
+					if (onByteUpdate)
+						onByteUpdate((uintptr_t) pointer + address, *(pointer + address));
 					break;
 				case 2:
 					std::memcpy(pointer + address, &vcpu->o_mem, 2);
+					if (onByteUpdate) {
+						onByteUpdate((uintptr_t) pointer + address, *(pointer + address));
+						onByteUpdate((uintptr_t) pointer + address + 1, *(pointer + address + 1));
+					}
 					break;
 				case 3:
 					std::memcpy(pointer + address, &vcpu->o_mem, 4);
+					if (onByteUpdate) {
+						onByteUpdate((uintptr_t) pointer + address, *(pointer + address));
+						onByteUpdate((uintptr_t) pointer + address + 1, *(pointer + address + 1));
+						onByteUpdate((uintptr_t) pointer + address + 2, *(pointer + address + 2));
+						onByteUpdate((uintptr_t) pointer + address + 3, *(pointer + address + 3));
+					}
 					break;
 				default:
 					break;

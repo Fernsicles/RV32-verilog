@@ -34,6 +34,8 @@ namespace RVGUI {
 
 	HexView & HexView::setCPU(std::shared_ptr<CPU> cpu_) {
 		cpu = cpu_;
+		if (cpu)
+			cpu->onByteUpdate = sigc::mem_fun(*this, &HexView::updateLabel);
 		adjustment->set_value(0);
 		reset();
 		return *this;
@@ -93,14 +95,8 @@ namespace RVGUI {
 				auto &separator = *widgets.emplace_back(new Gtk::Separator(Gtk::Orientation::VERTICAL));
 				grid.attach(separator, 1, row);
 				for (int column = 0; column < cells_per_row; ++column) {
-					std::stringstream ss;
 					size_t address = row_offset + column;
-					if (memory_size <= address)
-						ss << "xx";
-					else
-						ss << std::right << std::hex << std::setw(2) << std::setfill('0')
-						   << static_cast<int>((*cpu)[address]);
-					auto &label = cellLabels.try_emplace(address, ss.str()).first->second;
+					auto &label = cellLabels.try_emplace(address, getLabel(address)).first->second;
 					if (address / 8 == static_cast<size_t>(pc) / 8)
 						label.add_css_class("pc");
 					label.add_css_class("byte");
@@ -111,6 +107,21 @@ namespace RVGUI {
 
 		oldColumnCount = cells_per_row;
 		oldOffset = offset * cells_per_row;
+	}
+
+	void HexView::updateLabel(uintptr_t cell, uint8_t value) {
+		if (cellLabels.count(cell) != 0)
+			cellLabels.at(cell).set_text(getLabel(cell));
+	}
+
+	std::string HexView::getLabel(uintptr_t cell) {
+		std::stringstream ss;
+		if (cpu->memorySize() <= cell)
+			ss << "xx";
+		else
+			ss << std::right << std::hex << std::setw(2) << std::setfill('0')
+			   << static_cast<int>((*cpu)[cell]);
+		return ss.str();
 	}
 
 	bool HexView::onScroll(double, double dy) {

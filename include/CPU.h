@@ -36,6 +36,7 @@ namespace RVGUI {
 			};
 
 			std::function<void(CPU &)> onTick;
+			std::function<void(uintptr_t, uint8_t)> onByteUpdate;
 
 			CPU() = delete;
 			CPU(const Options &);

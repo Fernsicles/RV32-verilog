@@ -32,6 +32,8 @@ namespace RVGUI {
 			int oldOffset = 0;
 
 			void reset();
+			void updateLabel(uintptr_t cell, uint8_t value);
+			std::string getLabel(uintptr_t cell);
 			bool onScroll(double dx, double dy);
 			void onScrolled();
 	};
