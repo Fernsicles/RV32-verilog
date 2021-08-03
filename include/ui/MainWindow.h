@@ -4,6 +4,7 @@
 #include <functional>
 #include <list>
 #include <mutex>
+#include <thread>
 
 #include "ui/HexView.h"
 
@@ -48,6 +49,10 @@ namespace RVGUI {
 			Gtk::Paned paned;
 			Gtk::DrawingArea drawingArea;
 			HexView hexView;
+
+			bool playing = false;
+
+			std::thread drawThread, playThread;
 
 			void play();
 			void tick();

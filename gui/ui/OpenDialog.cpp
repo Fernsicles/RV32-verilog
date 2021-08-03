@@ -64,6 +64,7 @@ namespace RVGUI {
 		memorySize.set_text("2147483647");
 		dataOffset.set_text("256");
 		timeOffset.set_text("0");
+		separateInstructions.set_active(true);
 
 		clearButton.signal_clicked().connect(sigc::mem_fun(*this, &OpenDialog::clear));
 		programBrowse.signal_clicked().connect(sigc::mem_fun(*this, &OpenDialog::browseProgram));

@@ -49,8 +49,9 @@ namespace RVGUI {
 
 		drawingArea.set_draw_func([this](const Cairo::RefPtr<Cairo::Context> &context, int width, int height) {
 			if (pixbuf) {
-				Gdk::Cairo::set_source_pixbuf(context, pixbuf, (drawingArea.get_width() - width) / 2,
-					(drawingArea.get_height() - height) / 2);
+				// Gdk::Cairo::set_source_pixbuf(context, pixbuf, (drawingArea.get_width() - width) / 2,
+				// 	(drawingArea.get_height() - height) / 2);
+				Gdk::Cairo::set_source_pixbuf(context, pixbuf, 0, 0);
 				context->paint();
 			}
 		});
@@ -118,7 +119,25 @@ namespace RVGUI {
 	}
 
 	void MainWindow::play() {
-		std::cout << "play\n";
+		if (cpu && !playing) {
+			playing = true;
+			playThread = std::thread([this] {
+				while (playing)
+					cpu->tick();
+			});
+			playThread.detach();
+			drawThread = std::thread([this] {
+				while (playing) {
+					queue([this] {
+						drawingArea.queue_draw();
+					});
+					std::this_thread::sleep_for(std::chrono::milliseconds(1000 / 30));
+				}
+			});
+			drawThread.detach();
+		} else
+			playing = false;
+		playButton.set_active(playing);
 	}
 
 	void MainWindow::tick() {

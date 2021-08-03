@@ -54,6 +54,7 @@ namespace RVGUI {
 			uint8_t operator[](size_t offset) const { return memory[offset]; }
 			const Options & getOptions() const { return options; }
 			uint8_t * getFramebuffer() { return framebuffer.get(); }
+			size_t getCount() const { return count; }
 
 		private:
 			Options options;
