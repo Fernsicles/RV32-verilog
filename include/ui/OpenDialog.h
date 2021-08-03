@@ -22,6 +22,7 @@ namespace RVGUI {
 			Gtk::Button programBrowse, dataBrowse, cancelButton {"Cancel"}, clearButton {"Clear"}, okButton {"OK"};
 			std::unique_ptr<Gtk::Dialog> dialog;
 
+			void submit();
 			void clear();
 			Gtk::FileChooserDialog * browse(const Glib::ustring &title, std::function<void(const std::string &)>);
 			void browseProgram();

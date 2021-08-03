@@ -59,6 +59,15 @@ namespace RVGUI {
 		clearButton.signal_clicked().connect(sigc::mem_fun(*this, &OpenDialog::clear));
 		programBrowse.signal_clicked().connect(sigc::mem_fun(*this, &OpenDialog::browseProgram));
 		dataBrowse.signal_clicked().connect(sigc::mem_fun(*this, &OpenDialog::browseData));
+		cancelButton.signal_clicked().connect(sigc::mem_fun(*this, &OpenDialog::hide));
+		okButton.signal_clicked().connect(sigc::mem_fun(*this, &OpenDialog::submit));
+		for (auto *entry: {&programFilename, &dataFilename, &width, &height, &mmioOffset, &dataOffset, &timeOffset,
+		                   &memorySize})
+			entry->signal_activate().connect(sigc::mem_fun(*this, &OpenDialog::submit));
+	}
+
+	void OpenDialog::submit() {
+
 	}
 
 	void OpenDialog::clear() {
