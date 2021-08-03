@@ -47,7 +47,8 @@ namespace RVGUI {
 
 		private:
 			Options options;
-			std::unique_ptr<uint8_t[]> memory, framebuffer;
+			std::unique_ptr<uint8_t[]> memory;
+			std::shared_ptr<uint8_t[]> framebuffer;
 			std::unique_ptr<Word[]> instructions;
 			std::unique_ptr<VCPU> vcpu;
 			size_t count = 0;

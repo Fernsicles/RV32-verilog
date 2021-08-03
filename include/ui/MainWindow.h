@@ -34,5 +34,8 @@ namespace RVGUI {
 			std::list<std::function<void()>> functionQueue;
 			std::mutex functionQueueMutex;
 			Glib::Dispatcher functionQueueDispatcher;
+			Gtk::DrawingArea drawingArea;
+			Glib::RefPtr<Gdk::Pixbuf> pixbuf;
+			std::shared_ptr<uint8_t[]> framebuffer;
 	};
 }

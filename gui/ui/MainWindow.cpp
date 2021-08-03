@@ -10,11 +10,27 @@ namespace RVGUI {
 		set_titlebar(*header);
 
 		add_action("open", Gio::ActionMap::ActivateSlot([this] {
-			std::cout << "open\n";
-		}));
+			constexpr int WIDTH = 3, HEIGHT = 3;
+			framebuffer = std::shared_ptr<uint8_t[]>(new uint8_t[WIDTH * HEIGHT * 3] {
+				0xff, 0x00, 0x00,
+				0xff, 0x00, 0x00,
+				0xff, 0x00, 0x00,
+				0x00, 0xff, 0x00,
+				0x00, 0xff, 0x00,
+				0x00, 0xff, 0x00,
+				0x00, 0x00, 0xff,
+				0x00, 0x00, 0xff,
+				0x00, 0x00, 0xff,
+			});
 
-		add_action("configure", Gio::ActionMap::ActivateSlot([this] {
-			std::cout << "configure\n";
+			pixbuf = Gdk::Pixbuf::create_from_data(framebuffer.get(), Gdk::Colorspace::RGB, false, 8, WIDTH, HEIGHT,
+			                                       3 * WIDTH);
+			drawingArea.set_content_width(WIDTH);
+			drawingArea.set_content_height(HEIGHT);
+			drawingArea.set_draw_func([this](const Cairo::RefPtr<Cairo::Context> &context, int width, int height) {
+				Gdk::Cairo::set_source_pixbuf(context, pixbuf, 0, 0);
+				context->paint();
+			});
 		}));
 
 		functionQueueDispatcher.connect([this] {
@@ -27,6 +43,10 @@ namespace RVGUI {
 		signal_hide().connect([this] {
 			
 		});
+
+
+
+		set_child(drawingArea);
 	}
 
 	MainWindow * MainWindow::create() {

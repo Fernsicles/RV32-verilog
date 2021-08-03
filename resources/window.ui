@@ -38,10 +38,6 @@
 				<attribute name="label" translatable="yes">_Open</attribute>
 				<attribute name="action">win.open</attribute>
 			</item>
-			<item>
-				<attribute name="label" translatable="yes">_Configure</attribute>
-				<attribute name="action">win.configure</attribute>
-			</item>
 		</section>
 	</menu>
 </interface>
