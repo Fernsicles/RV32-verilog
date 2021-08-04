@@ -9,4 +9,6 @@ namespace RVGUI {
 	}
 
 	unsigned long parseUlong(const std::string &, int base = 10);
+	std::string toHex(size_t);
+	std::string toHex(const void *);
 }

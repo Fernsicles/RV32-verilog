@@ -6,6 +6,7 @@
 #include <stdexcept>
 
 #include "CPU.h"
+#include "Util.h"
 
 namespace RVGUI {
 	CPU::Options::Options(const std::string &program_filename, size_t memory_size):
@@ -115,20 +116,30 @@ namespace RVGUI {
 			address = vcpu->o_addr;
 		}
 
-		if (vcpu->o_write)
+		if (vcpu->o_write) {
+			const uint8_t *ptrsum = pointer + address;
+			const uint8_t *memstart = memory.get(), *memend = memstart + options.memorySize;
+			const uint8_t *fbstart = framebuffer.get(), *fbend = fbstart + framebufferSize;
 			switch (vcpu->o_memsize) {
 				case 1:
+					if (!(memstart <= ptrsum && ptrsum < memend) && !(fbstart <= ptrsum && ptrsum < fbend))
+						throw std::out_of_range("Write of size 1 out of range (" + toHex(ptrsum) + ")");
 					std::memcpy(pointer + address, &vcpu->o_mem, 1);
 					break;
 				case 2:
+					if (!(memstart <= ptrsum && ptrsum + 1 < memend) && !(fbstart <= ptrsum && ptrsum + 1 < fbend))
+						throw std::out_of_range("Write of size 2 out of range (" + toHex(ptrsum) + ")");
 					std::memcpy(pointer + address, &vcpu->o_mem, 2);
 					break;
 				case 3:
+					if (!(memstart <= ptrsum && ptrsum + 3 < memend) && !(fbstart <= ptrsum && ptrsum + 3 < fbend))
+						throw std::out_of_range("Write of size 4 out of range (" + toHex(ptrsum) + ")");
 					std::memcpy(pointer + address, &vcpu->o_mem, 4);
 					break;
 				default:
 					break;
 			}
+		}
 
 		++count;
 
@@ -199,11 +210,12 @@ namespace RVGUI {
 	}
 
 	void CPU::initFramebuffer(int channels) {
-		if (options.width == 0 && options.height == 0)
+		if (options.width == 0 && options.height == 0) {
 			framebuffer.reset();
-		else if (options.width != 0 && options.height != 0)
-			framebuffer.reset(new uint8_t[options.width * options.height * channels]());
-		else
+			framebufferSize = 0;
+		} else if (options.width != 0 && options.height != 0) {
+			framebuffer.reset(new uint8_t[framebufferSize = options.width * options.height * channels]());
+		} else
 			throw std::invalid_argument("Exactly one of width and height is zero");
 	}
 
