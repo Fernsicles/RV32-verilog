@@ -66,6 +66,7 @@ namespace RVGUI {
 		vpaned.set_orientation(Gtk::Orientation::VERTICAL);
 		vpaned.set_start_child(hexView);
 		vpaned.set_end_child(assemblyView);
+		vpaned.set_wide_handle(true);
 		delay([this] {
 			delay([this] {
 				hpaned.set_position(get_width() * 7 / 10);
