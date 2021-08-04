@@ -96,7 +96,7 @@ namespace RVGUI {
 				for (int column = 0; column < cells_per_row; ++column) {
 					size_t address = row_offset + column;
 					auto &label = cellLabels.try_emplace(address, getLabel(address)).first->second;
-					if (address / 4 == static_cast<size_t>(pc) / 4)
+					if (address / 4 == static_cast<size_t>(pc) / 4 && !cpu->getOptions().separateInstructions)
 						label.add_css_class("pc");
 					label.add_css_class("byte");
 					grid.attach(label, 2 + column, row);
@@ -119,9 +119,10 @@ namespace RVGUI {
 		parent.queue([this, pc] {
 			for (auto &[addr, label]: cellLabels)
 				label.remove_css_class("pc");
-			for (uint32_t i = 0; i < 4; ++i)
-				if (cellLabels.count(pc + i) != 0)
-					cellLabels.at(pc + i).add_css_class("pc");
+			if (cpu && !cpu->getOptions().separateInstructions)
+				for (uint32_t i = 0; i < 4; ++i)
+					if (cellLabels.count(pc + i) != 0)
+						cellLabels.at(pc + i).add_css_class("pc");
 		});
 	}
 
