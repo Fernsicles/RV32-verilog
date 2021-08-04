@@ -13,8 +13,8 @@ void main() {
 		t = now;
 		for(int i = 0; i < 360 * 480; i++) {
 			memset(ibase, *(base + x * 360 * 480 + i), 3);
+			ibase += 3;
 		}
-		ibase += 360 * 480 * 3;
 	}
     while(1);
 }
