@@ -6,6 +6,7 @@
 #include <mutex>
 #include <thread>
 
+#include "ui/AssemblyView.h"
 #include "ui/HexView.h"
 
 namespace RVGUI {
@@ -46,9 +47,10 @@ namespace RVGUI {
 
 			Gtk::ToggleButton playButton;
 			Gtk::Button tickButton;
-			Gtk::Paned paned;
+			Gtk::Paned hpaned, vpaned;
 			Gtk::DrawingArea drawingArea;
 			HexView hexView;
+			AssemblyView assemblyView;
 
 			bool playing = false;
 

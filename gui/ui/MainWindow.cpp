@@ -62,19 +62,22 @@ namespace RVGUI {
 			}
 		});
 
-		paned.set_start_child(drawingArea);
-		paned.set_end_child(hexView);
-		paned.set_expand(true);
-		hexView.set_expand(true);
+		hpaned.set_start_child(drawingArea);
+		hpaned.set_end_child(vpaned);
+		hpaned.set_expand(true);
+		vpaned.set_expand(true);
+		vpaned.set_orientation(Gtk::Orientation::VERTICAL);
+		vpaned.set_start_child(hexView);
+		vpaned.set_end_child(assemblyView);
 		delay([this] {
 			delay([this] {
-				paned.set_position(get_width() * 7 / 10);
+				hpaned.set_position(get_width() * 7 / 10);
 			});
 		});
-		set_child(paned);
+		set_child(hpaned);
 
 		// :(
-		g_signal_connect(G_OBJECT(paned.gobj()), "notify::position", G_CALLBACK(
+		g_signal_connect(G_OBJECT(hpaned.gobj()), "notify::position", G_CALLBACK(
 			+[](GtkPaned *, GParamSpec *, gpointer ptr) {
 				((HexView *) ptr)->onResize();
 			}
