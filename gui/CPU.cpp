@@ -94,9 +94,21 @@ namespace RVGUI {
 		vcpu->eval();
 
 		if (vcpu->o_load) {
+			const uintptr_t ptrsum = (uintptr_t) (vcpu->o_addr - options.mmioOffset);
 			if (options.mmioOffset <= vcpu->o_addr) {
+				const uintptr_t fbstart = (uintptr_t) framebuffer.get(), fbend = fbstart + framebufferSize;
+				if (!(fbstart <= ptrsum && ptrsum + 3 < fbend)) {
+					std::cerr << "Framebuffer: [" << toHex(fbstart) << ", " << toHex(fbend) << ")\n";;
+					throw std::out_of_range("Framebuffer read of size 4 out of range (" + toHex(fbstart + ptrsum)
+						+ ")");
+				}
 				std::memcpy(&vcpu->i_mem, framebuffer.get() + vcpu->o_addr - options.mmioOffset, sizeof(Word));
 			} else {
+				const uintptr_t memstart = (uintptr_t) memory.get(), memend = memstart + options.memorySize;
+				if (!(memstart <= ptrsum && ptrsum + 3 < memend)) {
+					std::cerr << "Memory: [" << toHex(memstart) << ", " << toHex(memend) << ")\n";;
+					throw std::out_of_range("Memory read of size 4 out of range (" + toHex(memstart + ptrsum) + ")");
+				}
 				std::memcpy(&vcpu->i_mem, memory.get() + vcpu->o_addr % options.memorySize, sizeof(Word));
 			}
 		}

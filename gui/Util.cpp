@@ -15,12 +15,14 @@ namespace RVGUI {
 
 	std::string toHex(size_t n) {
 		std::stringstream ss;
+		ss.imbue(std::locale::classic());
 		ss << "0x" << std::hex << n;
 		return ss.str();
 	}
 
 	std::string toHex(const void *ptr) {
 		std::stringstream ss;
+		ss.imbue(std::locale::classic());
 		ss << ptr;
 		return ss.str();
 	}
