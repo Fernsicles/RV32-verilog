@@ -159,6 +159,7 @@ namespace RVGUI {
 		if (cpu) {
 			cpu->tick();
 			drawingArea.queue_draw();
+			assemblyView.updatePC();
 		}
 	}
 }
