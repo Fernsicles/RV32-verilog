@@ -11,10 +11,10 @@ void main() {
 			now = tbase[0];
 		}
 		t = now;
-		for(int i = 0; i < 360 * 480; i++) {
-			memset(ibase, *base, 3);
-			base++;
-			ibase += 3;
+
+		for(int i = 0; i < 360 * 480 * 3; i += 3) {
+			memset(base + i, *ibase, 3);
+			ibase += 1;
 		}
 	}
     while(1);
