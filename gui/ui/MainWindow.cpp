@@ -3,9 +3,9 @@
 
 #include "App.h"
 #include "CPU.h"
+#include "lib/Disassembler.h"
 #include "ui/MainWindow.h"
 #include "ui/OpenDialog.h"
-#include "riscv-disas.h"
 
 namespace RVGUI {
 	MainWindow::MainWindow(BaseObjectType *cobject, const Glib::RefPtr<Gtk::Builder> &builder_):
@@ -40,21 +40,8 @@ namespace RVGUI {
 				drawingArea.queue_draw();
 
 				CPU::Word *instructions = cpu->getInstructions();
-				char buffer[512];
-				std::regex start_regex("^[0-9a-f]+ +"), end_regex(" +# 0x[0-9a-f]+$");
-				std::string buffer_str, without_start, without_end;
-
-				for (size_t i = 0; i < cpu->getInstructionCount(); ++i) {
-					disasm_inst(buffer, sizeof(buffer), rv_isa::rv32, cpu->getPC(), instructions[i]);
-					buffer_str = buffer;
-					without_start.clear();
-					without_end.clear();
-					std::regex_replace(std::back_inserter(without_start), buffer_str.begin(), buffer_str.end(),
-						start_regex, "");
-					std::regex_replace(std::back_inserter(without_end), without_start.begin(), without_start.end(),
-						end_regex, "");
-					std::cout << without_end << "\n";
-				}
+				for (size_t i = 0; i < cpu->getInstructionCount(); ++i)
+					std::cout << disassemble(cpu->getPC(), instructions[i]) << "\n";
 			});
 			dialog->show();
 		}));
