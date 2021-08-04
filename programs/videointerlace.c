@@ -12,7 +12,8 @@ void main() {
 		}
 		t = now;
 		for(int i = 0; i < 360 * 480; i++) {
-			memset(ibase, *(base + x * 360 * 480 + i), 3);
+			memset(ibase, *base, 3);
+			base++;
 			ibase += 3;
 		}
 	}
