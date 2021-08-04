@@ -215,6 +215,11 @@ namespace RVGUI {
 		return vcpu? vcpu->o_pc : 0;
 	}
 
+	void CPU::setPC(Word new_pc) {
+		if (vcpu)
+			;
+	}
+
 	CPU::Word * CPU::getInstructions() const {
 		if (options.separateInstructions)
 			return instructions.get();

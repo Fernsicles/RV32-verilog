@@ -19,6 +19,7 @@ namespace RVGUI {
 			Gtk::Grid grid;
 			std::shared_ptr<CPU> cpu;
 			std::vector<std::unique_ptr<Gtk::Widget>> widgets;
+			std::vector<Glib::RefPtr<Gtk::GestureClick>> gestures;
 			std::unordered_map<uint64_t, Gtk::Label> labels;
 			Gtk::Label *activeGutter = nullptr, *activeDisassembled = nullptr;
 

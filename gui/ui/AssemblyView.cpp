@@ -40,6 +40,7 @@ namespace RVGUI {
 		removeChildren(grid);
 		widgets.clear();
 		labels.clear();
+		gestures.clear();
 		const uint64_t pc = cpu->getPC();
 		for (size_t i = 0, count = cpu->getInstructionCount(); i < count; ++i) {
 			std::stringstream ss;
@@ -50,6 +51,12 @@ namespace RVGUI {
 			grid.attach(gutter_label, 0, i);
 			grid.attach(*widgets.emplace_back(new Gtk::Separator(Gtk::Orientation::VERTICAL)), 1, i);
 			grid.attach(disassembled, 2, i);
+			auto &gesture = gestures.emplace_back(Gtk::GestureClick::create());
+			gesture->signal_released().connect([this, i](int, double, double) {
+				cpu->setPC(4 * i);
+			});
+			gutter_label.add_controller(gesture);
+			disassembled.add_controller(gesture);
 			if (pc == 4 * i) {
 				gutter_label.add_css_class("pc");
 				disassembled.add_css_class("pc");
