@@ -16,6 +16,7 @@ namespace RVGUI {
 
 			HexView & setCPU(std::shared_ptr<CPU>);
 			void onResize();
+			void updatePC(uint32_t pc);
 
 		private:
 			MainWindow &parent;
@@ -35,7 +36,6 @@ namespace RVGUI {
 
 			void reset();
 			void updateLabel(uintptr_t cell, uint8_t value);
-			void updatePC(uint32_t pc);
 			std::string getLabel(uintptr_t cell);
 			bool onScroll(double dx, double dy);
 			void onScrolled();

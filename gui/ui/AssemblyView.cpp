@@ -4,10 +4,11 @@
 #include "CPU.h"
 #include "lib/Disassembler.h"
 #include "ui/AssemblyView.h"
+#include "ui/MainWindow.h"
 #include "ui/Util.h"
 
 namespace RVGUI {
-	AssemblyView::AssemblyView(): Gtk::ScrolledWindow() {
+	AssemblyView::AssemblyView(MainWindow &parent_): Gtk::ScrolledWindow(), parent(parent_) {
 		set_child(grid);
 		add_css_class("assemblyview");
 	}
@@ -17,12 +18,11 @@ namespace RVGUI {
 		reset();
 	}
 
-	void AssemblyView::updatePC() {
+	void AssemblyView::updatePC(uint32_t pc) {
 		if (activeGutter)
 			activeGutter->remove_css_class("pc");
 		if (activeDisassembled)
 			activeDisassembled->remove_css_class("pc");
-		const auto pc = cpu->getPC();
 		if (labels.count(pc) != 0) {
 			auto &gutter_label = labels.at(pc);
 			auto &disassembled = labels.at(pc + 1);
@@ -51,12 +51,18 @@ namespace RVGUI {
 			grid.attach(gutter_label, 0, i);
 			grid.attach(*widgets.emplace_back(new Gtk::Separator(Gtk::Orientation::VERTICAL)), 1, i);
 			grid.attach(disassembled, 2, i);
-			auto &gesture = gestures.emplace_back(Gtk::GestureClick::create());
-			gesture->signal_released().connect([this, i](int, double, double) {
+			auto &gutter_gesture = gestures.emplace_back(Gtk::GestureClick::create());
+			gutter_gesture->signal_released().connect([this, i](int, double, double) {
 				cpu->setPC(4 * i);
+				parent.onUpdatePC(4 * i);
 			});
-			gutter_label.add_controller(gesture);
-			disassembled.add_controller(gesture);
+			auto &disassembled_gesture = gestures.emplace_back(Gtk::GestureClick::create());
+			disassembled_gesture->signal_released().connect([this, i](int, double, double) {
+				cpu->setPC(4 * i);
+				parent.onUpdatePC(4 * i);
+			});
+			gutter_label.add_controller(gutter_gesture);
+			disassembled.add_controller(disassembled_gesture);
 			if (pc == 4 * i) {
 				gutter_label.add_css_class("pc");
 				disassembled.add_css_class("pc");

@@ -34,6 +34,8 @@ namespace RVGUI {
 			/** Displays an error message. (See alert().) */
 			void error(const Glib::ustring &message, bool modal = true, bool use_markup = false);
 
+			void onUpdatePC(uint32_t pc);
+
 		private:
 			Glib::RefPtr<Gtk::Builder> builder;
 			Glib::RefPtr<Gtk::CssProvider> cssProvider;

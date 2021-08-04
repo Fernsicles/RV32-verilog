@@ -7,15 +7,17 @@
 
 namespace RVGUI {
 	class CPU;
+	class MainWindow;
 
 	class AssemblyView: public Gtk::ScrolledWindow {
 		public:
-			AssemblyView();
+			AssemblyView(MainWindow &);
 
 			void setCPU(std::shared_ptr<CPU>);
-			void updatePC();
+			void updatePC(uint32_t pc);
 
 		private:
+			MainWindow &parent;
 			Gtk::Grid grid;
 			std::shared_ptr<CPU> cpu;
 			std::vector<std::unique_ptr<Gtk::Widget>> widgets;

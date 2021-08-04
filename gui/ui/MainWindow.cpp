@@ -9,7 +9,7 @@
 
 namespace RVGUI {
 	MainWindow::MainWindow(BaseObjectType *cobject, const Glib::RefPtr<Gtk::Builder> &builder_):
-	Gtk::ApplicationWindow(cobject), builder(builder_), hexView(*this) {
+	Gtk::ApplicationWindow(cobject), builder(builder_), hexView(*this), assemblyView(*this) {
 		header = builder->get_widget<Gtk::HeaderBar>("headerbar");
 		set_titlebar(*header);
 
@@ -39,10 +39,6 @@ namespace RVGUI {
 				else
 					pixbuf.reset();
 				drawingArea.queue_draw();
-
-				CPU::Word *instructions = cpu->getInstructions();
-				for (size_t i = 0; i < cpu->getInstructionCount(); ++i)
-					std::cout << disassemble(cpu->getPC(), instructions[i]) << "\n";
 			});
 			dialog->show();
 		}));
@@ -133,6 +129,11 @@ namespace RVGUI {
 		alert(message, Gtk::MessageType::ERROR, modal, use_markup);
 	}
 
+	void MainWindow::onUpdatePC(uint32_t pc) {
+		hexView.updatePC(pc);
+		assemblyView.updatePC(pc);
+	}
+
 	void MainWindow::play() {
 		if (cpu && !playing) {
 			playing = true;
@@ -159,7 +160,8 @@ namespace RVGUI {
 		if (cpu) {
 			cpu->tick();
 			drawingArea.queue_draw();
-			assemblyView.updatePC();
+			hexView.updatePC(cpu->getPC());
+			assemblyView.updatePC(cpu->getPC());
 		}
 	}
 }

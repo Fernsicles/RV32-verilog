@@ -216,8 +216,15 @@ namespace RVGUI {
 	}
 
 	void CPU::setPC(Word new_pc) {
-		if (vcpu)
-			;
+		if (vcpu) {
+			vcpu->i_clk = 0;
+			vcpu->i_pcload = 1;
+			vcpu->i_pc = new_pc;
+			vcpu->eval();
+			vcpu->i_clk = 1;
+			vcpu->eval();
+			vcpu->i_pcload = 0;
+		}
 	}
 
 	CPU::Word * CPU::getInstructions() const {

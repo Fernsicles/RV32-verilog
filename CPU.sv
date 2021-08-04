@@ -13,7 +13,7 @@ module CPU(
 	output wire [31:0] o_addr,    // The memory address to write to or read from
 	output reg  [1:0]  o_memsize, // The size of memory to be written
 `ifndef YOSYS
-	input  wire i_pc,
+	input  wire [31:0] i_pc,
 	input  wire i_pcload,
 	input  wire i_dload,
 	input  wire i_daddr,
