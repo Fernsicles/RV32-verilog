@@ -5,8 +5,6 @@
 #include "ui/MainWindow.h"
 #include "ui/OpenDialog.h"
 
-#include <gtk-4.0/gdk/x11/gdkx.h>
-
 namespace RVGUI {
 	MainWindow::MainWindow(BaseObjectType *cobject, const Glib::RefPtr<Gtk::Builder> &builder_):
 	Gtk::ApplicationWindow(cobject), builder(builder_), hexView(*this) {
@@ -37,9 +35,6 @@ namespace RVGUI {
 						options.width, options.height, 3 * options.width);
 				else
 					pixbuf.reset();
-				if (display)
-					ximage = XCreateImage(display, DefaultVisual(display, DefaultScreen(display)), 24, ZPixmap, 0,
-						(char *) cpu->getFramebuffer(), options.width, options.height, 8, 0);
 				drawingArea.queue_draw();
 			});
 			dialog->show();
@@ -56,13 +51,8 @@ namespace RVGUI {
 			if (pixbuf) {
 				// Gdk::Cairo::set_source_pixbuf(context, pixbuf, (drawingArea.get_width() - width) / 2,
 				// 	(drawingArea.get_height() - height) / 2);
-				// Gdk::Cairo::set_source_pixbuf(context, pixbuf, 0, 0);
-				// context->paint();
-			}
-			if (display && ximage) {
-				// std::cout << "XPutImage()\n";
-				GC gc = DefaultGC(display, DefaultScreen(display));
-				XPutImage(display, xwindow, gc, ximage, 0, 0, 0, 0, cpu->getOptions().width, cpu->getOptions().height);
+				Gdk::Cairo::set_source_pixbuf(context, pixbuf, 0, 0);
+				context->paint();
 			}
 		});
 
@@ -73,22 +63,6 @@ namespace RVGUI {
 		delay([this] {
 			delay([this] {
 				paned.set_position(get_width() * 7 / 10);
-				display = gdk_x11_display_get_xdisplay(gdk_display_get_default());
-				std::cout << "get_surface() = " << get_surface().get() << "\n";
-				std::cout << "get_surface()->gobj() = " << get_surface()->gobj() << "\n";
-				xwindow = gdk_x11_surface_get_xid(get_surface()->gobj());
-				// xwindow = XCreateSimpleWindow(display, DefaultRootWindow(display), 0, 0, cpu->getOptions().width,
-					// cpu->getOptions().height, 0, 0, 0);
-				// gdk_x11_window
-				// GtkWidget *gtk = gtk_window_new();
-				// g_signal_connect(gtk, "realize", G_CALLBACK(+[](GtkWidget *widget, gpointer) {
-
-				// }), nullptr);
-				// gtk_widget_set_wind
-				// XSelectInput(display, xwindow,
-                //    ExposureMask | StructureNotifyMask | ButtonPressMask | KeyPressMask | PointerMotionMask |
-                //    EnterWindowMask | LeaveWindowMask | ButtonReleaseMask | KeyReleaseMask);
-				// XStoreName(display, xwindow, "Hello");
 			});
 		});
 		set_child(paned);
