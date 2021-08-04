@@ -5,6 +5,8 @@
 #include <list>
 #include <mutex>
 #include <thread>
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
 
 #include "ui/HexView.h"
 
@@ -49,6 +51,10 @@ namespace RVGUI {
 			Gtk::Paned paned;
 			Gtk::DrawingArea drawingArea;
 			HexView hexView;
+
+			Display *display = nullptr;
+			XImage *ximage = nullptr;
+			::Window xwindow;
 
 			bool playing = false;
 
