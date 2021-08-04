@@ -81,6 +81,11 @@ namespace RVGUI {
 				return false;
 			}
 		), &hexView);
+
+		signal_hide().connect([this] {
+			playing = false;
+			std::this_thread::sleep_for(std::chrono::milliseconds(50));
+		});
 	}
 
 	MainWindow * MainWindow::create() {
