@@ -94,20 +94,21 @@ namespace RVGUI {
 		vcpu->eval();
 
 		if (vcpu->o_load) {
-			const uintptr_t ptrsum = (uintptr_t) (vcpu->o_addr - options.mmioOffset);
 			if (options.mmioOffset <= vcpu->o_addr) {
+				const uintptr_t ptrsum = (uintptr_t) (vcpu->o_addr - options.mmioOffset);
 				const uintptr_t fbstart = (uintptr_t) framebuffer.get(), fbend = fbstart + framebufferSize;
-				if (!(fbstart <= ptrsum && ptrsum + 3 < fbend)) {
+				if (!(0 <= ptrsum && ptrsum + 3 < framebufferSize)) {
 					std::cerr << "Framebuffer: [" << toHex(fbstart) << ", " << toHex(fbend) << ")\n";;
 					throw std::out_of_range("Framebuffer read of size 4 out of range (" + toHex(fbstart + ptrsum)
 						+ ")");
 				}
 				std::memcpy(&vcpu->i_mem, framebuffer.get() + vcpu->o_addr - options.mmioOffset, sizeof(Word));
 			} else {
+				const uintptr_t ptr = vcpu->o_addr % options.memorySize;
 				const uintptr_t memstart = (uintptr_t) memory.get(), memend = memstart + options.memorySize;
-				if (!(memstart <= ptrsum && ptrsum + 3 < memend)) {
+				if (!(0 <= ptr && ptr + 3 < options.memorySize)) {
 					std::cerr << "Memory: [" << toHex(memstart) << ", " << toHex(memend) << ")\n";;
-					throw std::out_of_range("Memory read of size 4 out of range (" + toHex(memstart + ptrsum) + ")");
+					throw std::out_of_range("Memory read of size 4 out of range (" + toHex(memstart + ptr) + ")");
 				}
 				std::memcpy(&vcpu->i_mem, memory.get() + vcpu->o_addr % options.memorySize, sizeof(Word));
 			}
