@@ -35,10 +35,6 @@ namespace RVGUI {
 
 	HexView & HexView::setCPU(std::shared_ptr<CPU> cpu_) {
 		cpu = cpu_;
-		if (cpu) {
-			cpu->onByteUpdate = sigc::mem_fun(*this, &HexView::updateLabel);
-			cpu->onPCUpdate = sigc::mem_fun(*this, &HexView::updatePC);
-		}
 		adjustment->set_value(0);
 		reset();
 		return *this;
