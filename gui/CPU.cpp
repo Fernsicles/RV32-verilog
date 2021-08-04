@@ -78,7 +78,7 @@ namespace RVGUI {
 				std::chrono::high_resolution_clock::now().time_since_epoch()).count();
 
 		if (options.useTimeOffset)
-			*reinterpret_cast<int64_t *>(memory.get() + options.timeOffset) =
+			*reinterpret_cast<uint32_t *>(memory.get() + options.timeOffset) =
 				std::chrono::duration_cast<std::chrono::milliseconds>(
 					std::chrono::high_resolution_clock::now().time_since_epoch()).count();
 
@@ -119,24 +119,24 @@ namespace RVGUI {
 			switch (vcpu->o_memsize) {
 				case 1:
 					std::memcpy(pointer + address, &vcpu->o_mem, 1);
-					if (onByteUpdate)
-						onByteUpdate((uintptr_t) pointer + address, *(pointer + address));
+					// if (onByteUpdate)
+					// 	onByteUpdate((uintptr_t) pointer + address, *(pointer + address));
 					break;
 				case 2:
 					std::memcpy(pointer + address, &vcpu->o_mem, 2);
-					if (onByteUpdate) {
-						onByteUpdate((uintptr_t) pointer + address, *(pointer + address));
-						onByteUpdate((uintptr_t) pointer + address + 1, *(pointer + address + 1));
-					}
+					// if (onByteUpdate) {
+					// 	onByteUpdate((uintptr_t) pointer + address, *(pointer + address));
+					// 	onByteUpdate((uintptr_t) pointer + address + 1, *(pointer + address + 1));
+					// }
 					break;
 				case 3:
 					std::memcpy(pointer + address, &vcpu->o_mem, 4);
-					if (onByteUpdate) {
-						onByteUpdate((uintptr_t) pointer + address, *(pointer + address));
-						onByteUpdate((uintptr_t) pointer + address + 1, *(pointer + address + 1));
-						onByteUpdate((uintptr_t) pointer + address + 2, *(pointer + address + 2));
-						onByteUpdate((uintptr_t) pointer + address + 3, *(pointer + address + 3));
-					}
+					// if (onByteUpdate) {
+					// 	onByteUpdate((uintptr_t) pointer + address, *(pointer + address));
+					// 	onByteUpdate((uintptr_t) pointer + address + 1, *(pointer + address + 1));
+					// 	onByteUpdate((uintptr_t) pointer + address + 2, *(pointer + address + 2));
+					// 	onByteUpdate((uintptr_t) pointer + address + 3, *(pointer + address + 3));
+					// }
 					break;
 				default:
 					break;
@@ -144,14 +144,14 @@ namespace RVGUI {
 
 		if (vcpu->o_pc != oldPC) {
 			oldPC = vcpu->o_pc;
-			if (onPCUpdate)
-				onPCUpdate(oldPC);
+			// if (onPCUpdate)
+			// 	onPCUpdate(oldPC);
 		}
 
 		++count;
 
-		if (onTick)
-			onTick(*this);
+		// if (onTick)
+		// 	onTick(*this);
 
 		if (vcpu->i_inst == 0x6f) { // Jump to self
 			 end = std::chrono::duration_cast<std::chrono::milliseconds>(
