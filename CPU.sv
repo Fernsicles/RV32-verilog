@@ -13,6 +13,8 @@ module CPU(
 	output wire [31:0] o_addr,    // The memory address to write to or read from
 	output reg  [1:0]  o_memsize, // The size of memory to be written
 `ifndef YOSYS
+	input  wire i_pc,
+	input  wire i_pcload,
 	input  wire i_dload,
 	input  wire i_daddr,
 	input  wire [31:0] i_ddata,
@@ -120,6 +122,11 @@ module CPU(
 	// Update PC and instruction fetch
 	assign o_pc = pc;
 	always_ff @(posedge i_clk) begin
+`ifndef YOSYS
+		if(i_pcload)
+			pc <= i_pc;
+		else
+`endif
 		if(i_inst[6:2] == 5'b11001) // JALR computes address from sum of register contents and immediate
 			pc <= {a_res[31:1], 1'b0};
 		else if(jmp)
