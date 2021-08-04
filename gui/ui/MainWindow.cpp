@@ -32,6 +32,7 @@ namespace RVGUI {
 			open_dialog->signal_submit().connect([this](const CPU::Options &options) {
 				cpu = std::make_shared<CPU>(options);
 				hexView.setCPU(cpu);
+				assemblyView.setCPU(cpu);
 				if (options.width != 0 && options.height != 0)
 					pixbuf = Gdk::Pixbuf::create_from_data(cpu->getFramebuffer(), Gdk::Colorspace::RGB, false, 8,
 						options.width, options.height, 3 * options.width);

@@ -2,8 +2,12 @@
 	font-family: monospace;
 }
 
-.hexview label {
+.hexview label, .assemblyview label {
 	font-family: monospace;
+}
+
+.assemblyview label {
+	padding: 0 4px;
 }
 
 .pc {
