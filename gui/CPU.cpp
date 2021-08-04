@@ -181,8 +181,9 @@ namespace RVGUI {
 		if (!file.is_open())
 			throw std::runtime_error("Failed to open program for reading");
 
+		instructionCount = filesize / sizeof(Word);
 		if (options.separateInstructions) {
-			instructions.reset(new Word[filesize / sizeof(Word)]);
+			instructions.reset(new Word[instructionCount]);
 			for (size_t i = 0; !file.eof() && i < filesize / sizeof(Word); ++i)
 				file.read(reinterpret_cast<char *>(&instructions[i]), sizeof(Word));
 		} else {
@@ -212,6 +213,12 @@ namespace RVGUI {
 
 	CPU::Word CPU::getPC() const {
 		return vcpu? vcpu->o_pc : 0;
+	}
+
+	CPU::Word * CPU::getInstructions() const {
+		if (options.separateInstructions)
+			return instructions.get();
+		return reinterpret_cast<Word *>(memory.get());
 	}
 
 	void CPU::init() {

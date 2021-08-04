@@ -46,6 +46,8 @@ namespace RVGUI {
 			void loadData(void *data, size_t size, size_t offset);
 			void loadData();
 			Word getPC() const;
+			Word * getInstructions() const;
+			size_t getInstructionCount() const { return instructionCount; }
 			size_t memorySize() const { return options.memorySize; }
 			uint8_t operator[](size_t offset) const { return memory[offset]; }
 			const Options & getOptions() const { return options; }
@@ -58,7 +60,7 @@ namespace RVGUI {
 			std::shared_ptr<uint8_t[]> framebuffer;
 			std::unique_ptr<Word[]> instructions;
 			std::unique_ptr<VCPU> vcpu;
-			size_t count = 0, framebufferSize = 0;
+			size_t count = 0, instructionCount = 0, framebufferSize = 0;
 			int64_t start = 0, end = 0;
 
 			void init();
