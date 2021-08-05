@@ -238,7 +238,7 @@ namespace RVGUI {
 		return reinterpret_cast<Word *>(memory.get());
 	}
 
-	const uint8_t * CPU::getMemory() const {
+	uint8_t * CPU::getMemory() const {
 		return memory.get();
 	}
 

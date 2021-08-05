@@ -49,7 +49,7 @@ namespace RVGUI {
 			Word getPC() const;
 			void setPC(Word);
 			const Word * getInstructions() const;
-			const uint8_t * getMemory() const;
+			uint8_t * getMemory() const;
 			size_t getInstructionCount() const { return instructionCount; }
 			size_t memorySize() const { return options.memorySize; }
 			uint8_t operator[](size_t offset) const { return memory[offset]; }
