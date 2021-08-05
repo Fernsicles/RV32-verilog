@@ -65,6 +65,7 @@ namespace RVGUI {
 
 			bool playing = false;
 
+			void open();
 			void play();
 			void tick();
 			bool onTimeout();

@@ -137,7 +137,8 @@ namespace RVGUI {
 
 		size_t address = offset * calculations.cellsPerRow;
 		for (size_t i = 0; i < lastMemorySize; ++i) {
-			cellLabels.at(address).set_text(getLabel(address));
+			if (cellLabels.count(address) != 0)
+				cellLabels.at(address).set_text(getLabel(address));
 			++address;
 		}
 	}

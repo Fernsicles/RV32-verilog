@@ -26,19 +26,7 @@ namespace RVGUI {
 		Gtk::StyleContext::add_provider_for_display(Gdk::Display::get_default(), cssProvider,
 			GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
 
-		add_action("open", Gio::ActionMap::ActivateSlot([this] {
-			auto *open_dialog = new OpenDialog(*this);
-			dialog.reset(open_dialog);
-			open_dialog->signal_submit().connect([this](const CPU::Options &options) {
-				cpu = std::make_shared<CPU>(options);
-				hexView.setCPU(cpu);
-				assemblyView.setCPU(cpu);
-				initVideo(*cpu);
-				drawingArea.queue_draw();
-			});
-			dialog->show();
-		}));
-
+		add_action("open", Gio::ActionMap::ActivateSlot(sigc::mem_fun(*this, &MainWindow::open)));
 		add_action("play", Gio::ActionMap::ActivateSlot(sigc::mem_fun(*this, &MainWindow::play)));
 
 		functionQueueDispatcher.connect([this] {
@@ -122,6 +110,19 @@ namespace RVGUI {
 	void MainWindow::onUpdatePC(uint32_t pc) {
 		hexView.updatePC(pc);
 		assemblyView.updatePC(pc);
+	}
+
+	void MainWindow::open() {
+		auto *open_dialog = new OpenDialog(*this);
+		dialog.reset(open_dialog);
+		open_dialog->signal_submit().connect([this](const CPU::Options &options) {
+			cpu = std::make_shared<CPU>(options);
+			hexView.setCPU(cpu);
+			assemblyView.setCPU(cpu);
+			initVideo(*cpu);
+			drawingArea.queue_draw();
+		});
+		dialog->show();
 	}
 
 	void MainWindow::play() {
