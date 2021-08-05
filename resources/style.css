@@ -30,11 +30,7 @@
 }
 
 .console .output {
-	color: white;
-}
-
-.console .output > * {
-	background: black;
+	padding: 5px;
 }
 
 .console .output, .console .input {
