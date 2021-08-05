@@ -206,8 +206,7 @@ namespace RVGUI {
 		std::ifstream data;
 		data.open(options.dataFilename, std::ios::in | std::ios::binary);
 		std::cout << "Loading data...\n";
-		for (size_t i = 0; !data.eof() && i < datasize; ++i)
-			data.read(reinterpret_cast<char *>(memory.get() + options.dataOffset + i), 1);
+		data.read(reinterpret_cast<char *>(memory.get()) + options.dataOffset, datasize);
 		std::cout << "Data loaded.\n";
 	}
 
