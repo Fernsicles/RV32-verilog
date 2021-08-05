@@ -1,4 +1,3 @@
-#include <iostream>
 #include <filesystem>
 
 #include "ui/OpenDialog.h"
@@ -170,7 +169,6 @@ namespace RVGUI {
 		options.setDimensions(width, height);
 		options.setMMIOOffset(static_cast<Word>(mmio_offset));
 		options.setVideoMode(videoMode);
-		std::cout << "videoMode[" << videoModeNames[videoMode] << "]\n";
 		if (use_time_offset)
 			options.setTimeOffset(static_cast<int32_t>(time_offset));
 		hide();
