@@ -16,6 +16,7 @@ namespace RVGUI {
 		input.add_css_class("input");
 		append(scrolled);
 		append(input);
+		endMark = output.get_buffer()->create_mark(output.get_buffer()->end(), false);
 	}
 
 	Console & Console::setCPU(std::shared_ptr<CPU> cpu_) {
@@ -24,6 +25,7 @@ namespace RVGUI {
 	}
 
 	void Console::append(const Glib::ustring &text, bool is_markup) {
+		wasAtEnd = atEnd();
 		auto &buffer = *output.get_buffer();
 		if (buffer.size() != 0)
 			buffer.insert(buffer.end(), "\n");
@@ -31,6 +33,8 @@ namespace RVGUI {
 			buffer.insert_markup(buffer.end(), text);
 		else
 			buffer.insert(buffer.end(), text);
+		if (wasAtEnd)
+			output.scroll_to(endMark);
 	}
 
 	void Console::addCommand(const Glib::ustring &name, const CommandHandler &handler) {
@@ -61,5 +65,10 @@ namespace RVGUI {
 			append("Invalid command.");
 		else
 			commands.at(command)(*this, pieces);
+	}
+
+	bool Console::atEnd() const {
+		const auto vadj = output.get_vadjustment();
+		return std::abs(vadj->get_upper() - vadj->get_page_size() - vadj->get_value()) < 0.0001;
 	}
 }

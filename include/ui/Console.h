@@ -28,7 +28,10 @@ namespace RVGUI {
 			Gtk::ScrolledWindow scrolled;
 			Gtk::TextView output;
 			BasicEntry input;
+			Glib::RefPtr<Gtk::TextBuffer::Mark> endMark;
+			bool wasAtEnd = false;
 
 			void onSubmit();
+			bool atEnd() const;
 	};
 }
