@@ -174,6 +174,12 @@ namespace RVGUI {
 			return;
 		}
 
+		if (videoMode == VideoMode::Grayscale && width % sizeof(uint32_t) != 0) {
+			error("In grayscale mode, the framebuffer width must be a multiple of " + std::to_string(sizeof(uint32_t))
+				+ ".");
+			return;
+		}
+
 		CPU::Options options(program, memsize);
 		options.setDataFilename(data);
 		options.setDataOffset(static_cast<Word>(data_offset));
