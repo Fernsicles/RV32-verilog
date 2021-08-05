@@ -21,3 +21,22 @@
 .hidden {
 	opacity: 0;
 }
+
+.console .input {
+	border-radius: 0;
+	border-left: none;
+	border-right: none;
+	border-bottom: none;
+}
+
+.console .output {
+	color: white;
+}
+
+.console .output * {
+	background: black;
+}
+
+.console .output, .console .input {
+	font-family: monospace;
+}

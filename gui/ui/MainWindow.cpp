@@ -36,19 +36,31 @@ namespace RVGUI {
 			functionQueue.clear();
 		});
 
-		hpaned.set_start_child(drawingArea);
-		hpaned.set_end_child(vpaned);
+		drawingArea.set_expand(true);
+
+		hpaned.set_start_child(vpanedLeft);
+		hpaned.set_end_child(vpanedRight);
 		hpaned.set_expand(true);
-		vpaned.set_expand(true);
-		vpaned.set_orientation(Gtk::Orientation::VERTICAL);
-		vpaned.set_start_child(hexView);
-		vpaned.set_end_child(assemblyView);
-		vpaned.set_wide_handle(true);
+
+		vpanedLeft.set_expand(true);
+		vpanedLeft.set_orientation(Gtk::Orientation::VERTICAL);
+		vpanedLeft.set_start_child(drawingArea);
+		vpanedLeft.set_end_child(console);
+		vpanedLeft.set_wide_handle(true);
+
+		vpanedRight.set_expand(true);
+		vpanedRight.set_orientation(Gtk::Orientation::VERTICAL);
+		vpanedRight.set_start_child(hexView);
+		vpanedRight.set_end_child(assemblyView);
+		vpanedRight.set_wide_handle(true);
+
 		delay([this] {
 			delay([this] {
 				hpaned.set_position(get_width() * 7 / 10);
+				vpanedLeft.set_position(get_height() * 7 / 10);
 			});
 		});
+
 		set_child(hpaned);
 
 		// :(

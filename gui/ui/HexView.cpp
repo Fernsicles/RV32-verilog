@@ -117,17 +117,15 @@ namespace RVGUI {
 		bool same = false;
 
 		if (memory_size < offset + total_cells) {
-			if (lastMemorySize == memory_size - offset) {
+			if (lastMemorySize == memory_size - offset)
 				same = std::memcmp(cpu->getMemory(), lastMemory.get(), lastMemorySize) == 0;
-			} else {
+			else
 				lastMemory.reset(new uint8_t[lastMemorySize = memory_size - offset]);
-			}
 		} else {
-			if (lastMemorySize == total_cells) {
+			if (lastMemorySize == total_cells)
 				same = std::memcmp(cpu->getMemory(), lastMemory.get(), lastMemorySize) == 0;
-			} else {
+			else
 				lastMemory.reset(new uint8_t[lastMemorySize = total_cells]);
-			}
 		}
 
 		if (same)

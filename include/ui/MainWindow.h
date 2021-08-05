@@ -8,6 +8,7 @@
 
 #include "Defs.h"
 #include "ui/AssemblyView.h"
+#include "ui/Console.h"
 #include "ui/HexView.h"
 
 namespace RVGUI {
@@ -58,10 +59,11 @@ namespace RVGUI {
 
 			Gtk::ToggleButton playButton;
 			Gtk::Button tickButton;
-			Gtk::Paned hpaned, vpaned;
+			Gtk::Paned hpaned, vpanedLeft, vpanedRight;
 			Gtk::DrawingArea drawingArea;
 			HexView hexView;
 			AssemblyView assemblyView;
+			Console console;
 
 			bool playing = false;
 
