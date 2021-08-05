@@ -54,6 +54,7 @@ namespace RVGUI {
 		resetVideoModelCombo();
 		videoModeCombo.pack_start(videoModeColumns.name);
 		videoModeCombo.signal_changed().connect(sigc::mem_fun(*this, &OpenDialog::videoModelChanged));
+		videoModeCombo.set_tooltip_text("Video mode");
 
 		area.append(programBox);
 		area.append(dataBox);
@@ -62,8 +63,8 @@ namespace RVGUI {
 		area.append(mmioOffset);
 		area.append(dataOffset);
 		area.append(timeOffset);
-		area.append(separateInstructions);
 		area.append(videoModeCombo);
+		area.append(separateInstructions);
 		area.append(buttonBox);
 
 		setDefaults();
