@@ -181,8 +181,11 @@ namespace RVGUI {
 	void MainWindow::initVideo(const CPU &cpu) {
 		const auto &options = cpu.getOptions();
 		if (options.width != 0 && options.height != 0) {
+			if (cairoSurfaceCobj)
+				cairo_surface_finish(cairoSurfaceCobj);
 			cairoSurfaceCobj = nullptr;
 			cairoSurface.reset();
+			cairoPattern.reset();
 			pixbuf.reset();
 			uint8_t *framebuffer = cpu.getFramebuffer();
 			switch (videoMode = options.videoMode) {
