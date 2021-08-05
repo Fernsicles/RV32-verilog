@@ -132,10 +132,11 @@ namespace RVGUI {
 		open_dialog->signal_submit().connect([this](const CPU::Options &options) {
 			stop();
 			cpu = std::make_shared<CPU>(options);
+			centerView.setDimensions(options.width, options.height);
+			if (!initVideo(*cpu))
+				cpu.reset();
 			hexView.setCPU(cpu);
 			assemblyView.setCPU(cpu);
-			centerView.setDimensions(options.width, options.height);
-			initVideo(*cpu);
 			drawingArea.queue_draw();
 		});
 		dialog->show();
@@ -183,7 +184,7 @@ namespace RVGUI {
 		return playing;
 	}
 
-	void MainWindow::initVideo(const CPU &cpu) {
+	bool MainWindow::initVideo(const CPU &cpu) {
 		const auto &options = cpu.getOptions();
 		if (options.width != 0 && options.height != 0) {
 			cairoSurfaceCobj = nullptr;
@@ -193,8 +194,14 @@ namespace RVGUI {
 			uint8_t *framebuffer = cpu.getFramebuffer();
 			switch (videoMode = options.videoMode) {
 				case VideoMode::Grayscale:
-					cairoSurfaceCobj = cairo_image_surface_create_for_data(framebuffer, CAIRO_FORMAT_A8,
-						options.width, options.height, options.width);
+					if (options.width % sizeof(uint32_t)) {
+						delay([this] {
+							error("Framebuffer width must be a multiple of " + std::to_string(sizeof(uint32_t)));
+						});
+						return false;
+					}
+					cairoSurfaceCobj = cairo_image_surface_create_for_data(framebuffer, CAIRO_FORMAT_A8, options.width,
+						options.height, options.width);
 					cairoSurface = Cairo::make_refptr_for_instance(new Cairo::Surface(cairoSurfaceCobj));
 					drawingArea.set_draw_func(sigc::mem_fun(*this, &MainWindow::drawGrayscale));
 					break;
@@ -208,6 +215,7 @@ namespace RVGUI {
 						+ std::to_string(static_cast<int>(options.videoMode)));
 			}
 		}
+		return true;
 	}
 
 	void MainWindow::drawGrayscale(const Cairo::RefPtr<Cairo::Context> &context, int width, int height) {

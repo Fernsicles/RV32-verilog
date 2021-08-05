@@ -74,7 +74,7 @@ namespace RVGUI {
 			void stop();
 			void tick();
 			bool onTimeout();
-			void initVideo(const CPU &);
+			bool initVideo(const CPU &);
 			void drawGrayscale(const Cairo::RefPtr<Cairo::Context> &, int width, int height);
 			void drawRGB(const Cairo::RefPtr<Cairo::Context> &, int width, int height);
 
