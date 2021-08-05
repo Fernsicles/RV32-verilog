@@ -143,17 +143,12 @@ namespace RVGUI {
 					cpu->tick();
 			});
 			playThread.detach();
-			drawThread = std::thread([this] {
-				while (playing) {
-					queue([this] {
-						drawingArea.queue_draw();
-					});
-					std::this_thread::sleep_for(std::chrono::milliseconds(1000 / 30));
-				}
-			});
-			drawThread.detach();
-		} else
+			timeout = Glib::signal_timeout().connect(sigc::mem_fun(*this, &MainWindow::onTimeout), 1000 / 60);
+		} else {
 			playing = false;
+			hexView.updatePC(cpu->getPC());
+			assemblyView.updatePC(cpu->getPC());
+		}
 		playButton.set_active(playing);
 	}
 
@@ -164,5 +159,15 @@ namespace RVGUI {
 			hexView.updatePC(cpu->getPC());
 			assemblyView.updatePC(cpu->getPC());
 		}
+	}
+
+	bool MainWindow::onTimeout() {
+		if (cpu) {
+			drawingArea.queue_draw();
+			hexView.updatePC(cpu->getPC());
+			assemblyView.updatePC(cpu->getPC());
+		}
+
+		return playing;
 	}
 }

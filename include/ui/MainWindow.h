@@ -46,6 +46,8 @@ namespace RVGUI {
 			Glib::RefPtr<Gdk::Pixbuf> pixbuf;
 			std::shared_ptr<CPU> cpu;
 			std::shared_ptr<uint8_t[]> framebuffer;
+			sigc::connection timeout;
+			std::thread playThread;
 
 			Gtk::ToggleButton playButton;
 			Gtk::Button tickButton;
@@ -56,9 +58,8 @@ namespace RVGUI {
 
 			bool playing = false;
 
-			std::thread drawThread, playThread;
-
 			void play();
 			void tick();
+			bool onTimeout();
 	};
 }
