@@ -146,8 +146,16 @@ namespace RVGUI {
 		if (cpu && !playing) {
 			playing = true;
 			playThread = std::thread([this] {
-				while (playing)
-					cpu->tick();
+				try {
+					while (playing)
+						cpu->tick();
+				} catch (const std::exception &err) {
+					Glib::ustring what = err.what();
+					queue([this, what] {
+						stop();
+						error("Error while simulating: " + what);
+					});
+				}
 			});
 			playThread.detach();
 			timeout = Glib::signal_timeout().connect(sigc::mem_fun(*this, &MainWindow::onTimeout), 1000 / FPS);
@@ -158,6 +166,7 @@ namespace RVGUI {
 
 	void MainWindow::stop() {
 		playing = false;
+		playButton.set_active(false);
 		if (cpu) {
 			hexView.updatePC(cpu->getPC());
 			assemblyView.updatePC(cpu->getPC());

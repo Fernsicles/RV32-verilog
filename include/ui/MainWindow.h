@@ -46,7 +46,7 @@ namespace RVGUI {
 			Glib::RefPtr<Gtk::CssProvider> cssProvider;
 			std::unique_ptr<Gtk::Dialog> dialog;
 			std::list<std::function<void()>> functionQueue;
-			std::mutex functionQueueMutex;
+			std::recursive_mutex functionQueueMutex;
 			Glib::Dispatcher functionQueueDispatcher;
 			std::shared_ptr<CPU> cpu;
 			std::shared_ptr<uint8_t[]> framebuffer;
