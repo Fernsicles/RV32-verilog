@@ -57,11 +57,11 @@ namespace RVGUI {
 			if (!cairoPattern) {
 				cairoPattern = Cairo::make_refptr_for_instance(
 					new Cairo::Pattern(cairo_pattern_create_for_surface(cairoSurfaceCobj), false));
+				context->set_source(cairoSurface, 0, 0);
+				context->rectangle(0, 0, cpu->getOptions().width, cpu->getOptions().height);
+				context->set_source_rgb(0, 0, 0);
 			}
 
-			context->set_source(cairoSurface, 0, 0);
-			context->rectangle(0, 0, cpu->getOptions().width, cpu->getOptions().height);
-			context->set_source_rgb(0, 0, 0);
 			context->set_operator(Cairo::Context::Operator::XOR);
 			context->mask(cairoPattern);
 			cairoSurface->flush();
