@@ -136,9 +136,7 @@ namespace RVGUI {
 		std::memcpy(lastMemory.get(), cpu->getMemory(), lastMemorySize);
 
 		size_t address = offset * calculations.cellsPerRow;
-		// std::cout << "start @ " << offset << "\n";
 		for (size_t i = 0; i < lastMemorySize; ++i) {
-			// std::cout << "at(" << address << ")\n";
 			cellLabels.at(address).set_text(getLabel(address));
 			++address;
 		}
