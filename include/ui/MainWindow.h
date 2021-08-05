@@ -37,17 +37,21 @@ namespace RVGUI {
 			void onUpdatePC(uint32_t pc);
 
 		private:
+			static constexpr int FPS = 60;
+
 			Glib::RefPtr<Gtk::Builder> builder;
 			Glib::RefPtr<Gtk::CssProvider> cssProvider;
 			std::unique_ptr<Gtk::Dialog> dialog;
 			std::list<std::function<void()>> functionQueue;
 			std::mutex functionQueueMutex;
 			Glib::Dispatcher functionQueueDispatcher;
-			Glib::RefPtr<Gdk::Pixbuf> pixbuf;
 			std::shared_ptr<CPU> cpu;
 			std::shared_ptr<uint8_t[]> framebuffer;
 			sigc::connection timeout;
 			std::thread playThread;
+			cairo_surface_t *cairoSurfaceCobj = nullptr;
+			Cairo::RefPtr<Cairo::Surface> cairoSurface;
+			Cairo::RefPtr<Cairo::Pattern> cairoPattern;
 
 			Gtk::ToggleButton playButton;
 			Gtk::Button tickButton;

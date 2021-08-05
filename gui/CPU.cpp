@@ -205,6 +205,7 @@ namespace RVGUI {
 		const auto datasize = std::filesystem::file_size(options.dataFilename);
 		std::ifstream data;
 		data.open(options.dataFilename, std::ios::in | std::ios::binary);
+
 		std::cout << "Loading data...\n";
 		data.read(reinterpret_cast<char *>(memory.get()) + options.dataOffset, datasize);
 		std::cout << "Data loaded.\n";

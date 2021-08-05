@@ -33,11 +33,11 @@ namespace RVGUI {
 				cpu = std::make_shared<CPU>(options);
 				hexView.setCPU(cpu);
 				assemblyView.setCPU(cpu);
-				if (options.width != 0 && options.height != 0)
-					pixbuf = Gdk::Pixbuf::create_from_data(cpu->getFramebuffer(), Gdk::Colorspace::RGB, false, 8,
-						options.width, options.height, 3 * options.width);
-				else
-					pixbuf.reset();
+				if (options.width != 0 && options.height != 0) {
+					cairoSurfaceCobj = cairo_image_surface_create_for_data(cpu->getFramebuffer(), CAIRO_FORMAT_A8,
+						options.width, options.height, options.width);
+					cairoSurface = Cairo::make_refptr_for_instance(new Cairo::Surface(cairoSurfaceCobj));
+				}
 				drawingArea.queue_draw();
 			});
 			dialog->show();
@@ -51,12 +51,21 @@ namespace RVGUI {
 		});
 
 		drawingArea.set_draw_func([this](const Cairo::RefPtr<Cairo::Context> &context, int width, int height) {
-			if (pixbuf) {
-				// Gdk::Cairo::set_source_pixbuf(context, pixbuf, (drawingArea.get_width() - width) / 2,
-				// 	(drawingArea.get_height() - height) / 2);
-				Gdk::Cairo::set_source_pixbuf(context, pixbuf, 0, 0);
-				context->paint();
+			if (!cairoSurfaceCobj)
+				return;
+
+			if (!cairoPattern) {
+				cairoPattern = Cairo::make_refptr_for_instance(
+					new Cairo::Pattern(cairo_pattern_create_for_surface(cairoSurfaceCobj), false));
 			}
+
+			context->set_source(cairoSurface, 0, 0);
+			context->rectangle(0, 0, cpu->getOptions().width, cpu->getOptions().height);
+			context->set_source_rgb(0, 0, 0);
+			context->set_operator(Cairo::Context::Operator::XOR);
+			context->mask(cairoPattern);
+			cairoSurface->flush();
+			context->paint();
 		});
 
 		hpaned.set_start_child(drawingArea);
@@ -143,11 +152,13 @@ namespace RVGUI {
 					cpu->tick();
 			});
 			playThread.detach();
-			timeout = Glib::signal_timeout().connect(sigc::mem_fun(*this, &MainWindow::onTimeout), 1000 / 60);
+			timeout = Glib::signal_timeout().connect(sigc::mem_fun(*this, &MainWindow::onTimeout), 1000 / FPS);
 		} else {
 			playing = false;
-			hexView.updatePC(cpu->getPC());
-			assemblyView.updatePC(cpu->getPC());
+			if (cpu) {
+				hexView.updatePC(cpu->getPC());
+				assemblyView.updatePC(cpu->getPC());
+			}
 		}
 		playButton.set_active(playing);
 	}
