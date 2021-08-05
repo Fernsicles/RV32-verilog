@@ -33,7 +33,7 @@
 	color: white;
 }
 
-.console .output * {
+.console .output > * {
 	background: black;
 }
 

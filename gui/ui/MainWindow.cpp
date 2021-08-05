@@ -82,6 +82,8 @@ namespace RVGUI {
 			playing = false;
 			std::this_thread::sleep_for(std::chrono::milliseconds(50));
 		});
+
+		addCommands();
 	}
 
 	MainWindow * MainWindow::create() {
