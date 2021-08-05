@@ -12,7 +12,6 @@
 namespace RVGUI {
 	class CPU {
 		public:
-
 			struct Options {
 				std::string programFilename, dataFilename;
 				size_t memorySize;
@@ -59,6 +58,7 @@ namespace RVGUI {
 			size_t getCount() const { return count; }
 
 		private:
+			static constexpr size_t FRAMEBUFFER_OFFSET = 0x10'00'00; // one megabyte
 			Options options;
 			std::unique_ptr<uint8_t[]> memory;
 			std::shared_ptr<uint8_t[]> framebuffer;

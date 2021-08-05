@@ -99,15 +99,15 @@ namespace RVGUI {
 		vcpu->eval();
 
 		if (vcpu->o_load) {
-			if (options.mmioOffset <= vcpu->o_addr) {
-				const uintptr_t ptrsum = (uintptr_t) (vcpu->o_addr - options.mmioOffset);
+			if (options.mmioOffset + FRAMEBUFFER_OFFSET <= vcpu->o_addr) {
+				const ptrdiff_t ptrsum = vcpu->o_addr - options.mmioOffset - FRAMEBUFFER_OFFSET;
 				const uintptr_t fbstart = (uintptr_t) framebuffer.get(), fbend = fbstart + framebufferSize;
 				if (!(0 <= ptrsum && ptrsum + 3 < framebufferSize)) {
 					std::cerr << "Framebuffer: [" << toHex(fbstart) << ", " << toHex(fbend) << ")\n";;
 					throw std::out_of_range("Framebuffer read of size 4 out of range (" + toHex(fbstart + ptrsum)
 						+ ")");
 				}
-				std::memcpy(&vcpu->i_mem, framebuffer.get() + vcpu->o_addr - options.mmioOffset, sizeof(Word));
+				std::memcpy(&vcpu->i_mem, framebuffer.get() + ptrsum, sizeof(Word));
 			} else {
 				const uintptr_t ptr = vcpu->o_addr % options.memorySize;
 				const uintptr_t memstart = (uintptr_t) memory.get(), memend = memstart + options.memorySize;
@@ -126,9 +126,9 @@ namespace RVGUI {
 		uint8_t *pointer;
 		Word address;
 
-		if (options.mmioOffset <= vcpu->o_addr) {
+		if (options.mmioOffset + FRAMEBUFFER_OFFSET <= vcpu->o_addr) {
 			pointer = framebuffer.get();
-			address = vcpu->o_addr - options.mmioOffset;
+			address = vcpu->o_addr - options.mmioOffset - FRAMEBUFFER_OFFSET;
 		} else {
 			pointer = memory.get();
 			address = vcpu->o_addr;

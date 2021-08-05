@@ -1,6 +1,6 @@
 #include <string.h>
 void main() {
-	unsigned char *framebuffer = (unsigned char *) 0x80000000;
+	unsigned char *framebuffer = (unsigned char *) 0x80100000;
 	unsigned char *ibase = (unsigned char *) 0x100;
 	unsigned int *tbase = (unsigned int *) 0x0;
 	int i = 0;
