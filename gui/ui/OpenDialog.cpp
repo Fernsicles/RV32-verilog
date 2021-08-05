@@ -79,11 +79,22 @@ namespace RVGUI {
 	}
 
 	void OpenDialog::submit() {
-		const auto program	   = programFilename.get_text();
+		const auto program     = programFilename.get_text();
+		const auto data        = dataFilename.get_text();
 		const auto memsize_str = memorySize.get_text();
 
 		if (program.empty()) {
 			error("Please specify a program filename.");
+			return;
+		}
+
+		if (!std::filesystem::exists(program.c_str())) {
+			error("Program file not found.");
+			return;
+		}
+
+		if (!data.empty() && !std::filesystem::exists(data.c_str())) {
+			error("Data file not found.");
 			return;
 		}
 
@@ -163,7 +174,7 @@ namespace RVGUI {
 		}
 
 		CPU::Options options(program, memsize);
-		options.setDataFilename(dataFilename.get_text());
+		options.setDataFilename(data);
 		options.setDataOffset(static_cast<Word>(data_offset));
 		options.setSeparateInstructions(separateInstructions.get_active());
 		options.setDimensions(width, height);
