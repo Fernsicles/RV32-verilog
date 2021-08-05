@@ -66,7 +66,6 @@ namespace RVGUI {
 
 			context->set_operator(Cairo::Context::Operator::XOR);
 			context->mask(cairoPattern);
-			cairoSurface->flush();
 			context->paint();
 		});
 
