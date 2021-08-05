@@ -8,6 +8,7 @@
 
 #include "Defs.h"
 #include "ui/AssemblyView.h"
+#include "ui/CenterView.h"
 #include "ui/Console.h"
 #include "ui/HexView.h"
 
@@ -61,6 +62,7 @@ namespace RVGUI {
 			Gtk::Button tickButton;
 			Gtk::Paned hpaned, vpanedLeft, vpanedRight;
 			Gtk::DrawingArea drawingArea;
+			CenterView centerView;
 			HexView hexView;
 			AssemblyView assemblyView;
 			Console console;
@@ -69,6 +71,7 @@ namespace RVGUI {
 
 			void open();
 			void play();
+			void stop();
 			void tick();
 			bool onTimeout();
 			void initVideo(const CPU &);

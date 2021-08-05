@@ -9,7 +9,7 @@
 
 namespace RVGUI {
 	MainWindow::MainWindow(BaseObjectType *cobject, const Glib::RefPtr<Gtk::Builder> &builder_):
-	Gtk::ApplicationWindow(cobject), builder(builder_), hexView(*this), assemblyView(*this) {
+	Gtk::ApplicationWindow(cobject), builder(builder_), hexView(*this), assemblyView(*this), centerView(drawingArea) {
 		header = builder->get_widget<Gtk::HeaderBar>("headerbar");
 		set_titlebar(*header);
 
@@ -44,7 +44,7 @@ namespace RVGUI {
 
 		vpanedLeft.set_expand(true);
 		vpanedLeft.set_orientation(Gtk::Orientation::VERTICAL);
-		vpanedLeft.set_start_child(drawingArea);
+		vpanedLeft.set_start_child(centerView);
 		vpanedLeft.set_end_child(console);
 		vpanedLeft.set_wide_handle(true);
 
@@ -130,9 +130,11 @@ namespace RVGUI {
 		auto *open_dialog = new OpenDialog(*this);
 		dialog.reset(open_dialog);
 		open_dialog->signal_submit().connect([this](const CPU::Options &options) {
+			stop();
 			cpu = std::make_shared<CPU>(options);
 			hexView.setCPU(cpu);
 			assemblyView.setCPU(cpu);
+			centerView.setDimensions(options.width, options.height);
 			initVideo(*cpu);
 			drawingArea.queue_draw();
 		});
@@ -148,14 +150,17 @@ namespace RVGUI {
 			});
 			playThread.detach();
 			timeout = Glib::signal_timeout().connect(sigc::mem_fun(*this, &MainWindow::onTimeout), 1000 / FPS);
-		} else {
-			playing = false;
-			if (cpu) {
-				hexView.updatePC(cpu->getPC());
-				assemblyView.updatePC(cpu->getPC());
-			}
-		}
+		} else
+			stop();
 		playButton.set_active(playing);
+	}
+
+	void MainWindow::stop() {
+		playing = false;
+		if (cpu) {
+			hexView.updatePC(cpu->getPC());
+			assemblyView.updatePC(cpu->getPC());
+		}
 	}
 
 	void MainWindow::tick() {
@@ -181,8 +186,6 @@ namespace RVGUI {
 	void MainWindow::initVideo(const CPU &cpu) {
 		const auto &options = cpu.getOptions();
 		if (options.width != 0 && options.height != 0) {
-			if (cairoSurfaceCobj)
-				cairo_surface_finish(cairoSurfaceCobj);
 			cairoSurfaceCobj = nullptr;
 			cairoSurface.reset();
 			cairoPattern.reset();
