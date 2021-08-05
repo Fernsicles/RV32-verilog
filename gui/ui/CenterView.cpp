@@ -14,7 +14,6 @@ namespace RVGUI {
 				lastWidth = new_width;
 				lastHeight = new_height;
 				updateChild();
-				std::cout << "child(" << child.get_width() << ", " << child.get_height() << ")\n";
 			}
 			return true;
 		});
