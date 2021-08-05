@@ -38,6 +38,10 @@
 				<attribute name="label" translatable="yes">_Open</attribute>
 				<attribute name="action">win.open</attribute>
 			</item>
+			<item>
+				<attribute name="label" translatable="yes">_Play</attribute>
+				<attribute name="action">win.play</attribute>
+			</item>
 		</section>
 	</menu>
 </interface>

@@ -12,7 +12,7 @@ namespace RVGUI {
 	void App::on_startup() {
 		Gtk::Application::on_startup();
 		set_accel_for_action("win.open", "<Ctrl>o");
-		set_accel_for_action("win.configure", "<Ctrl>p");
+		set_accel_for_action("win.play", "<Ctrl>p");
 	}
 
 	void App::on_activate() {

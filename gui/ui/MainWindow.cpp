@@ -43,6 +43,8 @@ namespace RVGUI {
 			dialog->show();
 		}));
 
+		add_action("play", Gio::ActionMap::ActivateSlot(sigc::mem_fun(*this, &MainWindow::play)));
+
 		functionQueueDispatcher.connect([this] {
 			auto lock = std::unique_lock(functionQueueMutex);
 			for (auto fn: functionQueue)
