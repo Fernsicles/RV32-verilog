@@ -1,10 +1,11 @@
+#include <iostream>
 #include <filesystem>
 
 #include "ui/OpenDialog.h"
 #include "Util.h"
 
 namespace RVGUI {
-	OpenDialog::OpenDialog(Gtk::Window &parent, bool modal) : Gtk::Dialog("Open", parent, modal) {
+	OpenDialog::OpenDialog(Gtk::Window &parent, bool modal): Gtk::Dialog("Open", parent, modal) {
 		set_default_size(400, -1);
 		auto &area = *get_content_area();
 		area.set_orientation(Gtk::Orientation::VERTICAL);
@@ -49,6 +50,12 @@ namespace RVGUI {
 		buttonBox.append(clearButton);
 		buttonBox.append(okButton);
 
+		videoModeModel = Gtk::ListStore::create(videoModeColumns);
+		videoModeCombo.set_model(videoModeModel);
+		resetVideoModelCombo();
+		videoModeCombo.pack_start(videoModeColumns.name);
+		videoModeCombo.signal_changed().connect(sigc::mem_fun(*this, &OpenDialog::videoModelChanged));
+
 		area.append(programBox);
 		area.append(dataBox);
 		area.append(memorySize);
@@ -57,14 +64,10 @@ namespace RVGUI {
 		area.append(dataOffset);
 		area.append(timeOffset);
 		area.append(separateInstructions);
+		area.append(videoModeCombo);
 		area.append(buttonBox);
 
-		programFilename.set_text("./programs/videostd.bin");
-		dataFilename.set_text("./bad-apple.raw");
-		memorySize.set_text("2147483647");
-		dataOffset.set_text("256");
-		timeOffset.set_text("0");
-		separateInstructions.set_active(true);
+		setDefaults();
 
 		clearButton.signal_clicked().connect(sigc::mem_fun(*this, &OpenDialog::clear));
 		programBrowse.signal_clicked().connect(sigc::mem_fun(*this, &OpenDialog::browseProgram));
@@ -162,10 +165,12 @@ namespace RVGUI {
 
 		CPU::Options options(program, memsize);
 		options.setDataFilename(dataFilename.get_text());
-		options.setDataOffset(static_cast<CPU::Word>(data_offset));
+		options.setDataOffset(static_cast<Word>(data_offset));
 		options.setSeparateInstructions(separateInstructions.get_active());
 		options.setDimensions(width, height);
-		options.setMMIOOffset(static_cast<CPU::Word>(mmio_offset));
+		options.setMMIOOffset(static_cast<Word>(mmio_offset));
+		options.setVideoMode(videoMode);
+		std::cout << "videoMode[" << videoModeNames[videoMode] << "]\n";
 		if (use_time_offset)
 			options.setTimeOffset(static_cast<int32_t>(time_offset));
 		hide();
@@ -218,5 +223,36 @@ namespace RVGUI {
 
 	void OpenDialog::error(const Glib::ustring &message, bool modal, bool use_markup) {
 		alert(message, Gtk::MessageType::ERROR, modal, use_markup);
+	}
+
+	void OpenDialog::videoModelChanged() {
+		if (const auto iter = videoModeCombo.get_active())
+			videoMode = (*iter)[videoModeColumns.mode];
+	}
+
+	void OpenDialog::resetVideoModelCombo() {
+		videoModeModel->clear();
+		for (const auto [mode, name]: videoModeNames) {
+			auto iter = videoModeModel->append();
+			(*iter)[videoModeColumns.name] = name;
+			(*iter)[videoModeColumns.mode] = mode;
+			if (mode == videoMode)
+				videoModeCombo.set_active(iter);
+		}
+	}
+
+	void OpenDialog::setDefaults() {
+		programFilename.set_text("./programs/videograyscale.bin");
+		dataFilename.set_text("./bad-apple.raw");
+		memorySize.set_text("2147483647");
+		dataOffset.set_text("256");
+		timeOffset.set_text("0");
+		separateInstructions.set_active(true);
+		for (auto &row: videoModeModel->children()) {
+			if (row[videoModeColumns.mode] == VideoMode::Grayscale) {
+				videoModeCombo.set_active(row.get_iter());
+				break;
+			}
+		}
 	}
 }

@@ -6,12 +6,12 @@
 #include <string>
 #include <verilated.h>
 
+#include "Defs.h"
 #include "VCPU.h"
 
 namespace RVGUI {
 	class CPU {
 		public:
-			using Word = uint32_t;
 
 			struct Options {
 				std::string programFilename, dataFilename;
@@ -21,6 +21,7 @@ namespace RVGUI {
 				uint32_t width = 480, height = 360;
 				Word mmioOffset = 0x80'00'00'00;
 				Word dataOffset = 0;
+				VideoMode videoMode = VideoMode::RGB;
 
 				Options() = delete;
 				Options(const std::string &program_filename, size_t memory_size);
@@ -33,6 +34,7 @@ namespace RVGUI {
 				Options & setHeight(uint32_t);
 				Options & setDimensions(uint32_t width_, uint32_t height_);
 				Options & setMMIOOffset(Word);
+				Options & setVideoMode(VideoMode);
 			};
 
 			CPU() = delete;
@@ -53,7 +55,7 @@ namespace RVGUI {
 			size_t memorySize() const { return options.memorySize; }
 			uint8_t operator[](size_t offset) const { return memory[offset]; }
 			const Options & getOptions() const { return options; }
-			uint8_t * getFramebuffer() { return framebuffer.get(); }
+			uint8_t * getFramebuffer() const { return framebuffer.get(); }
 			size_t getCount() const { return count; }
 
 		private:

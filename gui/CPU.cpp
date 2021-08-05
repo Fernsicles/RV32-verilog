@@ -60,6 +60,11 @@ namespace RVGUI {
 		return *this;
 	}
 
+	CPU::Options & CPU::Options::setVideoMode(VideoMode value) {
+		videoMode = value;
+		return *this;
+	}
+
 	CPU::CPU(const Options &options_): options(options_) {
 		init();
 	}
@@ -79,7 +84,7 @@ namespace RVGUI {
 				std::chrono::high_resolution_clock::now().time_since_epoch()).count();
 
 		if (options.useTimeOffset)
-			*reinterpret_cast<uint64_t *>(memory.get() + options.timeOffset) =
+			*reinterpret_cast<int64_t *>(memory.get() + options.timeOffset) =
 				std::chrono::duration_cast<std::chrono::milliseconds>(
 					std::chrono::high_resolution_clock::now().time_since_epoch()).count();
 
@@ -211,7 +216,7 @@ namespace RVGUI {
 		std::cout << "Data loaded.\n";
 	}
 
-	CPU::Word CPU::getPC() const {
+	Word CPU::getPC() const {
 		return vcpu? vcpu->o_pc : 0;
 	}
 
@@ -227,7 +232,7 @@ namespace RVGUI {
 		}
 	}
 
-	const CPU::Word * CPU::getInstructions() const {
+	const Word * CPU::getInstructions() const {
 		if (options.separateInstructions)
 			return instructions.get();
 		return reinterpret_cast<Word *>(memory.get());

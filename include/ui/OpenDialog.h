@@ -14,6 +14,16 @@ namespace RVGUI {
 			sigc::signal<void(const CPU::Options &)> signal_submit() const { return signal_submit_; }
 
 		private:
+			struct VideoModeColumns: Gtk::TreeModel::ColumnRecord {
+				VideoModeColumns() {
+					add(name);
+					add(mode);
+				}
+
+				Gtk::TreeModelColumn<Glib::ustring> name;
+				Gtk::TreeModelColumn<VideoMode> mode;
+			};
+
 			sigc::signal<void(const CPU::Options &)> signal_submit_;
 			Gtk::Box programBox {Gtk::Orientation::HORIZONTAL}, dataBox {Gtk::Orientation::HORIZONTAL},
 			         dimensionsBox {Gtk::Orientation::HORIZONTAL}, buttonBox {Gtk::Orientation::HORIZONTAL};
@@ -22,6 +32,11 @@ namespace RVGUI {
 			Gtk::CheckButton separateInstructions;
 			Gtk::Button programBrowse, dataBrowse, cancelButton {"Cancel"}, clearButton {"Clear"}, okButton {"OK"};
 			std::unique_ptr<Gtk::Dialog> dialog;
+			Gtk::ComboBox videoModeCombo;
+			Glib::RefPtr<Gtk::ListStore> videoModeModel;
+			VideoModeColumns videoModeColumns;
+
+			VideoMode videoMode = VideoMode::RGB;
 
 			void submit();
 			void clear();
@@ -31,5 +46,8 @@ namespace RVGUI {
 			void alert(const Glib::ustring &message, Gtk::MessageType = Gtk::MessageType::INFO, bool modal = true,
 			           bool use_markup = false);
 			void error(const Glib::ustring &message, bool modal = true, bool use_markup = false);
+			void videoModelChanged();
+			void resetVideoModelCombo();
+			void setDefaults();
 	};
 }

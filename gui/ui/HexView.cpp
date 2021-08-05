@@ -66,7 +66,7 @@ namespace RVGUI {
 			const int row_count = calculations.rowCount;
 			const int digit_count = calculations.digitCount;
 			const size_t memory_size = cpu->memorySize();
-			const CPU::Word pc = cpu->getPC();
+			const Word pc = cpu->getPC();
 
 			const double old_upper = adjustment->get_upper();
 			const double new_upper = static_cast<double>(memory_size) / cells_per_row;

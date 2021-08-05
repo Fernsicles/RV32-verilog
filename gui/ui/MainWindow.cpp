@@ -33,11 +33,7 @@ namespace RVGUI {
 				cpu = std::make_shared<CPU>(options);
 				hexView.setCPU(cpu);
 				assemblyView.setCPU(cpu);
-				if (options.width != 0 && options.height != 0) {
-					cairoSurfaceCobj = cairo_image_surface_create_for_data(cpu->getFramebuffer(), CAIRO_FORMAT_A8,
-						options.width, options.height, options.width);
-					cairoSurface = Cairo::make_refptr_for_instance(new Cairo::Surface(cairoSurfaceCobj));
-				}
+				initVideo(*cpu);
 				drawingArea.queue_draw();
 			});
 			dialog->show();
@@ -50,23 +46,6 @@ namespace RVGUI {
 			for (auto fn: functionQueue)
 				fn();
 			functionQueue.clear();
-		});
-
-		drawingArea.set_draw_func([this](const Cairo::RefPtr<Cairo::Context> &context, int width, int height) {
-			if (!cairoSurfaceCobj)
-				return;
-
-			if (!cairoPattern) {
-				cairoPattern = Cairo::make_refptr_for_instance(
-					new Cairo::Pattern(cairo_pattern_create_for_surface(cairoSurfaceCobj), false));
-				context->set_source(cairoSurface, 0, 0);
-				context->rectangle(0, 0, cpu->getOptions().width, cpu->getOptions().height);
-				context->set_source_rgb(0, 0, 0);
-			}
-
-			context->set_operator(Cairo::Context::Operator::XOR);
-			context->mask(cairoPattern);
-			context->paint();
 		});
 
 		hpaned.set_start_child(drawingArea);
@@ -182,5 +161,55 @@ namespace RVGUI {
 		}
 
 		return playing;
+	}
+
+	void MainWindow::initVideo(const CPU &cpu) {
+		const auto &options = cpu.getOptions();
+		if (options.width != 0 && options.height != 0) {
+			cairoSurfaceCobj = nullptr;
+			cairoSurface.reset();
+			pixbuf.reset();
+			uint8_t *framebuffer = cpu.getFramebuffer();
+			switch (videoMode = options.videoMode) {
+				case VideoMode::Grayscale:
+					cairoSurfaceCobj = cairo_image_surface_create_for_data(framebuffer, CAIRO_FORMAT_A8,
+						options.width, options.height, options.width);
+					cairoSurface = Cairo::make_refptr_for_instance(new Cairo::Surface(cairoSurfaceCobj));
+					drawingArea.set_draw_func(sigc::mem_fun(*this, &MainWindow::drawGrayscale));
+					break;
+				case VideoMode::RGB:
+					pixbuf = Gdk::Pixbuf::create_from_data(framebuffer, Gdk::Colorspace::RGB, false, 8, options.width,
+						options.height, 3 * options.width);
+					drawingArea.set_draw_func(sigc::mem_fun(*this, &MainWindow::drawRGB));
+					break;
+				default:
+					throw std::runtime_error("Invalid VideoMode: "
+						+ std::to_string(static_cast<int>(options.videoMode)));
+			}
+		}
+	}
+
+	void MainWindow::drawGrayscale(const Cairo::RefPtr<Cairo::Context> &context, int width, int height) {
+		if (!cairoSurfaceCobj)
+			return;
+
+		if (!cairoPattern) {
+			cairoPattern = Cairo::make_refptr_for_instance(
+				new Cairo::Pattern(cairo_pattern_create_for_surface(cairoSurfaceCobj), false));
+			context->set_source(cairoSurface, 0, 0);
+			context->rectangle(0, 0, cpu->getOptions().width, cpu->getOptions().height);
+			context->set_source_rgb(0, 0, 0);
+		}
+
+		context->set_operator(Cairo::Context::Operator::XOR);
+		context->mask(cairoPattern);
+		context->paint();
+	}
+
+	void MainWindow::drawRGB(const Cairo::RefPtr<Cairo::Context> &context, int width, int height) {
+		if (pixbuf) {
+			Gdk::Cairo::set_source_pixbuf(context, pixbuf, 0, 0);
+			context->paint();
+		}
 	}
 }

@@ -6,6 +6,7 @@
 #include <mutex>
 #include <thread>
 
+#include "Defs.h"
 #include "ui/AssemblyView.h"
 #include "ui/HexView.h"
 
@@ -49,7 +50,9 @@ namespace RVGUI {
 			std::shared_ptr<uint8_t[]> framebuffer;
 			sigc::connection timeout;
 			std::thread playThread;
-			cairo_surface_t *cairoSurfaceCobj = nullptr;
+			VideoMode videoMode = VideoMode::RGB;
+			Glib::RefPtr<Gdk::Pixbuf> pixbuf; // For RGB
+			cairo_surface_t *cairoSurfaceCobj = nullptr; // For grayscale
 			Cairo::RefPtr<Cairo::Surface> cairoSurface;
 			Cairo::RefPtr<Cairo::Pattern> cairoPattern;
 
@@ -65,5 +68,8 @@ namespace RVGUI {
 			void play();
 			void tick();
 			bool onTimeout();
+			void initVideo(const CPU &);
+			void drawGrayscale(const Cairo::RefPtr<Cairo::Context> &, int width, int height);
+			void drawRGB(const Cairo::RefPtr<Cairo::Context> &, int width, int height);
 	};
 }
