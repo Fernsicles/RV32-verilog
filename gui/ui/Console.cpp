@@ -55,6 +55,8 @@ namespace RVGUI {
 
 		const Glib::ustring &command = pieces[0];
 
+		append("<span foreground=\"green\">$</span> " + Glib::Markup::escape_text(text), true);
+
 		if (commands.count(command) == 0)
 			append("Invalid command.");
 		else
