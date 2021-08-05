@@ -39,13 +39,14 @@ namespace RVGUI {
 	}
 
 	void AssemblyView::reset() {
-		if (!cpu)
-			return;
-
 		removeChildren(grid);
 		widgets.clear();
 		labels.clear();
 		gestures.clear();
+
+		if (!cpu)
+			return;
+
 		const uint64_t pc = cpu->getPC();
 		for (size_t i = 0, count = cpu->getInstructionCount(); i < count; ++i) {
 			std::stringstream ss;
