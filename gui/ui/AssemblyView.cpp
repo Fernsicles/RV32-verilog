@@ -30,6 +30,11 @@ namespace RVGUI {
 			disassembled.add_css_class("pc");
 			activeGutter = &gutter_label;
 			activeDisassembled = &disassembled;
+			auto adjustment = get_vadjustment();
+			const int label_height = gutter_label.get_height();
+			const unsigned offset = pc * label_height / 4;
+			if (offset < adjustment->get_value() || adjustment->get_value() + adjustment->get_page_size() < offset)
+				adjustment->set_value(offset);
 		}
 	}
 
