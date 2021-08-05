@@ -79,7 +79,7 @@ namespace RVGUI {
 				std::chrono::high_resolution_clock::now().time_since_epoch()).count();
 
 		if (options.useTimeOffset)
-			*reinterpret_cast<uint32_t *>(memory.get() + options.timeOffset) =
+			*reinterpret_cast<uint64_t *>(memory.get() + options.timeOffset) =
 				std::chrono::duration_cast<std::chrono::milliseconds>(
 					std::chrono::high_resolution_clock::now().time_since_epoch()).count();
 
