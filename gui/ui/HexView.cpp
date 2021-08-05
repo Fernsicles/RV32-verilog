@@ -56,19 +56,15 @@ namespace RVGUI {
 
 		removeChildren(grid);
 		widgets.clear();
-		const int grid_width = grid.get_width();
-		const size_t offset = static_cast<size_t>(std::floor(adjustment->get_value()));
-		// Here's some needlessly complicated math. Some values are inaccurate because the values are interdependent.
-		const int row_count = updiv(grid.get_height(), digitHeight);
-		static constexpr int GUTTER_PADDING = 3;
-		// offset + row_count should be multiplied by cells_per_row, but we don't know that yet!
-		const int max_row = offset + row_count - 1;
-		const int digit_count = 1 + (max_row == 0? 0 : static_cast<int>(std::log2(max_row) / 4)); // log16 = log2 / 4
-		const int est_gutter_width = digit_count * (digitWidth + 1) + 2 * GUTTER_PADDING;
-		if (grid_width < est_gutter_width + 2 + cellWidth)
+		const size_t offset = getOffset();
+		const Calculations calculations = calculate(offset);
+		const int cells_per_row = calculations.cellsPerRow;
+		if (cells_per_row == -1)
 			return;
-		const int cells_per_row = (grid_width - est_gutter_width - 2) / (digitWidth * 3);
+
 		if (cpu) {
+			const int row_count = calculations.rowCount;
+			const int digit_count = calculations.digitCount;
 			const size_t memory_size = cpu->memorySize();
 			const CPU::Word pc = cpu->getPC();
 
@@ -108,6 +104,46 @@ namespace RVGUI {
 		oldOffset = offset * cells_per_row;
 	}
 
+	void HexView::update() {
+		if (!cpu)
+			return;
+
+		const size_t memory_size = cpu->memorySize(), offset = getOffset();
+		const Calculations calculations = calculate(offset);
+		const int total_cells = calculations.totalCells;
+		if (total_cells == -1)
+			return;
+
+		bool same = false;
+
+		if (memory_size < offset + total_cells) {
+			if (lastMemorySize == memory_size - offset) {
+				same = std::memcmp(cpu->getMemory(), lastMemory.get(), lastMemorySize) == 0;
+			} else {
+				lastMemory.reset(new uint8_t[lastMemorySize = memory_size - offset]);
+			}
+		} else {
+			if (lastMemorySize == total_cells) {
+				same = std::memcmp(cpu->getMemory(), lastMemory.get(), lastMemorySize) == 0;
+			} else {
+				lastMemory.reset(new uint8_t[lastMemorySize = total_cells]);
+			}
+		}
+
+		if (same)
+			return;
+		
+		std::memcpy(lastMemory.get(), cpu->getMemory(), lastMemorySize);
+
+		size_t address = offset * calculations.cellsPerRow;
+		// std::cout << "start @ " << offset << "\n";
+		for (size_t i = 0; i < lastMemorySize; ++i) {
+			// std::cout << "at(" << address << ")\n";
+			cellLabels.at(address).set_text(getLabel(address));
+			++address;
+		}
+	}
+
 	void HexView::updateLabel(uintptr_t cell, uint8_t value) {
 		parent.queue([this, cell] {
 			if (cellLabels.count(cell) != 0)
@@ -144,5 +180,28 @@ namespace RVGUI {
 	void HexView::onScrolled() {
 		reset();
 		// double position = std::floor(adjustment->get_value());
+	}
+
+	size_t HexView::getOffset() const {
+		return static_cast<size_t>(std::floor(adjustment->get_value()));
+	}
+
+	HexView::Calculations HexView::calculate(size_t offset) const {
+		const int grid_width = grid.get_width();
+		// Here's some needlessly complicated math. Some values are inaccurate because the values are interdependent.
+		const int row_count = updiv(grid.get_height(), digitHeight);
+		// offset + row_count should be multiplied by cells_per_row, but we don't know that yet!
+		const int max_row = offset + row_count - 1;
+		const int digit_count = 1 + (max_row == 0? 0 : static_cast<int>(std::log2(max_row) / 4)); // log16 = log2 / 4
+		const int est_gutter_width = digit_count * (digitWidth + 1) + 2 * GUTTER_PADDING;
+		if (grid_width < est_gutter_width + 2 + cellWidth)
+			return {};
+		const int cells_per_row = (grid_width - est_gutter_width - 2) / (digitWidth * 3);
+		const int total_cells = cells_per_row * row_count;
+		return {cells_per_row, row_count, digit_count, total_cells};
+	}
+
+	HexView::Calculations HexView::calculate() const {
+		return calculate(getOffset());
 	}
 }

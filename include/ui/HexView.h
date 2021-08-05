@@ -16,9 +16,18 @@ namespace RVGUI {
 
 			HexView & setCPU(std::shared_ptr<CPU>);
 			void onResize();
+			void update();
 			void updatePC(uint32_t pc);
 
 		private:
+			struct Calculations {
+				int cellsPerRow = -1, rowCount = -1, digitCount = -1, totalCells = -1;
+				Calculations(): Calculations(-1, -1, -1, -1) {}
+				Calculations(int cells_per_row, int row_count, int digit_count, int total_cells):
+					cellsPerRow(cells_per_row), rowCount(row_count), digitCount(digit_count), totalCells(total_cells) {}
+			};
+
+			static constexpr int GUTTER_PADDING = 3;
 			MainWindow &parent;
 			std::shared_ptr<CPU> cpu;
 			Gtk::Grid grid;
@@ -33,11 +42,16 @@ namespace RVGUI {
 			std::unordered_map<int, Gtk::Label> cellLabels;
 			int oldColumnCount = 0;
 			int oldOffset = 0;
+			std::unique_ptr<uint8_t[]> lastMemory;
+			size_t lastMemorySize = 0;
 
 			void reset();
 			void updateLabel(uintptr_t cell, uint8_t value);
 			std::string getLabel(uintptr_t cell);
 			bool onScroll(double dx, double dy);
 			void onScrolled();
+			size_t getOffset() const;
+			Calculations calculate(size_t offset) const;
+			Calculations calculate() const;
 	};
 }

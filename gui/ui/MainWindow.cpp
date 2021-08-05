@@ -164,6 +164,7 @@ namespace RVGUI {
 	bool MainWindow::onTimeout() {
 		if (cpu) {
 			drawingArea.queue_draw();
+			hexView.update();
 			hexView.updatePC(cpu->getPC());
 			assemblyView.updatePC(cpu->getPC());
 		}

@@ -227,10 +227,14 @@ namespace RVGUI {
 		}
 	}
 
-	CPU::Word * CPU::getInstructions() const {
+	const CPU::Word * CPU::getInstructions() const {
 		if (options.separateInstructions)
 			return instructions.get();
 		return reinterpret_cast<Word *>(memory.get());
+	}
+
+	const uint8_t * CPU::getMemory() const {
+		return memory.get();
 	}
 
 	void CPU::init() {
