@@ -258,14 +258,14 @@ namespace RVGUI {
 	}
 
 	void OpenDialog::setDefaults() {
-		programFilename.set_text("./programs/text.bin");
+		programFilename.set_text("./programs/puts.elf");
 		// dataFilename.set_text("./bad-apple.raw");
 		memorySize.set_text("2147483647");
 		dataOffset.set_text("256");
-		timeOffset.set_text("0");
+		timeOffset.set_text("");
 		widthEntry.set_text(std::to_string(80 * 9));
 		heightEntry.set_text(std::to_string(60 * 9));
-		separateInstructions.set_active(true);
+		separateInstructions.set_active(false);
 		for (auto &row: videoModeModel->children()) {
 			if (row[videoModeColumns.mode] == VideoMode::Text) {
 				videoModeCombo.set_active(row.get_iter());

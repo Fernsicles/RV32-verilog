@@ -207,15 +207,30 @@ namespace RVGUI {
 		if (!file.is_open())
 			throw std::runtime_error("Failed to open program for reading");
 
-		instructionCount = filesize / sizeof(Word);
-		if (options.separateInstructions) {
-			instructions.reset(new Word[instructionCount]);
-			for (size_t i = 0; !file.eof() && i < filesize / sizeof(Word); ++i)
-				file.read(reinterpret_cast<char *>(&instructions[i]), sizeof(Word));
+		char *buffer = new char[filesize];
+		file.read(buffer, filesize);
+
+		if (4 < filesize && buffer[0] == 0x7f && buffer[1] == 'E' && buffer[2] == 'L' && buffer[3] == 'F') {
+			if (!elfReader.load(options.programFilename))
+				throw std::runtime_error("Couldn't load ELF binary " + options.programFilename);
+			std::cout << "ELF detected\n";
+			if (elfReader.get_class() != ELFCLASS32)
+				throw std::runtime_error("Unsupported ELF binary (not elf32)");
+			size_t i = 0;
+			for (const auto *section: elfReader.sections) {
+				std::cout << "[" << i++ << "] ";
+				std::cout << section->get_name() << " " << section->get_size();
+				std::cout << "\n";
+			}
 		} else {
-			instructions.reset();
-			for (size_t i = 0; !file.eof() && i < filesize; ++i)
-				file.read(reinterpret_cast<char *>(&memory[i]), sizeof(uint8_t));
+			instructionCount = filesize / sizeof(Word);
+			if (options.separateInstructions) {
+				instructions.reset(new Word[instructionCount]);
+				std::memcpy(instructions.get(), buffer, filesize);
+			} else {
+				instructions.reset();
+				std::memcpy(memory.get(), buffer, filesize);
+			}
 		}
 	}
 

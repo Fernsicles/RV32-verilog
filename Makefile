@@ -1,7 +1,7 @@
 TEST         := 1
 COMPILER     ?= g++
 OPTIMIZATION ?= -O3
-CPPFLAGS     ?= -std=c++17 $(OPTIMIZATION) -Iobj_dir
+CPPFLAGS     ?= -std=c++17 $(OPTIMIZATION) -Iobj_dir -IELFIO
 GUISRC       := $(shell find gui -name \*.cpp) gui/resources.cpp
 GUIOBJ       := $(GUISRC:.cpp=.o)
 DEPS         := gtk4 gtkmm-4.0 x11 verilator vte-2.91-gtk4
