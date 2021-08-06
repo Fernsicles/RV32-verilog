@@ -1,0 +1,9 @@
+Default MMIO base: 0x80'00'00'00 (2 GiB)
+
+Base + 0x00 (1 byte): Framebuffer ready flag
+	Software keeps this at zero while writing to the framebuffer. Once the framebuffer is ready to be painted, software
+	sets this to one. After the framebuffer is finished being painted, the simulator sets this back to zero.
+	Software can alternatively set this to a value greater than one to indicate that the framebuffer is always ready and
+	that the simulator shouldn't set the flag back to zero.
+
+Base + 0x01'00'00'00 (variable size): Framebuffer beginning

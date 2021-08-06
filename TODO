@@ -1,0 +1,3 @@
+[2021/08/06 00:54:04]
+	Make framebuffer locking optional.
+	Either as yet another option in the open dialog or as a CPU flag accessible with MMIO.

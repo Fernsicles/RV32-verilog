@@ -6,6 +6,7 @@
 #include <stdexcept>
 
 #include "CPU.h"
+#include "MMIO.h"
 #include "Util.h"
 
 namespace RVGUI {
@@ -103,19 +104,21 @@ namespace RVGUI {
 				const ptrdiff_t ptrsum = vcpu->o_addr - options.mmioOffset - FRAMEBUFFER_OFFSET;
 				const uintptr_t fbstart = (uintptr_t) framebuffer.get(), fbend = fbstart + framebufferSize;
 				if (!(0 <= ptrsum && ptrsum + 3 < framebufferSize)) {
-					std::cerr << "Framebuffer: [" << toHex(fbstart) << ", " << toHex(fbend) << ")\n";;
+					std::cerr << "Framebuffer: [" << toHex(fbstart) << ", " << toHex(fbend) << ")\n";
 					throw std::out_of_range("Framebuffer read of size 4 out of range (" + toHex(fbstart + ptrsum)
 						+ ")");
 				}
-				std::memcpy(&vcpu->i_mem, framebuffer.get() + ptrsum, sizeof(Word));
+				vcpu->i_mem = *reinterpret_cast<Word *>(framebuffer.get() + ptrsum);
+			} else if (vcpu->o_addr == options.mmioOffset + FRAMEBUFFER_READY) {
+				vcpu->i_mem = framebufferReady;
 			} else {
 				const uintptr_t ptr = vcpu->o_addr % options.memorySize;
 				const uintptr_t memstart = (uintptr_t) memory.get(), memend = memstart + options.memorySize;
 				if (!(0 <= ptr && ptr + 3 < options.memorySize)) {
-					std::cerr << "Memory: [" << toHex(memstart) << ", " << toHex(memend) << ")\n";;
+					std::cerr << "Memory: [" << toHex(memstart) << ", " << toHex(memend) << ")\n";
 					throw std::out_of_range("Memory read of size 4 out of range (" + toHex(memstart + ptr) + ")");
 				}
-				std::memcpy(&vcpu->i_mem, memory.get() + vcpu->o_addr % options.memorySize, sizeof(Word));
+				vcpu->i_mem = *reinterpret_cast<Word *>(memory.get() + vcpu->o_addr % options.memorySize);
 			}
 		}
 
@@ -126,37 +129,52 @@ namespace RVGUI {
 		uint8_t *pointer;
 		Word address;
 
+		bool normal_write = false;
+
 		if (options.mmioOffset + FRAMEBUFFER_OFFSET <= vcpu->o_addr) {
 			pointer = framebuffer.get();
 			address = vcpu->o_addr - options.mmioOffset - FRAMEBUFFER_OFFSET;
-		} else {
+			normal_write = true;
+		} else if (vcpu->o_addr < options.mmioOffset) {
 			pointer = memory.get();
 			address = vcpu->o_addr;
+			normal_write = true;
 		}
 
 		if (vcpu->o_write) {
-			const uint8_t *ptrsum = pointer + address;
-			const uint8_t *memstart = memory.get(), *memend = memstart + options.memorySize;
-			const uint8_t *fbstart = framebuffer.get(), *fbend = fbstart + framebufferSize;
-			switch (vcpu->o_memsize) {
-				case 1:
-					if (!(memstart <= ptrsum && ptrsum < memend) && !(fbstart <= ptrsum && ptrsum < fbend))
-						throw std::out_of_range("Write of size 1 out of range (" + toHex(ptrsum) + ")");
-					std::memcpy(pointer + address, &vcpu->o_mem, 1);
-					break;
-				case 2:
-					if (!(memstart <= ptrsum && ptrsum + 1 < memend) && !(fbstart <= ptrsum && ptrsum + 1 < fbend))
-						throw std::out_of_range("Write of size 2 out of range (" + toHex(ptrsum) + ")");
-					std::memcpy(pointer + address, &vcpu->o_mem, 2);
-					break;
-				case 3:
-					if (!(memstart <= ptrsum && ptrsum + 3 < memend) && !(fbstart <= ptrsum && ptrsum + 3 < fbend))
-						throw std::out_of_range("Write of size 4 out of range (" + toHex(ptrsum) + ")");
-					std::memcpy(pointer + address, &vcpu->o_mem, 4);
-					break;
-				default:
-					break;
-			}
+			if (normal_write) {
+				uint8_t *ptrsum = pointer + address;
+				const uint8_t *memstart = memory.get(), *memend = memstart + options.memorySize;
+				const uint8_t *fbstart = framebuffer.get(), *fbend = fbstart + framebufferSize;
+				switch (vcpu->o_memsize) {
+					case 1:
+						if (!(memstart <= ptrsum && ptrsum < memend) && !(fbstart <= ptrsum && ptrsum < fbend))
+							throw std::out_of_range("Write of size 1 out of range (" + toHex(ptrsum) + ")");
+						*ptrsum = vcpu->o_mem;
+						break;
+					case 2:
+						if (!(memstart <= ptrsum && ptrsum + 1 < memend) && !(fbstart <= ptrsum && ptrsum + 1 < fbend))
+							throw std::out_of_range("Write of size 2 out of range (" + toHex(ptrsum) + ")");
+						*reinterpret_cast<uint16_t *>(ptrsum) = vcpu->o_mem;
+						break;
+					case 3:
+						if (!(memstart <= ptrsum && ptrsum + 3 < memend) && !(fbstart <= ptrsum && ptrsum + 3 < fbend))
+							throw std::out_of_range("Write of size 4 out of range (" + toHex(ptrsum) + ")");
+						*reinterpret_cast<uint32_t *>(ptrsum) = vcpu->o_mem;
+						break;
+					default:
+						break;
+				}
+			} else if (options.mmioOffset <= vcpu->o_addr) {
+				if (vcpu->o_addr == options.mmioOffset + FRAMEBUFFER_READY) {
+					if (vcpu->o_memsize != 1)
+						throw std::runtime_error("Invalid write size (" + std::to_string(vcpu->o_memsize)
+							+ ") to FRAMEBUFFER_READY");
+					framebufferReady = vcpu->o_mem;
+				} else
+					throw std::out_of_range("Invalid MMIO write to " + toHex(vcpu->o_addr));
+			} else
+				throw std::out_of_range("Invalid write to " + toHex(vcpu->o_addr));
 		}
 
 		++count;

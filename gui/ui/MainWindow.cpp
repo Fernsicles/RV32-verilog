@@ -3,6 +3,7 @@
 
 #include "App.h"
 #include "CPU.h"
+#include "MMIO.h"
 #include "lib/Disassembler.h"
 #include "ui/MainWindow.h"
 #include "ui/OpenDialog.h"
@@ -245,15 +246,29 @@ namespace RVGUI {
 			context->set_source_rgb(0, 0, 0);
 		}
 
-		context->set_operator(Cairo::Context::Operator::XOR);
-		context->mask(cairoPattern);
-		context->paint();
+		if (cpu) {
+			uint8_t &ready = cpu->framebufferReady;
+			while (!ready);
+			// if (ready != 0) {
+				context->set_operator(Cairo::Context::Operator::XOR);
+				context->mask(cairoPattern);
+				context->paint();
+				if (ready == 1)
+					ready = 0;
+			// }
+		}
 	}
 
 	void MainWindow::drawRGB(const Cairo::RefPtr<Cairo::Context> &context, int width, int height) {
-		if (pixbuf) {
-			Gdk::Cairo::set_source_pixbuf(context, pixbuf, 0, 0);
-			context->paint();
+		if (pixbuf && cpu) {
+			uint8_t &ready = cpu->framebufferReady;
+			while (!ready);
+			// if (ready != 0) {
+				Gdk::Cairo::set_source_pixbuf(context, pixbuf, 0, 0);
+				context->paint();
+				if (ready == 1)
+					ready = 0;
+			// }
 		}
 	}
 }

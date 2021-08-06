@@ -56,9 +56,10 @@ namespace RVGUI {
 			const Options & getOptions() const { return options; }
 			uint8_t * getFramebuffer() const { return framebuffer.get(); }
 			size_t getCount() const { return count; }
+			uint8_t framebufferReady = 0;
 
 		private:
-			static constexpr size_t FRAMEBUFFER_OFFSET = 0x10'00'00; // one megabyte
+			static constexpr size_t FRAMEBUFFER_OFFSET = 0x01'00'00'00; // 16 mibibytes
 			Options options;
 			std::unique_ptr<uint8_t[]> memory;
 			std::shared_ptr<uint8_t[]> framebuffer;
