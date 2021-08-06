@@ -216,12 +216,8 @@ namespace RVGUI {
 			std::cout << "ELF detected\n";
 			if (elfReader.get_class() != ELFCLASS32)
 				throw std::runtime_error("Unsupported ELF binary (not elf32)");
-			size_t i = 0;
-			for (const auto *section: elfReader.sections) {
-				std::cout << "[" << i++ << "] ";
-				std::cout << section->get_name() << " " << section->get_size();
-				std::cout << "\n";
-			}
+			std::memcpy(memory.get(), buffer, filesize);
+			textOffset = elfReader.sections[".text"]->get_offset();
 		} else {
 			instructionCount = filesize / sizeof(Word);
 			if (options.separateInstructions) {
@@ -284,6 +280,7 @@ namespace RVGUI {
 		loadProgram();
 		loadData();
 		initVCPU();
+		setPC(textOffset);
 	}
 
 	void CPU::initFramebuffer(int channels) {
@@ -317,9 +314,9 @@ namespace RVGUI {
 		vcpu->i_dload = 0;
 		vcpu->i_ddata = 0;
 		if (options.separateInstructions)
-			vcpu->i_inst = instructions[0];
+			vcpu->i_inst = instructions[textOffset / sizeof(Word)];
 		else
-			vcpu->i_inst = ((Word *) memory.get())[0];
+			vcpu->i_inst = ((Word *) memory.get())[textOffset / sizeof(Word)];
 		vcpu->i_mem = memory[0];
 		vcpu->eval();
 	}

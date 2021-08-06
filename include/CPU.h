@@ -68,7 +68,7 @@ namespace RVGUI {
 			std::unique_ptr<Word[]> instructions;
 			std::unique_ptr<VCPU> vcpu;
 			ELFIO::elfio elfReader;
-			size_t count = 0, instructionCount = 0, framebufferSize = 0;
+			size_t count = 0, instructionCount = 0, framebufferSize = 0, textOffset = 0;
 			int64_t start = 0, end = 0;
 
 			void init();
