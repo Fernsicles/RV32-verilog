@@ -175,7 +175,13 @@ namespace RVGUI {
 
 	void MainWindow::tick() {
 		if (cpu) {
-			cpu->tick();
+			try {
+				cpu->tick();
+			} catch (const std::exception &err) {
+				error("Error while simulating: " + Glib::ustring(err.what()));
+				return;
+			}
+
 			drawingArea.queue_draw();
 			hexView.updatePC(cpu->getPC());
 			assemblyView.updatePC(cpu->getPC());
