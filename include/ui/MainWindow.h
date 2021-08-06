@@ -1,6 +1,7 @@
 #pragma once
 
 #include <gtkmm.h>
+#include <vte/vte.h>
 #include <functional>
 #include <list>
 #include <mutex>
@@ -66,6 +67,8 @@ namespace RVGUI {
 			HexView hexView;
 			AssemblyView assemblyView;
 			Console console;
+			Gtk::Widget *terminal = nullptr;
+			VteTerminal *vte = nullptr;
 
 			bool playing = false;
 

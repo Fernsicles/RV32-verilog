@@ -1,0 +1,9 @@
+RVGUI depends on GTK4, gtkmm4, x11, verilator and vte-2.91-gtk.
+
+To install vte-2.91-gtk:
+	$ git clone https://gitlab.gnome.org/GNOME/vte
+	$ cd vte
+	$ meson _build
+	$ meson configure -Dgtk4=true _build
+	$ ninja -C _build
+	$ ninja -C _build install

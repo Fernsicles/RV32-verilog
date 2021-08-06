@@ -10,7 +10,7 @@
 
 namespace RVGUI {
 	MainWindow::MainWindow(BaseObjectType *cobject, const Glib::RefPtr<Gtk::Builder> &builder_):
-	Gtk::ApplicationWindow(cobject), builder(builder_), hexView(*this), assemblyView(*this), centerView(drawingArea) {
+	Gtk::ApplicationWindow(cobject), builder(builder_), hexView(*this), assemblyView(*this) {
 		header = builder->get_widget<Gtk::HeaderBar>("headerbar");
 		set_titlebar(*header);
 
@@ -37,7 +37,10 @@ namespace RVGUI {
 			functionQueue.clear();
 		});
 
-		drawingArea.set_expand(true);
+		terminal = Gtk::manage(Glib::wrap(GTK_WIDGET(vte_terminal_new()), false));
+		terminal->set_expand(true);
+		vte = VTE_TERMINAL(terminal->gobj());
+		// centerView.setChild(*terminal);
 
 		hpaned.set_start_child(vpanedLeft);
 		hpaned.set_end_child(vpanedRight);
@@ -83,6 +86,9 @@ namespace RVGUI {
 			playing = false;
 			std::this_thread::sleep_for(std::chrono::milliseconds(50));
 		});
+
+
+		std::cout << "(" << vte_terminal_get_char_width(vte) << ", " << vte_terminal_get_char_height(vte) << ")\n";
 
 		addCommands();
 	}
@@ -216,15 +222,22 @@ namespace RVGUI {
 						});
 						return false;
 					}
+					centerView.setChild(drawingArea);
 					cairoSurfaceCobj = cairo_image_surface_create_for_data(framebuffer, CAIRO_FORMAT_A8, options.width,
 						options.height, options.width);
 					cairoSurface = Cairo::make_refptr_for_instance(new Cairo::Surface(cairoSurfaceCobj));
 					drawingArea.set_draw_func(sigc::mem_fun(*this, &MainWindow::drawGrayscale));
 					break;
 				case VideoMode::RGB:
+					centerView.setChild(drawingArea);
 					pixbuf = Gdk::Pixbuf::create_from_data(framebuffer, Gdk::Colorspace::RGB, false, 8, options.width,
 						options.height, 3 * options.width);
 					drawingArea.set_draw_func(sigc::mem_fun(*this, &MainWindow::drawRGB));
+					break;
+				case VideoMode::Text:
+					vte_terminal_set_size(vte, options.width, options.height);
+					centerView.setChild(*terminal);
+					delay([this] { delay([this] { centerView.updateChild(); }); }); // :(
 					break;
 				default:
 					throw std::runtime_error("Invalid VideoMode: "

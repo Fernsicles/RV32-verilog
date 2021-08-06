@@ -4,7 +4,7 @@ OPTIMIZATION ?= -O3
 CPPFLAGS     ?= -std=c++17 $(OPTIMIZATION) -Iobj_dir
 GUISRC       := $(shell find gui -name \*.cpp) gui/resources.cpp
 GUIOBJ       := $(GUISRC:.cpp=.o)
-DEPS         := gtk4 gtkmm-4.0 x11 verilator
+DEPS         := gtk4 gtkmm-4.0 x11 verilator vte-2.91-gtk4
 DEPCFLAGS    := $(shell pkg-config --cflags $(DEPS))
 DEPLIBS      := $(shell pkg-config --libs   $(DEPS)) -pthread
 OUTPUT       := rvgui

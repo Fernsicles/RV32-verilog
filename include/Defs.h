@@ -5,7 +5,7 @@
 
 namespace RVGUI {
 	using Word = uint32_t;
-	enum class VideoMode {Invalid, RGB, Grayscale};
+	enum class VideoMode {Invalid, RGB, Grayscale, Text};
 
 	extern std::map<VideoMode, const char *> videoModeNames;
 }
