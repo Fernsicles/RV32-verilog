@@ -25,7 +25,7 @@ namespace RVGUI {
 			static MainWindow * create();
 
 			/** Causes a function to occur on the next Gtk tick (or possibly later). Not thread-safe. */
-			void delay(std::function<void()>);
+			void delay(std::function<void()>, unsigned count = 1);
 
 			/** Queues a function to be executed in the Gtk thread. Thread-safe. Can be used from any thread. */
 			void queue(std::function<void()>);

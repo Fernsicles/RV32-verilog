@@ -59,11 +59,9 @@ namespace RVGUI {
 		vpanedRight.set_wide_handle(true);
 
 		delay([this] {
-			delay([this] {
-				hpaned.set_position(get_width() * 7 / 10);
-				vpanedLeft.set_position(get_height() * 7 / 10);
-			});
-		});
+			hpaned.set_position(get_width() * 7 / 10);
+			vpanedLeft.set_position(get_height() * 7 / 10);
+		}, 2);
 
 		set_child(hpaned);
 
@@ -101,11 +99,16 @@ namespace RVGUI {
 		return window;
 	}
 
-	void MainWindow::delay(std::function<void()> fn) {
-		add_tick_callback([fn](const auto &) {
-			fn();
-			return false;
-		});
+	void MainWindow::delay(std::function<void()> fn, unsigned count) {
+		if (count <= 1)
+			add_tick_callback([fn](const auto &) {
+				fn();
+				return false;
+			});
+		else
+			delay([this, fn, count] {
+				delay(fn, count - 1);
+			});
 	}
 
 	void MainWindow::queue(std::function<void()> fn) {
@@ -237,7 +240,7 @@ namespace RVGUI {
 				case VideoMode::Text:
 					vte_terminal_set_size(vte, options.width, options.height);
 					centerView.setChild(*terminal);
-					delay([this] { delay([this] { centerView.updateChild(); }); }); // :(
+					delay([this] { centerView.updateChild(); }, 2); // :(
 					break;
 				default:
 					throw std::runtime_error("Invalid VideoMode: "
