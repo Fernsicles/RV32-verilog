@@ -249,13 +249,11 @@ namespace RVGUI {
 		if (cpu) {
 			uint8_t &ready = cpu->framebufferReady;
 			while (!ready);
-			// if (ready != 0) {
-				context->set_operator(Cairo::Context::Operator::XOR);
-				context->mask(cairoPattern);
-				context->paint();
-				if (ready == 1)
-					ready = 0;
-			// }
+			context->set_operator(Cairo::Context::Operator::XOR);
+			context->mask(cairoPattern);
+			context->paint();
+			if (ready == 1)
+				ready = 0;
 		}
 	}
 
@@ -263,12 +261,10 @@ namespace RVGUI {
 		if (pixbuf && cpu) {
 			uint8_t &ready = cpu->framebufferReady;
 			while (!ready);
-			// if (ready != 0) {
-				Gdk::Cairo::set_source_pixbuf(context, pixbuf, 0, 0);
-				context->paint();
-				if (ready == 1)
-					ready = 0;
-			// }
+			Gdk::Cairo::set_source_pixbuf(context, pixbuf, 0, 0);
+			context->paint();
+			if (ready == 1)
+				ready = 0;
 		}
 	}
 }
