@@ -15,12 +15,15 @@ else
 DEBUGFLAGS   :=
 endif
 
-.PHONY: all test clean
+.PHONY: all test debug clean
 
 all: $(OUTPUT)
 
 test: $(OUTPUT)
 	./$(OUTPUT)
+
+debug: $(OUTPUT)
+	gdb ./$(OUTPUT)
 
 clean:
 	rm -rf obj_dir verilated.o CPU_sim gui/**/*.o gui/*.o $(OUTPUT)

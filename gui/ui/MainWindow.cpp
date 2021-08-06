@@ -145,6 +145,8 @@ namespace RVGUI {
 			assemblyView.setCPU(cpu);
 			if (cpu)
 				cpu->onPrint = [this](char ch) {
+					// Not thread safe and kinda crashy if you keep toggling play. I'd use the queue function,
+					// but the dispatcher gets stuck in write() pretty quickly.
 					vte_terminal_feed(vte, &ch, 1);
 				};
 			drawingArea.queue_draw();
