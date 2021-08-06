@@ -263,6 +263,8 @@ namespace RVGUI {
 		memorySize.set_text("2147483647");
 		dataOffset.set_text("256");
 		timeOffset.set_text("0");
+		widthEntry.set_text(std::to_string(80 * 9));
+		heightEntry.set_text(std::to_string(60 * 9));
 		separateInstructions.set_active(true);
 		for (auto &row: videoModeModel->children()) {
 			if (row[videoModeColumns.mode] == VideoMode::Text) {

@@ -171,6 +171,9 @@ namespace RVGUI {
 						throw std::runtime_error("Invalid write size (" + std::to_string(vcpu->o_memsize)
 							+ ") to FRAMEBUFFER_READY");
 					framebufferReady = vcpu->o_mem;
+				} else if (vcpu->o_addr == options.mmioOffset + PUTCHAR) {
+					if (onPrint && options.videoMode == VideoMode::Text && vcpu->o_mem != 0)
+						onPrint(static_cast<char>(vcpu->o_mem));
 				} else
 					throw std::out_of_range("Invalid MMIO write to " + toHex(vcpu->o_addr));
 			} else

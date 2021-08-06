@@ -40,7 +40,6 @@ namespace RVGUI {
 		terminal = Gtk::manage(Glib::wrap(GTK_WIDGET(vte_terminal_new()), false));
 		terminal->set_expand(true);
 		vte = VTE_TERMINAL(terminal->gobj());
-		// centerView.setChild(*terminal);
 
 		hpaned.set_start_child(vpanedLeft);
 		hpaned.set_end_child(vpanedRight);
@@ -84,9 +83,6 @@ namespace RVGUI {
 			playing = false;
 			std::this_thread::sleep_for(std::chrono::milliseconds(50));
 		});
-
-
-		std::cout << "(" << vte_terminal_get_char_width(vte) << ", " << vte_terminal_get_char_height(vte) << ")\n";
 
 		addCommands();
 	}
@@ -147,6 +143,10 @@ namespace RVGUI {
 				cpu.reset();
 			hexView.setCPU(cpu);
 			assemblyView.setCPU(cpu);
+			if (cpu)
+				cpu->onPrint = [this](char ch) {
+					vte_terminal_feed(vte, &ch, 1);
+				};
 			drawingArea.queue_draw();
 		});
 		dialog->show();
@@ -217,6 +217,7 @@ namespace RVGUI {
 			cairoPattern.reset();
 			pixbuf.reset();
 			uint8_t *framebuffer = cpu.getFramebuffer();
+			vte_terminal_reset(vte, true, true);
 			switch (videoMode = options.videoMode) {
 				case VideoMode::Grayscale:
 					if (options.width % sizeof(uint32_t)) {

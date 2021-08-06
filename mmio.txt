@@ -6,4 +6,7 @@ Base + 0x00 (1 byte): Framebuffer ready flag
 	Software can alternatively set this to a value greater than one to indicate that the framebuffer is always ready and
 	that the simulator shouldn't set the flag back to zero.
 
+Base + 0x01 (1 byte): putchar cell
+	Writing a non-zero byte here will cause it to be printed to the terminal if the program was opened in text mode.
+
 Base + 0x01'00'00'00 (variable size): Framebuffer beginning

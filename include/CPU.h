@@ -57,6 +57,7 @@ namespace RVGUI {
 			uint8_t * getFramebuffer() const { return framebuffer.get(); }
 			size_t getCount() const { return count; }
 			uint8_t framebufferReady = 0;
+			std::function<void(char)> onPrint;
 
 		private:
 			static constexpr size_t FRAMEBUFFER_OFFSET = 0x01'00'00'00; // 16 mibibytes
