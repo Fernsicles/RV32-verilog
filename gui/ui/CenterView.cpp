@@ -27,6 +27,8 @@ namespace RVGUI {
 	}
 
 	void CenterView::setChild(Gtk::Widget &new_child) {
+		if (&new_child == child)
+			return;
 		if (child)
 			remove(*child);
 		child = &new_child;
