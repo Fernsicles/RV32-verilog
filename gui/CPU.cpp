@@ -266,6 +266,12 @@ namespace RVGUI {
 		}
 	}
 
+	Word CPU::getRegister(uint8_t reg) {
+		if (32 <= reg)
+			throw std::out_of_range("Invalid register index: " + std::to_string(reg));
+		return vcpu? vcpu->o_reg[reg] : 0;
+	}
+
 	const Word * CPU::getInstructions() const {
 		if (options.separateInstructions)
 			return instructions.get();
