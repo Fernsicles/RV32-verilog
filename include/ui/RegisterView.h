@@ -5,13 +5,16 @@
 #include <vector>
 
 #include "Defs.h"
+#include "ui/BasicEntry.h"
+#include "ui/EntryDialog.h"
 
 namespace RVGUI {
 	class CPU;
+	class MainWindow;
 
 	class RegisterView: public Gtk::ScrolledWindow {
 		public:
-			RegisterView();
+			RegisterView(MainWindow &);
 
 			void setCPU(std::shared_ptr<CPU>);
 			void update();
@@ -36,14 +39,17 @@ namespace RVGUI {
 				"a6", "a7", "s2", "s3", "s4", "s5", "s6", "s7", "s8", "s9", "s10", "s11", "t3", "t4", "t5", "t6"
 			};
 
+			MainWindow &parent;
 			std::shared_ptr<CPU> cpu;
 			std::vector<Word> lastValues;
 			Gtk::TreeView tree;
 			Glib::RefPtr<Gtk::ListStore> model;
 			std::vector<bool> blank;
 			Columns columns;
+			std::unique_ptr<EntryDialog<BasicEntry>> dialog;
 
 			int compareNames(const Gtk::TreeModel::const_iterator &, const Gtk::TreeModel::const_iterator &);
 			int compareValues(const Gtk::TreeModel::const_iterator &, const Gtk::TreeModel::const_iterator &);
+			void rowActivated(const Gtk::TreeModel::Path &, Gtk::TreeViewColumn *);
 	};
 }

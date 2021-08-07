@@ -1,10 +1,11 @@
 #include "CPU.h"
 #include "Util.h"
+#include "ui/MainWindow.h"
 #include "ui/RegisterView.h"
 #include "ui/Util.h"
 
 namespace RVGUI {
-	RegisterView::RegisterView(): Gtk::ScrolledWindow() {
+	RegisterView::RegisterView(MainWindow &parent_): Gtk::ScrolledWindow(), parent(parent_) {
 		add_css_class("registerview");
 		model = Gtk::ListStore::create(columns);
 		tree.set_model(model);
@@ -24,11 +25,13 @@ namespace RVGUI {
 		appendColumn(tree, "Hexadecimal", columns.hex);
 		model->set_sort_func(columns.name, sigc::mem_fun(*this, &RegisterView::compareNames));
 		model->set_sort_func(columns.hex, sigc::mem_fun(*this, &RegisterView::compareValues));
+		tree.signal_row_activated().connect(sigc::mem_fun(*this, &RegisterView::rowActivated));
 		set_child(tree);
 	}
 
 	void RegisterView::setCPU(std::shared_ptr<CPU> cpu_) {
 		cpu = cpu_;
+		update();
 	}
 
 	void RegisterView::update() {
@@ -62,5 +65,41 @@ namespace RVGUI {
 		if (left_dec == right_dec)
 			return 0;
 		return 1;
+	}
+
+	void RegisterView::rowActivated(const Gtk::TreeModel::Path &path, Gtk::TreeViewColumn *column) {
+		if (!cpu)
+			return;
+
+		const auto &row = *model->get_iter(path);
+		const int id = row[columns.id];
+		dialog.reset(new EntryDialog<BasicEntry>(row[columns.name], parent, "New value:", true));
+		dialog->signal_submit().connect([this, id](const Glib::ustring &response) {
+			if (response.empty() || response == "0x")
+				return;
+
+			long new_value;
+			if (2 < response.size() && response[0] == '0' && response[1] == 'x') {
+				try {
+					new_value = parseLong(response.substr(2), 16);
+				} catch (const std::invalid_argument &) {
+					parent.error("Invalid value.");
+					return;
+				}
+			} else {
+				try {
+					new_value = parseLong(response, 10);
+				} catch (const std::invalid_argument &) {
+					parent.error("Invalid value.");
+					return;
+				}
+			}
+
+			if (cpu) {
+				cpu->setRegister(id, static_cast<Word>(new_value));
+				update();
+			}
+		});
+		dialog->show();
 	}
 }

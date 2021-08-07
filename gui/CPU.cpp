@@ -80,6 +80,8 @@ namespace RVGUI {
 		if (options.separateInstructions && !instructions)
 			throw std::runtime_error("CPU instructions array isn't initialized");
 
+		auto lock = lockCPU();
+
 		if (start == 0)
 			start = std::chrono::duration_cast<std::chrono::milliseconds>(
 				std::chrono::high_resolution_clock::now().time_since_epoch()).count();
@@ -91,11 +93,10 @@ namespace RVGUI {
 
 		vcpu->i_clk = 0;
 
-		if (options.separateInstructions) {
+		if (options.separateInstructions)
 			vcpu->i_inst = instructions[vcpu->o_pc / sizeof(Word)];
-		} else {
+		else
 			vcpu->i_inst = reinterpret_cast<Word *>(memory.get())[vcpu->o_pc / sizeof(Word)];
-		}
 
 		vcpu->eval();
 
@@ -281,6 +282,7 @@ namespace RVGUI {
 			throw std::out_of_range("Invalid register index: " + std::to_string(reg));
 		if (!vcpu)
 			return;
+		auto lock = lockCPU();
 		// TODO: verify
 		const auto old_instruction = vcpu->i_inst;
 		vcpu->i_inst = 0x6f;
@@ -301,8 +303,8 @@ namespace RVGUI {
 		return reinterpret_cast<Word *>(memory.get() + textOffset);
 	}
 
-	uint8_t * CPU::getMemory() const {
-		return memory.get();
+	std::unique_lock<std::mutex> CPU::lockCPU() {
+		return useLock? std::unique_lock(mutex) : std::unique_lock<std::mutex>();
 	}
 
 	void CPU::init() {

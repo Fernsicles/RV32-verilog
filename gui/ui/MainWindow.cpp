@@ -10,7 +10,7 @@
 
 namespace RVGUI {
 	MainWindow::MainWindow(BaseObjectType *cobject, const Glib::RefPtr<Gtk::Builder> &builder_):
-	Gtk::ApplicationWindow(cobject), builder(builder_), hexView(*this), assemblyView(*this) {
+	Gtk::ApplicationWindow(cobject), builder(builder_), hexView(*this), assemblyView(*this), registerView(*this) {
 		header = builder->get_widget<Gtk::HeaderBar>("headerbar");
 		set_titlebar(*header);
 

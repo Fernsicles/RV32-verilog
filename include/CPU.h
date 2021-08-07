@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <functional>
 #include <memory>
+#include <mutex>
 #include <string>
 #include <verilated.h>
 
@@ -37,6 +38,10 @@ namespace RVGUI {
 				Options & setVideoMode(VideoMode);
 			};
 
+			bool useLock = false;
+			uint8_t framebufferReady = 0;
+			std::function<void(char)> onPrint;
+
 			CPU() = delete;
 			CPU(const Options &);
 
@@ -52,7 +57,8 @@ namespace RVGUI {
 			Word getRegister(uint8_t reg);
 			void setRegister(uint8_t reg, Word value);
 			const Word * getInstructions() const;
-			uint8_t * getMemory() const;
+			std::unique_lock<std::mutex> lockCPU();
+			uint8_t * getMemory() const { return memory.get(); }
 			size_t getInstructionCount() const { return instructionCount; }
 			size_t getInstructionOffset() const { return textOffset; }
 			size_t memorySize() const { return options.memorySize; }
@@ -60,8 +66,6 @@ namespace RVGUI {
 			const Options & getOptions() const { return options; }
 			uint8_t * getFramebuffer() const { return framebuffer.get(); }
 			size_t getCount() const { return count; }
-			uint8_t framebufferReady = 0;
-			std::function<void(char)> onPrint;
 
 		private:
 			static constexpr size_t FRAMEBUFFER_OFFSET = 0x01'00'00'00; // 16 mibibytes
@@ -70,6 +74,7 @@ namespace RVGUI {
 			std::shared_ptr<uint8_t[]> framebuffer;
 			std::unique_ptr<Word[]> instructions;
 			std::unique_ptr<VCPU> vcpu;
+			std::mutex mutex;
 			ELFIO::elfio elfReader;
 			size_t count = 0, instructionCount = 0, framebufferSize = 0, textOffset = 0;
 			int64_t start = 0, end = 0;
