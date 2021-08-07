@@ -56,9 +56,16 @@ namespace RVGUI {
 		notebookTop.set_tab_detachable(hexView);
 		notebookTop.set_tab_reorderable(hexView);
 		notebookBottom.set_group_name("rvgui");
-		notebookBottom.append_page(assemblyView, "Assembly View");
+		notebookBottom.append_page(assemblyView, "Assembly");
 		notebookBottom.set_tab_detachable(assemblyView);
 		notebookBottom.set_tab_reorderable(assemblyView);
+		notebookBottom.append_page(registerView, "Registers");
+		notebookBottom.set_tab_detachable(registerView);
+		notebookBottom.set_tab_reorderable(registerView);
+
+		auto click = Gtk::GestureClick::create();
+		click->signal_released().connect([this](int count, double, double) { if (count == 2) registerView.update(); });
+		notebookBottom.get_tab_label(registerView)->add_controller(click);
 
 		vpanedRight.set_expand(true);
 		vpanedRight.set_orientation(Gtk::Orientation::VERTICAL);
@@ -152,6 +159,7 @@ namespace RVGUI {
 				cpu.reset();
 			hexView.setCPU(cpu);
 			assemblyView.setCPU(cpu);
+			registerView.setCPU(cpu);
 			if (cpu)
 				cpu->onPrint = [this](char ch) {
 					// Not thread safe and kinda crashy if you keep toggling play. I'd use the queue function,
@@ -195,7 +203,7 @@ namespace RVGUI {
 	}
 
 	void MainWindow::tick() {
-		if (cpu) {
+		if (cpu && !playing) {
 			try {
 				cpu->tick();
 			} catch (const std::exception &err) {
@@ -206,6 +214,7 @@ namespace RVGUI {
 			drawingArea.queue_draw();
 			hexView.updatePC(cpu->getPC());
 			assemblyView.updatePC(cpu->getPC());
+			registerView.update();
 		}
 	}
 

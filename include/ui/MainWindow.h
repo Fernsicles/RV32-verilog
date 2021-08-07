@@ -12,6 +12,7 @@
 #include "ui/CenterView.h"
 #include "ui/Console.h"
 #include "ui/HexView.h"
+#include "ui/RegisterView.h"
 
 namespace RVGUI {
 	class CPU;
@@ -67,6 +68,7 @@ namespace RVGUI {
 			CenterView centerView;
 			HexView hexView;
 			AssemblyView assemblyView;
+			RegisterView registerView;
 			Console console;
 			Gtk::Widget *terminal = nullptr;
 			VteTerminal *vte = nullptr;

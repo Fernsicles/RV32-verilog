@@ -2,11 +2,11 @@
 	font-family: monospace;
 }
 
-.hexview label, .assemblyview label {
+.hexview label, .assemblyview label, .registerview label {
 	font-family: monospace;
 }
 
-.assemblyview label {
+.assemblyview label, .registerview label {
 	padding: 0 4px;
 }
 
