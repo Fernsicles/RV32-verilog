@@ -217,7 +217,9 @@ namespace RVGUI {
 			if (elfReader.get_class() != ELFCLASS32)
 				throw std::runtime_error("Unsupported ELF binary (not elf32)");
 			std::memcpy(memory.get(), buffer, filesize);
-			textOffset = elfReader.sections[".text"]->get_offset();
+			const auto &text = *elfReader.sections[".text"];
+			textOffset = text.get_offset();
+			instructionCount = text.get_size() / sizeof(Word);
 		} else {
 			instructionCount = filesize / sizeof(Word);
 			if (options.separateInstructions) {

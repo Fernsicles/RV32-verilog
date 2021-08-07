@@ -52,6 +52,7 @@ namespace RVGUI {
 			const Word * getInstructions() const;
 			uint8_t * getMemory() const;
 			size_t getInstructionCount() const { return instructionCount; }
+			size_t getInstructionOffset() const { return textOffset; }
 			size_t memorySize() const { return options.memorySize; }
 			uint8_t operator[](size_t offset) const { return memory[offset]; }
 			const Options & getOptions() const { return options; }
