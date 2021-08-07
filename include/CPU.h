@@ -49,7 +49,8 @@ namespace RVGUI {
 			void loadData();
 			Word getPC() const;
 			void setPC(Word);
-			Word getRegister(uint8_t id);
+			Word getRegister(uint8_t reg);
+			void setRegister(uint8_t reg, Word value);
 			const Word * getInstructions() const;
 			uint8_t * getMemory() const;
 			size_t getInstructionCount() const { return instructionCount; }

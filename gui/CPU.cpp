@@ -256,6 +256,9 @@ namespace RVGUI {
 
 	void CPU::setPC(Word new_pc) {
 		if (vcpu) {
+			// TODO: verify
+			const auto old_instruction = vcpu->i_inst;
+			vcpu->i_inst = 0x6f;
 			vcpu->i_clk = 0;
 			vcpu->i_pcload = 1;
 			vcpu->i_pc = new_pc;
@@ -263,6 +266,7 @@ namespace RVGUI {
 			vcpu->i_clk = 1;
 			vcpu->eval();
 			vcpu->i_pcload = 0;
+			vcpu->i_inst = old_instruction;
 		}
 	}
 
@@ -270,6 +274,25 @@ namespace RVGUI {
 		if (32 <= reg)
 			throw std::out_of_range("Invalid register index: " + std::to_string(reg));
 		return vcpu? vcpu->o_reg[reg] : 0;
+	}
+
+	void CPU::setRegister(uint8_t reg, Word value) {
+		if (32 <= reg)
+			throw std::out_of_range("Invalid register index: " + std::to_string(reg));
+		if (!vcpu)
+			return;
+		// TODO: verify
+		const auto old_instruction = vcpu->i_inst;
+		vcpu->i_inst = 0x6f;
+		vcpu->i_clk = 0;
+		vcpu->i_daddr = reg;
+		vcpu->i_ddata = value;
+		vcpu->i_dload = 1;
+		vcpu->eval();
+		vcpu->i_clk = 1;
+		vcpu->eval();
+		vcpu->i_dload = 0;
+		vcpu->i_inst = old_instruction;
 	}
 
 	const Word * CPU::getInstructions() const {
