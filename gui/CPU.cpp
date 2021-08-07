@@ -269,7 +269,7 @@ namespace RVGUI {
 	const Word * CPU::getInstructions() const {
 		if (options.separateInstructions)
 			return instructions.get();
-		return reinterpret_cast<Word *>(memory.get());
+		return reinterpret_cast<Word *>(memory.get() + textOffset);
 	}
 
 	uint8_t * CPU::getMemory() const {

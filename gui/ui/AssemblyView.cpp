@@ -50,7 +50,7 @@ namespace RVGUI {
 		const uint64_t pc = cpu->getPC();
 		const size_t offset = cpu->getInstructionOffset();
 		for (size_t i = 0, count = cpu->getInstructionCount(); i < count; ++i) {
-			const size_t address = 4 * i + offset;
+			const size_t address = sizeof(Word) * i + offset;
 			std::stringstream ss;
 			ss << std::hex << std::setw(4) << std::setfill('0') << std::right << address;
 			auto &gutter_label = labels.try_emplace(address, ss.str(), Gtk::Align::END).first->second;
