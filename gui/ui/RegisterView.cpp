@@ -12,6 +12,7 @@ namespace RVGUI {
 		blank.reserve(COUNT);
 		for (size_t i = 0; i < COUNT; ++i) {
 			auto &row = *model->append();
+			row[columns.id] = i;
 			row[columns.name] = names[i];
 			row[columns.decimal] = 0;
 			row[columns.hex] = "";
@@ -21,6 +22,8 @@ namespace RVGUI {
 		appendColumn(tree, "Register", columns.name);
 		appendColumn(tree, "Decimal", columns.decimal);
 		appendColumn(tree, "Hexadecimal", columns.hex);
+		model->set_sort_func(columns.name, sigc::mem_fun(*this, &RegisterView::compareNames));
+		model->set_sort_func(columns.hex, sigc::mem_fun(*this, &RegisterView::compareValues));
 		set_child(tree);
 	}
 
@@ -40,6 +43,24 @@ namespace RVGUI {
 				(*iter)[columns.decimal] = new_value;
 				(*iter)[columns.hex] = toHex(new_value);
 			}
-		}		
+		}
+	}
+
+	int RegisterView::compareNames(const Gtk::TreeModel::const_iterator &l, const Gtk::TreeModel::const_iterator &r) {
+		const int left_id = (*l)[columns.id], right_id = (*r)[columns.id];
+		if (left_id < right_id)
+			return -1;
+		if (left_id == right_id)
+			return 0;
+		return 1;
+	}
+
+	int RegisterView::compareValues(const Gtk::TreeModel::const_iterator &l, const Gtk::TreeModel::const_iterator &r) {
+		const Word left_dec = (*l)[columns.decimal], right_dec = (*r)[columns.id];
+		if (left_dec < right_dec)
+			return -1;
+		if (left_dec == right_dec)
+			return 0;
+		return 1;
 	}
 }
