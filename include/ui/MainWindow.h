@@ -62,6 +62,7 @@ namespace RVGUI {
 			Gtk::ToggleButton playButton;
 			Gtk::Button tickButton;
 			Gtk::Paned hpaned, vpanedLeft, vpanedRight;
+			Gtk::Notebook notebookTop, notebookBottom;
 			Gtk::DrawingArea drawingArea;
 			CenterView centerView;
 			HexView hexView;

@@ -51,10 +51,19 @@ namespace RVGUI {
 		vpanedLeft.set_end_child(console);
 		vpanedLeft.set_wide_handle(true);
 
+		notebookTop.set_group_name("rvgui");
+		notebookTop.append_page(hexView, "Hex View");
+		notebookTop.set_tab_detachable(hexView);
+		notebookTop.set_tab_reorderable(hexView);
+		notebookBottom.set_group_name("rvgui");
+		notebookBottom.append_page(assemblyView, "Assembly View");
+		notebookBottom.set_tab_detachable(assemblyView);
+		notebookBottom.set_tab_reorderable(assemblyView);
+
 		vpanedRight.set_expand(true);
 		vpanedRight.set_orientation(Gtk::Orientation::VERTICAL);
-		vpanedRight.set_start_child(hexView);
-		vpanedRight.set_end_child(assemblyView);
+		vpanedRight.set_start_child(notebookTop);
+		vpanedRight.set_end_child(notebookBottom);
 		vpanedRight.set_wide_handle(true);
 
 		delay([this] {
