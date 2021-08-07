@@ -303,10 +303,6 @@ namespace RVGUI {
 		return reinterpret_cast<Word *>(memory.get() + textOffset);
 	}
 
-	std::unique_lock<std::mutex> CPU::lockCPU() {
-		return useLock? std::unique_lock(mutex) : std::unique_lock<std::mutex>();
-	}
-
 	void CPU::init() {
 		resetMemory();
 		initFramebuffer(3);

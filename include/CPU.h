@@ -38,7 +38,7 @@ namespace RVGUI {
 				Options & setVideoMode(VideoMode);
 			};
 
-			bool useLock = false;
+			bool useLock = true;
 			uint8_t framebufferReady = 0;
 			std::function<void(char)> onPrint;
 
@@ -57,7 +57,6 @@ namespace RVGUI {
 			Word getRegister(uint8_t reg);
 			void setRegister(uint8_t reg, Word value);
 			const Word * getInstructions() const;
-			std::unique_lock<std::mutex> lockCPU();
 			uint8_t * getMemory() const { return memory.get(); }
 			size_t getInstructionCount() const { return instructionCount; }
 			size_t getInstructionOffset() const { return textOffset; }
@@ -66,6 +65,10 @@ namespace RVGUI {
 			const Options & getOptions() const { return options; }
 			uint8_t * getFramebuffer() const { return framebuffer.get(); }
 			size_t getCount() const { return count; }
+
+			inline std::unique_lock<std::mutex> lockCPU() {
+				return useLock? std::unique_lock(mutex) : std::unique_lock<std::mutex>();
+			}
 
 		private:
 			static constexpr size_t FRAMEBUFFER_OFFSET = 0x01'00'00'00; // 16 mibibytes

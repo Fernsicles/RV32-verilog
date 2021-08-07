@@ -224,6 +224,7 @@ namespace RVGUI {
 			hexView.update();
 			hexView.updatePC(cpu->getPC());
 			assemblyView.updatePC(cpu->getPC());
+			registerView.update();
 		}
 
 		return playing;

@@ -37,6 +37,7 @@ namespace RVGUI {
 	void RegisterView::update() {
 		if (!cpu)
 			return;
+		auto lock = cpu->lockCPU();
 		for (size_t i = 0; i < COUNT; ++i) {
 			const Word new_value = cpu->getRegister(i);
 			if (new_value != lastValues[i] || blank[i]) {
