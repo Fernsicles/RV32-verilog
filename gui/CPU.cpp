@@ -116,13 +116,18 @@ namespace RVGUI {
 				vcpu->i_mem = lastKeyValue;
 				lastKeyValue = '\0';
 			} else {
-				const uintptr_t ptr = vcpu->o_addr % options.memorySize;
+				const ptrdiff_t ptr = vcpu->o_addr % options.memorySize;
 				const uintptr_t memstart = (uintptr_t) memory.get(), memend = memstart + options.memorySize;
-				if (!(0 <= ptr && ptr + 3 < options.memorySize)) {
+				if (ptr == options.memorySize - 1) {
+					vcpu->i_mem = memory[ptr];
+				} else if (ptr == options.memorySize - 2) {
+					vcpu->i_mem = *reinterpret_cast<uint16_t *>(memory.get() + ptr);
+				} else if (!(0 <= ptr && ptr + 3 < options.memorySize)) {
 					std::cerr << "Memory: [" << toHex(memstart) << ", " << toHex(memend) << ")\n";
 					throw std::out_of_range("Memory read of size 4 out of range (" + toHex(memstart + ptr) + ")");
+				} else {
+					vcpu->i_mem = *reinterpret_cast<Word *>(memory.get() + vcpu->o_addr % options.memorySize);
 				}
-				vcpu->i_mem = *reinterpret_cast<Word *>(memory.get() + vcpu->o_addr % options.memorySize);
 			}
 		}
 
@@ -162,8 +167,10 @@ namespace RVGUI {
 						*reinterpret_cast<uint16_t *>(ptrsum) = vcpu->o_mem;
 						break;
 					case 3:
-						if (!(memstart <= ptrsum && ptrsum + 3 < memend) && !(fbstart <= ptrsum && ptrsum + 3 < fbend))
+						if (!(memstart <= ptrsum && ptrsum + 3 < memend) && !(fbstart <= ptrsum && ptrsum + 3 < fbend)) {
+							std::cerr << "Memory: [" << toHex(memstart) << ", " << toHex(memend) << ")\n";
 							throw std::out_of_range("Write of size 4 out of range (" + toHex(ptrsum) + ")");
+						}
 						*reinterpret_cast<uint32_t *>(ptrsum) = vcpu->o_mem;
 						break;
 					default:
