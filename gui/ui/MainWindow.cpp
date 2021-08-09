@@ -67,6 +67,10 @@ namespace RVGUI {
 		click->signal_released().connect([this](int count, double, double) { if (count == 2) registerView.update(); });
 		notebookBottom.get_tab_label(registerView)->add_controller(click);
 
+		auto key_controller = Gtk::EventControllerKey::create();
+		key_controller->signal_key_pressed().connect(sigc::mem_fun(*this, &MainWindow::onKeyPressed), true);
+		terminal->add_controller(key_controller);
+
 		vpanedRight.set_expand(true);
 		vpanedRight.set_orientation(Gtk::Orientation::VERTICAL);
 		vpanedRight.set_start_child(notebookTop);
@@ -304,5 +308,11 @@ namespace RVGUI {
 			if (ready == 1)
 				ready = 0;
 		}
+	}
+
+	bool MainWindow::onKeyPressed(guint keyval, guint, Gdk::ModifierType) {
+		if (cpu)
+			cpu->lastKeyValue = keyval;
+		return true;
 	}
 }

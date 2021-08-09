@@ -1,5 +1,6 @@
 #pragma once
 
+#include <gtkmm.h>
 #include <cstdint>
 #include <functional>
 #include <memory>
@@ -40,6 +41,7 @@ namespace RVGUI {
 
 			bool useLock = true;
 			uint8_t framebufferReady = 0;
+			guint lastKeyValue = '\0';
 			std::function<void(char)> onPrint;
 
 			CPU() = delete;

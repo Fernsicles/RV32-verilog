@@ -112,6 +112,9 @@ namespace RVGUI {
 				vcpu->i_mem = *reinterpret_cast<Word *>(framebuffer.get() + ptrsum);
 			} else if (vcpu->o_addr == options.mmioOffset + FRAMEBUFFER_READY) {
 				vcpu->i_mem = framebufferReady;
+			} else if (vcpu->o_addr == options.mmioOffset + KEYVAL) {
+				vcpu->i_mem = lastKeyValue;
+				lastKeyValue = '\0';
 			} else {
 				const uintptr_t ptr = vcpu->o_addr % options.memorySize;
 				const uintptr_t memstart = (uintptr_t) memory.get(), memend = memstart + options.memorySize;

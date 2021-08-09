@@ -83,6 +83,7 @@ namespace RVGUI {
 			bool initVideo(const CPU &);
 			void drawGrayscale(const Cairo::RefPtr<Cairo::Context> &, int width, int height);
 			void drawRGB(const Cairo::RefPtr<Cairo::Context> &, int width, int height);
+			bool onKeyPressed(guint, guint, Gdk::ModifierType);
 
 			void addCommands();
 	};
