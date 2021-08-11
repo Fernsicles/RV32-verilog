@@ -9,7 +9,7 @@ Base + 0x00 (1 byte): Framebuffer ready flag
 Base + 0x01 (1 byte): putchar cell
 	Writing a non-zero byte here will cause it to be printed to the terminal if the program was opened in text mode.
 
-Base + 0x02 (1 byte): keyboard input
-	When a key is pressed, its value will be written here.
+Base + 0x02 (2 bytes): keyboard input
+	When a key is pressed, its value will be available here. Reading from this location zeroes out its value.
 
 Base + 0x01'00'00'00 (variable size): Framebuffer beginning
