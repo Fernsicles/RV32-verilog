@@ -4,6 +4,7 @@ void puts(const char *str);
 
 void main() {
 	for (;;) {
+		*KEYPAUSE = 1;
 		const int keyval = *KEYVALUE;
 		if (!keyval)
 			continue;

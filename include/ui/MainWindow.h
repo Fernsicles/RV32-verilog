@@ -73,10 +73,11 @@ namespace RVGUI {
 			Gtk::Widget *terminal = nullptr;
 			VteTerminal *vte = nullptr;
 
-			bool playing = false;
+			bool playing = false, keyPause = false;
 
 			void open();
 			void play();
+			void startPlayThread();
 			void stop();
 			void tick();
 			bool onTimeout();

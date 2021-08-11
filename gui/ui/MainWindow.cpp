@@ -177,24 +177,36 @@ namespace RVGUI {
 
 	void MainWindow::play() {
 		if (cpu && !playing) {
-			playing = true;
-			playThread = std::thread([this] {
-				try {
-					while (playing)
-						cpu->tick();
-				} catch (const std::exception &err) {
-					Glib::ustring what = err.what();
-					queue([this, what] {
-						stop();
-						error("Error while simulating: " + what);
-					});
-				}
-			});
-			playThread.detach();
-			timeout = Glib::signal_timeout().connect(sigc::mem_fun(*this, &MainWindow::onTimeout), 1000 / FPS);
+			startPlayThread();
 		} else
 			stop();
 		playButton.set_active(playing);
+	}
+
+	void MainWindow::startPlayThread() {
+		playing = true;
+		playThread = std::thread([this] {
+			try {
+				while (playing)
+					switch (cpu->tick()) {
+						case CPU::TickResult::Continue:
+							break;
+						case CPU::TickResult::KeyPause:
+							keyPause = true;
+						case CPU::TickResult::Finished:
+							playing = false;
+							break;
+					}
+			} catch (const std::exception &err) {
+				Glib::ustring what = err.what();
+				queue([this, what] {
+					stop();
+					error("Error while simulating: " + what);
+				});
+			}
+		});
+		playThread.detach();
+		timeout = Glib::signal_timeout().connect(sigc::mem_fun(*this, &MainWindow::onTimeout), 1000 / FPS);
 	}
 
 	void MainWindow::stop() {
@@ -311,8 +323,13 @@ namespace RVGUI {
 	}
 
 	bool MainWindow::onKeyPressed(guint keyval, guint, Gdk::ModifierType) {
-		if (cpu)
+		if (cpu) {
 			cpu->lastKeyValue = keyval;
+			if (keyPause) {
+				keyPause = false;
+				startPlayThread();
+			}
+		}
 		return true;
 	}
 }

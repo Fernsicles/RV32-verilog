@@ -15,6 +15,8 @@
 namespace RVGUI {
 	class CPU {
 		public:
+			enum class TickResult {Continue, Finished, KeyPause};
+
 			struct Options {
 				std::string programFilename, dataFilename;
 				size_t memorySize;
@@ -47,8 +49,7 @@ namespace RVGUI {
 			CPU() = delete;
 			CPU(const Options &);
 
-			/** Returns true if there are still more instructions to execute or false if the CPU has halted. */
-			bool tick();
+			TickResult tick();
 
 			void resetMemory();
 			void loadProgram();

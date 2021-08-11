@@ -12,4 +12,7 @@ Base + 0x01 (1 byte): putchar cell
 Base + 0x02 (2 bytes): keyboard input
 	When a key is pressed, its value will be available here. Reading from this location zeroes out its value.
 
+Base + 0x04 (1 byte): keyboard pause flag
+	Writing a non-zero byte here will cause the simulation to be paused until a key is pressed.
+
 Base + 0x01'00'00'00 (variable size): Framebuffer beginning

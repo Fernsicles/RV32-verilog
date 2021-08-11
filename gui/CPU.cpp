@@ -70,7 +70,7 @@ namespace RVGUI {
 		init();
 	}
 
-	bool CPU::tick() {
+	CPU::TickResult CPU::tick() {
 		if (!vcpu)
 			throw std::runtime_error("CPU isn't initialized");
 
@@ -115,6 +115,8 @@ namespace RVGUI {
 			} else if (vcpu->o_addr == options.mmioOffset + KEYVAL) {
 				vcpu->i_mem = lastKeyValue;
 				lastKeyValue = '\0';
+			} else if (options.mmioOffset <= vcpu->o_addr && vcpu->o_addr < options.mmioOffset + MMIO_END) {
+				throw std::out_of_range("Invalid read from MMIO location " + toHex(vcpu->o_addr - options.mmioOffset));
 			} else {
 				const ptrdiff_t ptr = vcpu->o_addr % options.memorySize;
 				const uintptr_t memstart = (uintptr_t) memory.get(), memend = memstart + options.memorySize;
@@ -185,6 +187,11 @@ namespace RVGUI {
 				} else if (vcpu->o_addr == options.mmioOffset + PUTCHAR) {
 					if (onPrint && options.videoMode == VideoMode::Text && vcpu->o_mem != 0)
 						onPrint(static_cast<char>(vcpu->o_mem));
+				} else if (vcpu->o_addr == options.mmioOffset + KEYPAUSE) {
+					if (vcpu->o_mem) {
+						++count;
+						return TickResult::KeyPause;
+					}
 				} else
 					throw std::out_of_range("Invalid MMIO write to " + toHex(vcpu->o_addr));
 			} else
@@ -196,10 +203,10 @@ namespace RVGUI {
 		if (vcpu->i_inst == 0x6f) { // Jump to self
 			 end = std::chrono::duration_cast<std::chrono::milliseconds>(
 				std::chrono::high_resolution_clock::now().time_since_epoch()).count();
-			return false;
+			return TickResult::Finished;
 		}
 
-		return true;
+		return TickResult::Continue;
 	}
 
 	void CPU::resetMemory() {
