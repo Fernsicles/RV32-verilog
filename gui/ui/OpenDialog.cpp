@@ -258,7 +258,7 @@ namespace RVGUI {
 	}
 
 	void OpenDialog::setDefaults() {
-		programFilename.set_text("./programs/puts.elf");
+		programFilename.set_text("./programs/arrows.elf");
 		// dataFilename.set_text("./bad-apple.raw");
 		memorySize.set_text("2147483647");
 		dataOffset.set_text("256");
