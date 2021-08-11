@@ -28,6 +28,12 @@ debug: $(OUTPUT)
 clean:
 	rm -rf obj_dir verilated.o CPU_sim gui/**/*.o gui/*.o $(OUTPUT)
 
+scan: clean
+	scan-build --use-cc=$(COMPILER) "make all"
+
+scanj: clean
+	scan-build --use-cc=$(COMPILER) "make -j all"
+
 obj_dir/VALU.h: ALU.sv
 	verilator -Wall -cc ALU.sv
 	cd obj_dir && make -f VALU.mk
