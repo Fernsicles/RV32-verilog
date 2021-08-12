@@ -1,9 +1,9 @@
 module ALU(
-	input logic[2:0] i_op,
+	input logic [2:0] i_op,
 	input logic i_op2,
-	input logic[31:0] i_x,
-	input logic[31:0] i_y,
-	output wire[31:0] o_result,
+	input logic [31:0] i_x,
+	input logic [31:0] i_y,
+	output wire [31:0] o_result,
 	output wire o_zero
 	);
 
