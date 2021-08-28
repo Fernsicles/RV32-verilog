@@ -71,8 +71,8 @@ module CPU(
 	MALU malu(.i_op(a_op), .i_x(a_x), .i_y(a_y), .o_res(m_res));
 	always_comb begin
 		case(i_inst[31:25]) // Select which ALU to load from
-				7'b0000001: res = m_res;
-				default:    res = a_res;
+			7'b0000001: res = m_res;
+			default:    res = a_res;
 		endcase
 	end
 `endif
