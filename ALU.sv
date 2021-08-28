@@ -5,10 +5,9 @@ module ALU(
 	input logic [31:0] i_y,
 	output wire [31:0] o_result,
 	output wire o_zero
-	);
+);
 
-	always_comb
-	begin
+	always_comb begin
 		case(i_op)
 			3'b000: case(i_op2)
 				1'b0: o_result = i_x + i_y;

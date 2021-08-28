@@ -60,7 +60,7 @@ module CPU(
 	reg  [31:0] a_x;   // First operand
 	reg  [31:0] a_y;   // Second operand
 	wire [31:0] a_res; // Result of ALU operation
-	wire [31:0] res;   // Final result to be saved to register
+	logic [31:0] res;  // Final result to be saved to register
 	wire a_ysel;       // Source of the second operand, immediate or register
 	wire a_zero;       // Whether the result of the ALU op was 0 or not
 	assign o_addr = a_res;

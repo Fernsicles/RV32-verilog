@@ -7,8 +7,8 @@ module MALU(
 
 logic [63:0] x, y;
 logic [63:0] prod = x * y;
-logic [31:0] quotient = x / y;
-logic [31:0] remainder = x % y;
+logic [31:0] quotient = x[31:0] / y[31:0];
+logic [31:0] remainder = x[31:0] % y[31:0];
 
 always_comb begin
     case(i_op)
@@ -21,12 +21,12 @@ always_comb begin
 
     case(i_op)
         3'b000: o_res = prod[31:0];  // MUL
-        3'b001,                         // MULH
-        3'b010,                         // MULHSU
+        3'b001,                      // MULH
+        3'b010,                      // MULHSU
         3'b011: o_res = prod[63:32]; // MULHU
-        3'b100,                         // DIV
+        3'b100,                      // DIV
         3'b101: o_res = quotient;    // DIVU
-        3'b110,                         // REM
+        3'b110,                      // REM
         3'b111: o_res = remainder;   // REMU
         default: o_res = 32'b0;
     endcase
