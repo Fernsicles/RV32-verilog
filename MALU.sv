@@ -20,15 +20,15 @@ always_comb begin
     endcase
 
     case(i_op)
-        3'b000: o_result = prod[31:0];  // MUL
+        3'b000: o_res = prod[31:0];  // MUL
         3'b001,                         // MULH
         3'b010,                         // MULHSU
-        3'b011: o_result = prod[63:32]; // MULHU
+        3'b011: o_res = prod[63:32]; // MULHU
         3'b100,                         // DIV
-        3'b101: o_result = quotient;    // DIVU
+        3'b101: o_res = quotient;    // DIVU
         3'b110,                         // REM
-        3'b111: o_result = remainder;   // REMU
-        default: o_result = 32'b0;
+        3'b111: o_res = remainder;   // REMU
+        default: o_res = 32'b0;
     endcase
 end
 
