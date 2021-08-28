@@ -41,12 +41,12 @@ obj_dir/VALU.h: ALU.sv
 alutest: obj_dir/VALU.h ALUtest.cpp
 	$(COMPILER) $(CPPFLAGS) -Iobj_dir $(shell pkg-config --cflags verilator) ALUtest.cpp /usr/share/verilator/include/verilated.cpp obj_dir/VALU__ALL.o -o alutest
 
-obj_dir/VCPU.h obj_dir/VCPU__ALL.o: CPU.sv control_unit.sv registers.sv ALU.sv
+obj_dir/VCPU.h obj_dir/VCPU__ALL.o: CPU.sv control_unit.sv registers.sv ALU.sv MALU.sv
 ifeq ($(TEST), 1)
-	verilator $(OPTIMIZATION) -cc CPU.sv
+	verilator $(OPTIMIZATION) -DEXTM -cc CPU.sv
 	cd obj_dir && make -f VCPU.mk
 else
-	verilator -Wall $(OPTIMIZATION) -cc CPU.sv
+	verilator -Wall $(OPTIMIZATION) -DEXTM -cc CPU.sv
 	cd obj_dir && make -f VCPU.mk
 endif
 
