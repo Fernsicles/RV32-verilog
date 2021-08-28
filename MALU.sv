@@ -2,7 +2,7 @@ module MALU(
     input  [2:0]  i_op,
     input  [31:0] i_x,
     input  [31:0] i_y,
-    output logic [31:0] o_result
+    output logic [31:0] o_res
 );
 
 logic [63:0] x, y;
