@@ -12,11 +12,20 @@ logic [31:0] remainder = x[31:0] % y[31:0];
 
 always_comb begin
     case(i_op)
-        3'b010: begin x = $signed(i_x); y = $unsigned(i_y); end
+        3'b010: begin
+                    x = $signed({{32{i_x[31]}}, i_x});
+                    y = $unsigned({32'b0, i_y});
+                end
         3'b011,
         3'b101,
-        3'b111: begin x = $unsigned(i_x); y = $unsigned(i_y); end
-        default: begin x = $signed(i_x); y = $signed(i_y); end
+        3'b111: begin
+                    x = $unsigned({32'b0, i_x});
+                    y = $unsigned({32'b0, i_y});
+                end
+        default: begin
+                    x = $signed({{32{i_x[31]}}, i_x});
+                    y = $signed({{32{i_x[31]}}, i_y});
+                end
     endcase
 
     case(i_op)
