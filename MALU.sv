@@ -33,10 +33,34 @@ always_comb begin
         3'b001,                      // MULH
         3'b010,                      // MULHSU
         3'b011: o_res = prod[63:32]; // MULHU
-        3'b100,                      // DIV
-        3'b101: o_res = quotient;    // DIVU
-        3'b110,                      // REM
-        3'b111: o_res = remainder;   // REMU
+        3'b100: begin                // DIV
+            if(i_y == 32'b0)
+                o_res = -32'h1;
+            else if(i_x == 32'h80000000 && i_y == -32'b1)
+                o_res = -32'b1 << 31;
+            else
+                o_res = quotient;
+        end
+        3'b101: begin                // DIVU
+            if(i_y == 32'b0)
+                o_res = -32'h1;
+            else
+                o_res = quotient;
+        end
+        3'b110: begin                // REM
+            if(i_y == 32'b0)
+                o_res = i_x;
+            else if(i_x == 32'h80000000 && i_y == -32'b1)
+                o_res = 32'b0;
+            else
+                o_res = remainder;
+        end
+        3'b111: begin                // REMU
+            if(i_y == 32'b0)
+                o_res = i_x;
+            else
+                o_res = remainder;
+        end
         default: o_res = 32'b0;
     endcase
 end

@@ -55,26 +55,19 @@ module CPU(
 	);
 
 	// ALU connections
-	wire [2:0] a_op;   // ALU operation
-	wire a_op2;        // Secondary operation (subtraction/shifts)
-	reg  [31:0] a_x;   // First operand
-	reg  [31:0] a_y;   // Second operand
-	wire [31:0] a_res; // Result of ALU operation
-	logic [31:0] res;  // Final result to be saved to register
-	wire a_ysel;       // Source of the second operand, immediate or register
-	wire a_zero;       // Whether the result of the ALU op was 0 or not
+	wire [2:0] a_op;          // ALU operation
+	wire a_op2;               // Secondary operation (subtraction/shifts)
+	reg  [31:0] a_x;          // First operand
+	reg  [31:0] a_y;          // Second operand
+	wire [31:0] a_res;        // Result of ALU operation
+	wire a_ysel;              // Source of the second operand, immediate or register
+	wire a_zero;              // Whether the result of the ALU op was 0 or not
 	assign o_addr = a_res;
 	ALU alu(a_op, a_op2, a_x, a_y, a_res, a_zero);
 
 `ifdef EXTM
 	wire [31:0] m_res;
 	MALU malu(.i_op(a_op), .i_x(a_x), .i_y(a_y), .o_res(m_res));
-	always_comb begin
-		case(i_inst[31:25]) // Select which ALU to load from
-			7'b0000001: res = m_res;
-			default:    res = a_res;
-		endcase
-	end
 `endif
 
 	reg  jmp;
@@ -107,7 +100,16 @@ module CPU(
 				default: r_wdata = 32'b0;                          // Load 0 by default (there needs to be a default)
 			endcase
 		else // Load the ALU result otherwise
-			r_wdata = res;
+`ifdef EXTM
+			if(i_inst[6:2] == 5'b01100) begin
+				case(i_inst[31:25]) // Select which ALU to load from
+					7'b0000001: r_wdata = m_res;
+					default:    r_wdata = a_res;
+				endcase
+			end
+			else
+`endif
+			r_wdata = a_res;
 
 		// Memory output, sets memsize to the appropriate value for the amount to be stored:
 		// 01 for 8 bits, 10 for 16 bits, 11 for 32 bits, and 00 for no store.

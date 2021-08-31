@@ -14,6 +14,7 @@ DEBUGFLAGS   := -g
 else
 DEBUGFLAGS   :=
 endif
+VERILATORDEFINES := -DEXTI -DEXTM
 
 .PHONY: all test debug clean
 
@@ -43,10 +44,10 @@ alutest: obj_dir/VALU.h ALUtest.cpp
 
 obj_dir/VCPU.h obj_dir/VCPU__ALL.o: CPU.sv control_unit.sv registers.sv ALU.sv MALU.sv
 ifeq ($(TEST), 1)
-	verilator $(OPTIMIZATION) -DEXTM -cc CPU.sv
+	verilator $(OPTIMIZATION) -CFLAGS "-g" $(VERILATORDEFINES) -cc CPU.sv
 	cd obj_dir && make -f VCPU.mk
 else
-	verilator -Wall $(OPTIMIZATION) -DEXTM -cc CPU.sv
+	verilator -Wall $(OPTIMIZATION) $(VERILATORDEFINES) -cc CPU.sv
 	cd obj_dir && make -f VCPU.mk
 endif
 
@@ -65,7 +66,7 @@ $(OUTPUT): $(GUIOBJ) verilated.o obj_dir/VCPU__ALL.o
 	@ $(COMPILER) $^ -o $@ $(DEPLIBS)
 
 CPU_sim: obj_dir/VCPU.h CPU_sim.cpp verilated.o
-	$(COMPILER) $(CPPFLAGS) -Wall -pthread -Dcimg_display=1 -Iobj_dir $(shell pkg-config --cflags verilator) CPU_sim.cpp verilated.o obj_dir/VCPU__ALL.o $(shell pkg-config --libs x11) -o CPU_sim
+	$(COMPILER) $(CPPFLAGS) $(DEBUGFLAGS) -Wall -pthread -Dcimg_display=1 -Iobj_dir $(shell pkg-config --cflags verilator) CPU_sim.cpp verilated.o obj_dir/VCPU__ALL.o $(shell pkg-config --libs x11) -o CPU_sim
 
 DEPFILE  := .dep
 DEPTOKEN := "\# MAKEDEPENDS"
