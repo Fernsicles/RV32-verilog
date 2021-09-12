@@ -1,6 +1,7 @@
 TEST         := 1
 COMPILER     ?= g++
 OPTIMIZATION ?= -O3
+VERILATOROPT ?= -O3
 CPPFLAGS     ?= -std=c++17 $(OPTIMIZATION) -Iobj_dir -IELFIO
 GUISRC       := $(shell find gui -name \*.cpp) gui/resources.cpp
 GUIOBJ       := $(GUISRC:.cpp=.o)
@@ -44,14 +45,17 @@ alutest: obj_dir/VALU.h ALUtest.cpp
 
 obj_dir/VCPU.h obj_dir/VCPU__ALL.o: CPU.sv control_unit.sv registers.sv ALU.sv MALU.sv
 ifeq ($(TEST), 1)
-	verilator $(OPTIMIZATION) -CFLAGS "-g" $(VERILATORDEFINES) -cc CPU.sv
+	verilator $(VERILATOROPT) -CFLAGS "-g" --trace $(VERILATORDEFINES) -cc CPU.sv
 	cd obj_dir && make -f VCPU.mk
 else
-	verilator -Wall $(OPTIMIZATION) $(VERILATORDEFINES) -cc CPU.sv
+	verilator -Wall $(VERILATOROPT) --trace $(VERILATORDEFINES) -cc CPU.sv
 	cd obj_dir && make -f VCPU.mk
 endif
 
 verilated.o: /usr/share/verilator/include/verilated.cpp
+	$(COMPILER) $(DEBUGFLAGS) $(CPPFLAGS) -c $< -o $@
+
+verilated_vcd_c.o: /usr/share/verilator/include/verilated_vcd_c.cpp
 	$(COMPILER) $(DEBUGFLAGS) $(CPPFLAGS) -c $< -o $@
 
 gui/%.o: gui/%.cpp obj_dir/VCPU.h
@@ -61,7 +65,7 @@ gui/%.o: gui/%.cpp obj_dir/VCPU.h
 gui/resources.cpp: rvgui.gresource.xml $(shell $(GLIB_COMPILE_RESOURCES) --sourcedir=resources --generate-dependencies rvgui.gresource.xml)
 	$(GLIB_COMPILE_RESOURCES) --target=$@ --sourcedir=resources --generate-source $<
 
-$(OUTPUT): $(GUIOBJ) verilated.o obj_dir/VCPU__ALL.o
+$(OUTPUT): $(GUIOBJ) verilated.o verilated_vcd_c.o obj_dir/VCPU__ALL.o
 	@ printf "\e[2m[\e[22;36mld\e[39;2m]\e[22m $@\n"
 	@ $(COMPILER) $^ -o $@ $(DEPLIBS)
 

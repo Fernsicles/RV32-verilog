@@ -195,6 +195,7 @@ namespace RVGUI {
 							keyPause = true;
 						case CPU::TickResult::Finished:
 							playing = false;
+							cpu->trace->close();
 							break;
 					}
 			} catch (const std::exception &err) {

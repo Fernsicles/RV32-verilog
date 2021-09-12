@@ -7,6 +7,7 @@
 #include <mutex>
 #include <string>
 #include <verilated.h>
+#include <verilated_vcd_c.h>
 
 #include "Defs.h"
 #include "VCPU.h"
@@ -68,6 +69,7 @@ namespace RVGUI {
 			const Options & getOptions() const { return options; }
 			uint8_t * getFramebuffer() const { return framebuffer.get(); }
 			size_t getCount() const { return count; }
+			VerilatedVcdC* trace;
 
 			inline std::unique_lock<std::mutex> lockCPU() {
 				return useLock? std::unique_lock(mutex) : std::unique_lock<std::mutex>();

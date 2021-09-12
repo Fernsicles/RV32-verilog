@@ -134,8 +134,13 @@ namespace RVGUI {
 		}
 
 		vcpu->eval();
+
+		trace->dump(count * 2);
+
 		vcpu->i_clk = 1;
 		vcpu->eval();
+
+		trace->dump(count * 2 + 1);
 
 		uint8_t *pointer;
 		Word address;
@@ -328,6 +333,7 @@ namespace RVGUI {
 		initFramebuffer(3);
 		loadProgram();
 		loadData();
+		Verilated::traceEverOn(true);
 		initVCPU();
 		setPC(textOffset);
 	}
@@ -350,6 +356,9 @@ namespace RVGUI {
 			throw std::runtime_error("CPU instructions array isn't initialized");
 
 		vcpu = std::make_unique<VCPU>();
+		trace = new VerilatedVcdC;
+		vcpu->trace(trace, 1);
+		trace->open("test.vcd");
 		vcpu->i_clk = 0;
 		vcpu->i_inst = 0x6f;
 		vcpu->i_daddr = 0x2;
