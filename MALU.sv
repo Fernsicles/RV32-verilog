@@ -1,19 +1,21 @@
+`default_nettype none
+
 module MALU(
-    input  [2:0]  i_op,
-    input  [31:0] i_x,
-    input  [31:0] i_y,
-    output logic [31:0] o_res
+    input  var logic [2:0]  i_op,
+    input  var logic [31:0] i_x,
+    input  var logic [31:0] i_y,
+    output var logic [31:0] o_res
 );
 
-wire [63:0] x = fx(i_op, i_x, i_y);
-wire [63:0] y = fy(i_op, i_x, i_y);
-wire [63:0] prod = x * y;
-wire [31:0] quotient = x[31:0] / y[31:0];
-wire [31:0] remainder = x[31:0] % y[31:0];
+logic [63:0] x = fx(i_op, i_x, i_y);
+logic [63:0] y = fy(i_op, i_x, i_y);
+logic [63:0] prod = x * y;
+logic [31:0] quotient = x[31:0] / y[31:0];
+logic [31:0] remainder = x[31:0] % y[31:0];
 
 assign o_res = res(i_op, i_x, i_y, prod, quotient, remainder);
 
-function [63:0] fx(
+function automatic [63:0] fx(
     input [2:0]  i_op,
     input [31:0] i_x,
     input [31:0] i_y
@@ -33,7 +35,7 @@ function [63:0] fx(
     endcase
 endfunction
 
-function [63:0] fy(
+function automatic [63:0] fy(
     input [2:0]  i_op,
     input [31:0] i_x,
     input [31:0] i_y
@@ -53,7 +55,7 @@ function [63:0] fy(
     endcase
 endfunction
 
-function [31:0] res(
+function automatic [31:0] res(
     input [2:0]  i_op,
     input [31:0] i_x,
     input [31:0] i_y,
@@ -67,32 +69,36 @@ function [31:0] res(
         3'b010,                    // MULHSU
         3'b011: res = prod[63:32]; // MULHU
         3'b100: begin              // DIV
-            if(i_y == 32'b0)
+            if(i_y == 32'b0) begin
                 res = -32'h1;
-            else if(i_x == 32'h80000000 && i_y == -32'b1)
+            end else if(i_x == 32'h80000000 && i_y == -32'b1) begin
                 res = -32'b1 << 31;
-            else
+            end else begin
                 res = quotient;
+            end
         end
         3'b101: begin              // DIVU
-            if(i_y == 32'b0)
+            if(i_y == 32'b0) begin
                 res = -32'h1;
-            else
+            end else begin
                 res = quotient;
+            end
         end
         3'b110: begin              // REM
-            if(i_y == 32'b0)
+            if(i_y == 32'b0) begin
                 res = i_x;
-            else if(i_x == 32'h80000000 && i_y == -32'b1)
+            end else if(i_x == 32'h80000000 && i_y == -32'b1) begin
                 res = 32'b0;
-            else
+            end else begin
                 res = remainder;
+            end
         end
         3'b111: begin              // REMU
-            if(i_y == 32'b0)
+            if(i_y == 32'b0) begin
                 res = i_x;
-            else
+            end else begin
                 res = remainder;
+            end
         end
         default: res = 32'b0;
     endcase
