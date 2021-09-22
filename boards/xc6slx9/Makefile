@@ -23,4 +23,4 @@ build/:
 	mkdir build
 
 clean:
-	zsh --extendedglob -c "rm ^(*.(sv|ucf|cpp)|makefile)"
+	rm -rf build
